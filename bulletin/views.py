@@ -1,3 +1,5 @@
 from django.shortcuts import render
 
-# Create your views here.
+def home(request):
+    context = {}
+    return render(request, 'bulletin/templates/bulletin/home.html', context)

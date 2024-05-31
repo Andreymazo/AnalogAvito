@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 
 
 MAX_LEN_CODE = 5
+COUNT_ATTEMPTS = 3
 
 
 class CustomUser(AbstractUser):
@@ -42,6 +43,10 @@ class OneTimeCode(models.Model):
     code = models.CharField(
         _("Одноразовый код"),
         max_length=MAX_LEN_CODE
+    )
+    remaining_attempts = models.PositiveSmallIntegerField(
+        _("Оставшиеся попытки"),
+        default=COUNT_ATTEMPTS
     )
     is_verified = models.BooleanField(
         _("Код подтвержден"),

@@ -1,7 +1,7 @@
 from django.urls import include, path
 
 from bulletin.apps import BulletinConfig
-from bulletin.views import confirm_code_view, home, login, login_view, logout_view, verify_code
+from bulletin.views import confirm_code, home, login_view, verify_code
 
 
 app_name = BulletinConfig.name
@@ -12,8 +12,7 @@ urlpatterns = [
     path('', home, name='home'),
 
     path("login/", login_view, name="login"),
-    path("logout/", logout_view, name="logout"),
-    path("confirm_code/", confirm_code_view, name="confirm_code"),
+    path("confirm_code/<int:user_id>/", confirm_code, name="confirm_code"),
 
     # path(r'auth/', include('djoser.urls')),
 

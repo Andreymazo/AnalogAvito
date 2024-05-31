@@ -12,12 +12,15 @@ def get_random_code():
     return "".join(random.sample("0123456789", LEN_CODE))
 
 
-def send_code_by_email(email):
+def send_code_by_email(email, code):
     """Функция отправляет код на электронную почту."""
+    message = f"Код: {code}"
     send_mail(
         subject="Временный код доступа",
-        message=f"Код: {get_random_code()}",
+        message=message,
         from_email=settings.EMAIL_HOST_USER,
         recipient_list=[email],
         fail_silently=False,
     )
+
+    return message

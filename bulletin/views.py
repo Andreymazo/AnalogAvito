@@ -24,17 +24,18 @@ def home(request):
 
 
 @api_view(["POST", "GET"])
-def login_view(request):
+def log_in(request):
     """Вход по одноразовому коду."""
     # if request.method == 'GET':
     #         serializer = LoginSerializer()
     #         return Response({
     #            'data':serializer.data,
     #          })
-    serializer = LoginSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
 
     if request.method == "POST":
+        serializer = LoginSerializer(data=request.data, context=request)
+        serializer.is_valid(raise_exception=True)
+        # serializer.save()
         email = serializer.validated_data["email"]
 
         # print(f"HTTP_COOKIE: {request.META.get("HTTP_COOKIE")}")
@@ -48,7 +49,6 @@ def login_view(request):
 
         if user.is_banned:
             ban_time = datetime.now(timezone.utc) - user.banned_at
-            print(ban_time)
             if ban_time < timedelta(seconds=TIME_BAN):
 
                 # hours, minutes, seconds = timedelta_to_hms(ban_time)
@@ -71,7 +71,7 @@ def login_view(request):
                 "user_id": user.id,
             }
         ))
-    return Response(status=status.HTTP_400_BAD_REQUEST)
+    return Response(status=status.HTTP_200_OK)
     # return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -105,14 +105,14 @@ def confirm_code(request, **kwargs):
         otc.delete()
         if user.is_first:
             return redirect(reverse(
-                "bulletin:personal_info",
+                "bulletin:sign_up",
                 kwargs={"user_id": user_id}
             ))
 
         login(request, user)
         return redirect("bulletin:home")
 
-    if otc.remaining_attempts != 0:
+    if otc.remaining_attempts != 1:
         otc.remaining_attempts -= 1
         otc.save()
         return Response(
@@ -134,7 +134,7 @@ def confirm_code(request, **kwargs):
 
 
 @api_view(["POST", "GET"])
-def personal_info(request, **kwargs):
+def sign_up(request, **kwargs):
     """Ввод персональных данных."""
     serializer = PersonalInfoSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
@@ -156,13 +156,13 @@ def personal_info(request, **kwargs):
 
 
 @api_view(["POST", "GET"])
-def logout_view(request):
+def log_out(request):
     """Выход из учетной записи пользователя."""
     logout(request)
     reffer = request.META.get("HTTP_REFERER")
     if reffer:
         return redirect(reffer)
-    return redirect(reverse("bulletin:login"))
+    return redirect(reverse("bulletin:log_in"))
 
     # print(cache.get("user"))
     # if request.method == "POST":

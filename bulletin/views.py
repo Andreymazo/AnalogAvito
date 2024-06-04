@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta, timezone
 
-from django.conf import settings
+# from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.core.cache import cache
 from django.shortcuts import redirect, render, reverse
@@ -15,6 +15,7 @@ from users.models import CustomUser, OneTimeCode
 
 
 TIME_BAN = 24 * 60 * 60
+TIME_OTC = 1800
 
 
 def home(request):
@@ -45,16 +46,18 @@ def login_view(request):
         except CustomUser.DoesNotExist:
             user = CustomUser.objects.create(username=email, email=email)
 
-        # if user.is_banned:
-        #     ban_time = datetime.now(timezone.utc) - user.banned_at
-        #     if ban_time < timedelta(seconds=TIME_BAN):
-        #         return Response(
-        #             {"error": ("Вы забанены на 24 часа. "
-        #                        f"Осталось: {ban_time}.")}
-        #         )
+        if user.is_banned:
+            ban_time = datetime.now(timezone.utc) - user.banned_at
+            print(ban_time)
+            if ban_time < timedelta(seconds=TIME_BAN):
 
-        #     user.is_banned = False
-        #     user.save()
+                # hours, minutes, seconds = timedelta_to_hms(ban_time)
+                return Response(
+                    {"error": f"Вы забанены на 24 часа. Осталось: {ban_time}"}
+                )
+
+            user.is_banned = False
+            user.save()
 
         code = get_random_code()
         # send_code_by_email(email, code)
@@ -89,7 +92,9 @@ def confirm_code(request, **kwargs):
     # print(datetime.now(timezone.utc))
     # print(timedelta(seconds=settings.OTC_TIME))
     # timedelta(0, settings.OTC_TIME, 0)
-    if datetime.now(timezone.utc) - otc.updated_at > timedelta(seconds=settings.OTC_TIME):
+    if datetime.now(timezone.utc) - otc.updated_at > timedelta(
+        seconds=TIME_OTC
+    ):
         otc.delete()
         return Response(
             {"error": "Срок действия одноразового кода истек."},
@@ -118,9 +123,10 @@ def confirm_code(request, **kwargs):
             status=status.HTTP_400_BAD_REQUEST
         )
 
-    # user.banned_at = datetime.now(timezone.utc)
-    # user.save()
-# Иначе бан на 24 часа сделать
+    user.banned_at = datetime.now(timezone.utc)
+    user.is_banned = True
+    user.save()
+
     return Response(
         {"error": "Вы забанены на 24 часа за 3 неудачные попытки ввода кода."},
         status=status.HTTP_400_BAD_REQUEST

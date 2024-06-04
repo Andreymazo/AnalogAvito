@@ -13,5 +13,5 @@ class CustomUserAdmin(ModelAdmin):
 @register(OneTimeCode)
 class OneTimeCodeAdmin(ModelAdmin):
     list_display_links = ("id", "user",)
-    list_display = ("id", "user", "is_verified", "created_at")
+    list_display = ("id", "user", "created_at")
     search_fields = ("user",)

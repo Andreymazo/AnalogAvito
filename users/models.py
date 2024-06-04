@@ -22,7 +22,7 @@ class CustomUser(AbstractUser):
     )
     is_first = models.BooleanField(_("Первый вход"), default=True)
     is_banned = models.BooleanField(_("Бан"), default=False)
-    # banned_at = models.DateTimeField(_("Время бана"), default=None)
+    banned_at = models.DateTimeField(_("Время бана"), auto_now_add=True)
 
     class Meta:
         """Конфигурация модели пользователя."""
@@ -50,10 +50,10 @@ class OneTimeCode(models.Model):
         _("Оставшиеся попытки"),
         default=COUNT_ATTEMPTS
     )
-    is_verified = models.BooleanField(
-        _("Код подтвержден"),
-        default=False
-    )
+    # is_verified = models.BooleanField(
+    #     _("Код подтвержден"),
+    #     default=False
+    # )
     updated_at = models.DateTimeField(
         _("Время обновления кода"),
         auto_now=True

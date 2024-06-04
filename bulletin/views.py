@@ -164,40 +164,6 @@ def log_out(request):
         return redirect(reffer)
     return redirect(reverse("bulletin:log_in"))
 
-    # print(cache.get("user"))
-    # if request.method == "POST":
-    #     # user_id = request.session["user_id"]
-    #     user = cache.get("user")
-    #     serializer = OneTimeCodeSerializer(data=request.data)
-    #     serializer.is_valid(raise_exception=True)
-    #
-    #     print(user)
-    #     user_code = OneTimeCode.objects.get(user=user)
-    #     if serializer.validated_data["code"] == user_code:
-    #         return redirect("bulletin:home")
-    #     return Response(status=status.HTTP_400_BAD_REQUEST)
-    # return Response(status=status.HTTP_200_OK)
-
-
-# @api_view(["POST"])
-# def login(request):
-#     """Вход по одноразовому паролю."""
-#     # serializer = LoginSerializer(data=request.data)
-#     # serializer.is_valid(raise_exception=True)
-#     # email = serializer.validated_data["email"]
-#     # user, _ = CustomUser.objects.get_or_create(email=email)
-#     #
-#     # code = get_random_code()
-#     # # send_code_by_email(email, code)
-#     # # login(request, user)
-#     # print(code)
-#     # print(serializer.data)
-#     # print(request)
-#     # request.session["email"] = email
-#     # request.session["code"] = code
-#     # return redirect("bulletin:verify_code")
-#     # return Response(serializer.data, status=status.HTTP_200_OK)
-#     pass
 
 @api_view(["POST", "GET"])
 @permission_classes((permissions.IsAuthenticated,))

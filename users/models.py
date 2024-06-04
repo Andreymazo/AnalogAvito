@@ -2,7 +2,6 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-
 MAX_LEN_CODE = 5
 COUNT_ATTEMPTS = 3
 
@@ -21,6 +20,9 @@ class CustomUser(AbstractUser):
         unique=True,
         help_text=_("Введите email, не более 254 символов"),
     )
+    is_first = models.BooleanField(_("Первый вход"), default=True)
+    is_banned = models.BooleanField(_("Бан"), default=False)
+    # banned_at = models.DateTimeField(_("Время бана"), default=None)
 
     class Meta:
         """Конфигурация модели пользователя."""
@@ -52,7 +54,14 @@ class OneTimeCode(models.Model):
         _("Код подтвержден"),
         default=False
     )
-    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(
+        _("Время обновления кода"),
+        auto_now=True
+    )
+    created_at = models.DateTimeField(
+        _("Время создания кода"),
+        auto_now_add=True
+    )
 
     class Meta:
         """Конфигурация модели одноразового кода."""
@@ -63,3 +72,10 @@ class OneTimeCode(models.Model):
     def __str__(self):
         """Строковое представление одноразового кода."""
         return f"Код для {self.user}"
+
+
+# class SessionCustomuser(models.Model):
+#     """Модель сессии пользователя."""
+#     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+#     updated_at = models.DateTimeField(auto_now=True)
+#     created_at = models.DateTimeField(auto_now_add=True)

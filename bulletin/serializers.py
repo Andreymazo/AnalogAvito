@@ -39,3 +39,18 @@ class OneTimeCodeSerializer(serializers.ModelSerializer):
         """Конфигурация сериализатора для одноразового кода."""
         model = OneTimeCode
         fields = ("code",)
+
+
+class PersonalInfoSerializer(serializers.ModelSerializer):
+    """Сериализатор для ввода персональных данных."""
+
+    class Meta:
+        """Конфигурация сериализатора для ввода персональных данных."""
+        model = CustomUser
+        fields = (
+            "username",
+            "first_name",
+            "last_name",
+            # "phone_number",
+            "info"
+        )

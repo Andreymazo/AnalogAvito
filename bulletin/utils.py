@@ -29,6 +29,7 @@ def send_code_by_email(email, code):
 
 def create_otc(user):
     """Создать код."""
+    print("create_otc")
     code = get_random_code()
     email = user.email
     print(code)  # for test
@@ -38,3 +39,28 @@ def create_otc(user):
     otc.save()
 
     return otc
+
+
+# def ee():
+#     """Проверка, забанен ли пользователь."""
+#     email = request.session["email"]
+#     print(email)  # for test
+#     user = CustomUser.objects.get(email=email)
+
+#     if user.is_banned:
+#         ban_time = datetime.now(timezone.utc) - user.banned_at
+#         if ban_time < timedelta(seconds=TIME_BAN):
+#             formatted_ban_time = ":".join(str(ban_time).split(":")[:2])
+#             return Response(
+#                 {"error": (f"Вы забанены на 24 часа. "
+#                            f"Осталось {formatted_ban_time}")}
+#             )
+
+#         user.is_banned = False
+#         user.save()
+#         print(f"Пользователь {user} разбанен по истечении времени.")  # for test
+
+    # try:
+    #     otc = OneTimeCode.objects.get(user=user)
+    # except OneTimeCode.DoesNotExist:
+    #     otc = create_otc(user)

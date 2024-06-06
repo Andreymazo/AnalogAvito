@@ -3,7 +3,7 @@ from rest_framework import serializers
 from users.models import CustomUser, MAX_LEN_CODE, OneTimeCode
 
 
-class LoginSerializer(serializers.ModelSerializer):
+class CustomUserLoginSerializer(serializers.ModelSerializer):
     """Сериализатор для входа по одноразовому коду."""
     email = serializers.EmailField(max_length=254)
 
@@ -11,24 +11,25 @@ class LoginSerializer(serializers.ModelSerializer):
         """Конфигурация сериализатора для входа по одноразовому коду."""
         model = CustomUser
         fields = ("email",)
+        write_only_fields = ("username",)
         # read_only_fields = ("username",)
 
 
-class UserRegistrationSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели пользователя."""
+# class UserRegistrationSerializer(serializers.ModelSerializer):
+#     """Сериализатор для модели пользователя."""
 
-    class Meta:
-        """Конфигурация сериализатора для пользователя."""
-        model = CustomUser
-        fields = ("email", "password")
-        extra_kwargs = {"password": {"write_only": True}}
+#     class Meta:
+#         """Конфигурация сериализатора для пользователя."""
+#         model = CustomUser
+#         fields = ("email", "password")
+#         extra_kwargs = {"password": {"write_only": True}}
 
-    def create(self, validated_data):
-        """Создание пароля."""
-        user = CustomUser(email=validated_data["email"])
-        user.set_password(validated_data["password"])
-        user.save()
-        return user
+#     def create(self, validated_data):
+#         """Создание пароля."""
+#         user = CustomUser(email=validated_data["email"])
+#         user.set_password(validated_data["password"])
+#         user.save()
+#         return user
 
 
 class OneTimeCodeSerializer(serializers.ModelSerializer):

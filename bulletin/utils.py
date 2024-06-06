@@ -3,6 +3,8 @@ import random
 from django.conf import settings
 from django.core.mail import send_mail
 
+from users.models import OneTimeCode
+
 LEN_CODE = 5
 
 
@@ -23,3 +25,16 @@ def send_code_by_email(email, code):
     )
 
     return message
+
+
+def create_otc(user):
+    """Создать код."""
+    code = get_random_code()
+    email = user.email
+    print(code)  # for test
+    # send_code_by_email(email, code)
+    otc, _ = OneTimeCode.objects.get_or_create(user=user)
+    otc.code = code
+    otc.save()
+
+    return otc

@@ -329,6 +329,6 @@ DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")
 # SESSION_SAVE_EVERY_REQUEST = True  # "False" by default
 SESSION_EXPIRE_SECONDS = 1800  # Expire after 30 minutes
 SESSION_EXPIRE_AFTER_LAST_ACTIVITY = True
-SESSION_TIMEOUT_REDIRECT = "bulletin:login"  # Add your URL
+SESSION_TIMEOUT_REDIRECT = "bulletin:log_in"  # Add your URL
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Invalid session
 >>>>>>> origin/develop

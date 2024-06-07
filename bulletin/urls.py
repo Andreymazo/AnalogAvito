@@ -7,7 +7,7 @@ from bulletin.views import (confirm_code, get_new_code, home, log_in, log_out,
 app_name = BulletinConfig.name
 
 url_v1 = [
-    # path("verify_code/", verify_code, name="verify_code"),
+    path("verify_code/", verify_code, name="verify_code"),
     path("log_in/", log_in, name="log_in"),
     path("log_out/", log_out, name="log_out"),
     path("create_profile/", create_profile, name="create_profile"),

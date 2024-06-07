@@ -47,7 +47,7 @@ class OneTimeCode(models.Model):
         _("Одноразовый код"),
         max_length=MAX_LEN_CODE
     )
-    remaining_attempts = models.PositiveSmallIntegerField(
+    count_attempts = models.PositiveSmallIntegerField(
         _("Оставшиеся попытки"),
         default=COUNT_ATTEMPTS
     )

@@ -1,11 +1,14 @@
 from datetime import datetime, timedelta, timezone
-
-# from django.conf import settings
-from django.contrib.auth import login, logout
+from django.contrib.auth import authenticate, login, logout
+from django.core.cache import cache
 from django.shortcuts import redirect, render, reverse
 from rest_framework import permissions, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
+from bulletin.serializers import (LoginSerializer, OneTimeCodeSerializer,
+                                  PersonalInfoSerializer)
+from bulletin.utils import get_random_code, send_code_by_email
+from users.models import CustomUser, OneTimeCode
 from users.models import COUNT_ATTEMPTS, CustomUser, OneTimeCode
 
 from bulletin.serializers import (CreateProfileSerializer,
@@ -120,6 +123,20 @@ def create_profile(request):
         login(request, user)
         return redirect(reverse("bulletin:home"))
 
+        code = get_random_code()
+        # send_code_by_email(email, code)
+        otc, _ = OneTimeCode.objects.get_or_create(user=user)
+        otc.code = code
+        otc.save()
+        return Response(status=status.HTTP_200_OK) # Оставляем для фронта закомментированный код: куда что и с чем перенаправлять
+        # return redirect(reverse(
+        #     "bulletin:confirm_code",
+        #     kwargs={
+        #         "user_id": user.id,
+        #     }
+        # ))
+    return Response(status=status.HTTP_200_OK)
+    # return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(["GET", "POST"])
 def log_in(request):
@@ -129,6 +146,7 @@ def log_in(request):
         return Response({
             "data": serializer.data,
         })
+
 
     if request.method == "POST":
         serializer = CustomUserLoginSerializer(data=request.data)
@@ -191,6 +209,18 @@ def confirm_code(request):
             "data": serializer.data,
         })
 
+    if otc.code == email_code:
+        otc.delete()
+        if user.is_first:# отдельное булевое поле, чтобы узнать впервый раз входит или нет, необязательно. Если емейла нет в списке емэйлов, то он впервые, так просто, надежно и база не грузится
+            return Response(status=status.HTTP_200_OK) 
+            # return redirect(reverse(
+            #     "bulletin:sign_up",
+            #     kwargs={"user_id": user_id}
+            # ))
+
+        login(request, user)
+        return Response(status=status.HTTP_200_OK) 
+        # return redirect("bulletin:home")
     if request.method == "POST":
         email = request.session["email"]
         # Забираем пользователя вместе с его кодом
@@ -277,6 +307,23 @@ def get_new_code(request):
     return redirect(reverse("bulletin:confirm_code"))
 
 
+        user.save()
+        login(request, user)
+        return Response(status=status.HTTP_200_OK) 
+        # return redirect("bulletin:home")
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(["POST", "GET"])
+def log_out(request):
+    """Выход из учетной записи пользователя."""
+    logout(request)
+    reffer = request.META.get("HTTP_REFERER")
+    # if reffer:
+    #     return redirect(reffer)
+    # return redirect(reverse("bulletin:log_in"))
+    return Response(status=status.HTTP_200_OK) 
+  
 @api_view(["POST"])
 def log_out(request):
     """Выход из учетной записи пользователя."""

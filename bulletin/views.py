@@ -1,13 +1,10 @@
 from datetime import datetime, timedelta, timezone
-
-# from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.core.cache import cache
 from django.shortcuts import redirect, render, reverse
 from rest_framework import status, permissions
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-
 from bulletin.serializers import (LoginSerializer, OneTimeCodeSerializer,
                                   PersonalInfoSerializer)
 from bulletin.utils import get_random_code, send_code_by_email
@@ -64,13 +61,13 @@ def log_in(request):
         otc, _ = OneTimeCode.objects.get_or_create(user=user)
         otc.code = code
         otc.save()
-
-        return redirect(reverse(
-            "bulletin:confirm_code",
-            kwargs={
-                "user_id": user.id,
-            }
-        ))
+        return Response(status=status.HTTP_200_OK) # Оставляем для фронта закомментированный код: куда что и с чем перенаправлять
+        # return redirect(reverse(
+        #     "bulletin:confirm_code",
+        #     kwargs={
+        #         "user_id": user.id,
+        #     }
+        # ))
     return Response(status=status.HTTP_200_OK)
     # return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -103,14 +100,16 @@ def confirm_code(request, **kwargs):
 
     if otc.code == email_code:
         otc.delete()
-        if user.is_first:
-            return redirect(reverse(
-                "bulletin:sign_up",
-                kwargs={"user_id": user_id}
-            ))
+        if user.is_first:# отдельное булевое поле, чтобы узнать впервый раз входит или нет, необязательно. Если емейла нет в списке емэйлов, то он впервые, так просто, надежно и база не грузится
+            return Response(status=status.HTTP_200_OK) 
+            # return redirect(reverse(
+            #     "bulletin:sign_up",
+            #     kwargs={"user_id": user_id}
+            # ))
 
         login(request, user)
-        return redirect("bulletin:home")
+        return Response(status=status.HTTP_200_OK) 
+        # return redirect("bulletin:home")
 
     if otc.remaining_attempts != 1:
         otc.remaining_attempts -= 1
@@ -151,7 +150,8 @@ def sign_up(request, **kwargs):
 
         user.save()
         login(request, user)
-        return redirect("bulletin:home")
+        return Response(status=status.HTTP_200_OK) 
+        # return redirect("bulletin:home")
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -160,9 +160,10 @@ def log_out(request):
     """Выход из учетной записи пользователя."""
     logout(request)
     reffer = request.META.get("HTTP_REFERER")
-    if reffer:
-        return redirect(reffer)
-    return redirect(reverse("bulletin:log_in"))
+    # if reffer:
+    #     return redirect(reffer)
+    # return redirect(reverse("bulletin:log_in"))
+    return Response(status=status.HTTP_200_OK) 
 
 
 @api_view(["POST", "GET"])

@@ -1,20 +1,20 @@
 from datetime import datetime, timedelta, timezone
 
 # from django.conf import settings
-from django.contrib.auth import authenticate, login, logout
-from django.core.cache import cache
+from django.contrib.auth import login, logout
 from django.shortcuts import redirect, render, reverse
-from rest_framework import status, permissions
+from rest_framework import permissions, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
+from users.models import COUNT_ATTEMPTS, CustomUser, OneTimeCode
 
-from bulletin.serializers import (CustomUserLoginSerializer,
-                                  OneTimeCodeSerializer,
-                                  CreateProfileSerializer)
-from bulletin.utils import check_ban, reset_attempts, get_random_code, send_code_by_email
-from users.models import CustomUser, OneTimeCode, COUNT_ATTEMPTS
+from bulletin.serializers import (CreateProfileSerializer,
+                                  CustomUserLoginSerializer,
+                                  OneTimeCodeSerializer)
+from bulletin.utils import (check_ban, get_random_code, reset_attempts,
+                            send_code_by_email)
 
-TIME_OTC = 15 # 30 * 60  # Время жизни кода в секундах
+TIME_OTC = 30 * 60  # Время жизни кода в секундах
 
 
 def home(request):

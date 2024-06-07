@@ -1,9 +1,8 @@
-from datetime import datetime, timedelta, timezone
 import random
+from datetime import datetime, timedelta, timezone
 
 from django.conf import settings
 from django.core.mail import send_mail
-
 from users.models import COUNT_ATTEMPTS, OneTimeCode
 
 LEN_CODE = 5

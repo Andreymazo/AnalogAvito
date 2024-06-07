@@ -1,6 +1,5 @@
 from rest_framework import serializers
-
-from users.models import CustomUser, MAX_LEN_CODE, OneTimeCode
+from users.models import MAX_LEN_CODE, CustomUser, OneTimeCode
 
 
 class CustomUserLoginSerializer(serializers.ModelSerializer):

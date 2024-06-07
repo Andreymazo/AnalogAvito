@@ -1,8 +1,8 @@
 from django.urls import include, path
 
 from bulletin.apps import BulletinConfig
-from bulletin.views import (confirm_code, get_new_code, home, log_in, log_out,
-                            sign_up, verify_code, create_profile)
+from bulletin.views import (confirm_code, create_profile, get_new_code, home,
+                            log_in, log_out, sign_up, verify_code)
 
 app_name = BulletinConfig.name
 

@@ -40,14 +40,14 @@ class OneTimeCode(models.Model):
     user = models.OneToOneField(
         CustomUser,
         on_delete=models.CASCADE,
-        related_name="otc",
+        related_name="onetimecodes",
         verbose_name=_("Пользователь")
     )
     code = models.CharField(
         _("Одноразовый код"),
         max_length=MAX_LEN_CODE
     )
-    remaining_attempts = models.PositiveSmallIntegerField(
+    count_attempts = models.PositiveSmallIntegerField(
         _("Оставшиеся попытки"),
         default=COUNT_ATTEMPTS
     )

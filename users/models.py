@@ -20,9 +20,9 @@ class CustomUser(AbstractUser):
         unique=True,
         help_text=_("Введите email, не более 254 символов"),
     )
-    is_first = models.BooleanField(_("Первый вход"), default=True)
+    # is_first = models.BooleanField(_("Первый вход"), default=True)
     is_banned = models.BooleanField(_("Бан"), default=False)
-    banned_at = models.DateTimeField(_("Время бана"), auto_now_add=True)
+    changed_at = models.DateTimeField(_("Время изменения"), auto_now_add=True)
 
     class Meta:
         """Конфигурация модели пользователя."""
@@ -48,7 +48,7 @@ class OneTimeCode(models.Model):
         max_length=MAX_LEN_CODE
     )
     count_attempts = models.PositiveSmallIntegerField(
-        _("Оставшиеся попытки"),
+        _("Попытки"),
         default=COUNT_ATTEMPTS
     )
     # is_verified = models.BooleanField(
@@ -72,7 +72,7 @@ class OneTimeCode(models.Model):
 
     def __str__(self):
         """Строковое представление одноразового кода."""
-        return f"Код для {self.user}"
+        return f"Код для {self.user.email}"
 
 
 # class SessionCustomuser(models.Model):

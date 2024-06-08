@@ -35,6 +35,7 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django_session_timeout.middleware.SessionTimeoutMiddleware",
+    'django.middleware.locale.LocaleMiddleware',
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -133,7 +134,7 @@ STATICFILES_DIRS = ( os.path.join(BASE_DIR, 'config', 'static'), )
 #   pass
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-os.environ['DJANGO_SETTINGS_MODULE'] = 'configbulletin.settings'
+os.environ['DJANGO_SETTINGS_MODULE'] = 'config.settings'
 
 EMAIL_HOST = os.getenv("EMAIL_HOST")
 EMAIL_PORT = os.getenv("EMAIL_PORT")
@@ -153,3 +154,5 @@ SESSION_EXPIRE_SECONDS = 1800  # Expire after 30 minutes
 SESSION_EXPIRE_AFTER_LAST_ACTIVITY = True
 SESSION_TIMEOUT_REDIRECT = "bulletin:log_in"  # Add your URL
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Invalid session
+
+ATTEMPTS = 3 # Максимальное количество попыток ввести код

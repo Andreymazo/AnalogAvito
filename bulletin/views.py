@@ -5,44 +5,24 @@ from django.shortcuts import redirect, render, reverse
 from rest_framework import permissions, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from bulletin.serializers import (LoginSerializer, OneTimeCodeSerializer,
-                                  PersonalInfoSerializer)
-from bulletin.utils import get_random_code, send_code_by_email
+from bulletin.serializers import (OneTimeCodeSerializer)
+from config.settings import ATTEMPTS
 from users.models import CustomUser, OneTimeCode
 from users.models import COUNT_ATTEMPTS, CustomUser, OneTimeCode
 
 from bulletin.serializers import (CreateProfileSerializer,
                                   CustomUserLoginSerializer,
                                   OneTimeCodeSerializer)
-from bulletin.utils import (check_ban, get_random_code, reset_attempts,
-                            send_code_by_email)
+from bulletin.utils import (check_ban, check_remaining_attempts, create_code, get_random_code, if_user_first, reset_attempts,)
 
 TIME_OTC = 30 * 60  # Время жизни кода в секундах
-
 
 def home(request):
     context = {}
     return render(request, 'bulletin/templates/bulletin/home.html', context)
 
 
-def create_code(user):
-    """Создать одноразовый код."""
-    # Nado proverit est li cod libo update libo create
-    code = get_random_code()
-    email = user.email
-    print(code)  # for test
-    # send_code_by_email(email, code)
 
-    try:
-        otc = OneTimeCode.objects.get(user=user)
-        otc.code = code
-        # otc.count_attempts += 1
-        otc.save(update_fields=["code"])  # Поменяли только поле code, remaining_attempts
-    except OneTimeCode.DoesNotExist:
-        otc = OneTimeCode.objects.create(user=user, code=code)  # создали новый код пользователя
-        otc.save()
-
-    return otc
 
     # if user.onetimecodes:  # Обращаемся по обратному ключу onetimecodes, если код пользователя существует
     #     otc = OneTimeCode.objects.get(user=user)
@@ -120,8 +100,8 @@ def create_profile(request):
         serializer = CreateProfileSerializer(user, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save
-        login(request, user)
-        return redirect(reverse("bulletin:home"))
+        # login(request, user)
+        # return redirect(reverse("bulletin:home"))
 
         code = get_random_code()
         # send_code_by_email(email, code)
@@ -193,9 +173,11 @@ def log_in(request):
                 "error": (f"Вы забанены на 24 часа. "
                           f"Осталось {formatted_ban_time}")
             })
-
-        create_code(user)  # Либо создаем, либо меняем поле code в существующем коде пользователя и отправлям на confirm_code
+        email_code = create_code(user)  # Либо создаем, либо меняем поле code в существующем коде пользователя и отправлям на confirm_code
+        print("=========================email_code", email_code)
         request.session["email"] = email
+        request.session["email_code"] = email_code.code
+        # return Response(status=status.HTTP_200_OK) 
         return redirect(reverse("bulletin:confirm_code"))
 
 
@@ -205,93 +187,136 @@ def confirm_code(request):
     """Подтверждение кода."""
     if request.method == "GET":
         serializer = OneTimeCodeSerializer()
+        try:
+            email = request.session["email"]
+            email_code = request.session["email_code"]
+            print('email_code', email_code)
+        except email.DoesNotExist or email_code.DoesNotExist: # Прилетел как-то без емэйла и без кода, редиректим его обратно на логин
+            return redirect(reverse("bulletin:log_in"))
+        user = CustomUser.objects.get(email=email)
+        if not if_user_first(email) == True:# Если впервые зашел, перенаправим на регистрацию
+            redirect(reverse("bulletin:sign_up"))
+        otc = user.onetimecodes
+        
+        formatted_ban_time = check_ban(user)
+        if formatted_ban_time:
+            return Response({
+                "error": (f"Вы забанены на 24 часа. "
+                          f"Осталось {formatted_ban_time}")
+            })
         return Response({
             "data": serializer.data,
         })
-
-    if otc.code == email_code:
-        otc.delete()
-        if user.is_first:# отдельное булевое поле, чтобы узнать впервый раз входит или нет, необязательно. Если емейла нет в списке емэйлов, то он впервые, так просто, надежно и база не грузится
-            return Response(status=status.HTTP_200_OK) 
+    
+    
+    # if otc.code == email_code:
+        # otc.delete() Здесь не понял зачем удаляем? и зачем дальше узнаем 1 раз чел или нет? почему не логинем сразу?
+        # if user.is_first:# отдельное булевое поле, чтобы узнать впервый раз входит или нет, необязательно. Если емейла нет в списке емэйлов, то он впервые, так просто, надежно и база не грузится
+        #     return Response(status=status.HTTP_200_OK) 
             # return redirect(reverse(
             #     "bulletin:sign_up",
             #     kwargs={"user_id": user_id}
             # ))
 
-        login(request, user)
-        return Response(status=status.HTTP_200_OK) 
+        # login(request, user)
+        # return Response(status=status.HTTP_200_OK) 
         # return redirect("bulletin:home")
     if request.method == "POST":
-        email = request.session["email"]
-        # Забираем пользователя вместе с его кодом
-        user = CustomUser.objects.select_related(
-            "onetimecodes"
-        ).get(email=email)
+       
+        try:
+            email = request.session["email"]
+            email_code = request.session["email_code"]
+            print('email_code', email_code)
+        except email.DoesNotExist or email_code.DoesNotExist: # Прилетел как-то без емэйла и без кода, редиректим его обратно на логин
+            return redirect(reverse("bulletin:log_in"))
+        user = CustomUser.objects.get(email=email)
+        if not if_user_first(email) == True:# Если впервые зашел, перенаправим на регистрацию
+            redirect(reverse("bulletin:sign_up"))
+
+        formatted_ban_time = check_ban(user)
+        if formatted_ban_time:
+            return Response({
+                "error": (f"Вы забанены на 24 часа. "
+                          f"Осталось {formatted_ban_time}")
+            })
         otc = user.onetimecodes
+        if otc.count_attempts > ATTEMPTS:
+                user.is_banned = True
+                user.save()
+                attempts_passed = check_remaining_attempts(user)
+                return Response({
+                    "error": (f"Вы ввели неправильно {attempts_passed} раза "
+                              "Вы забанены на 24 часа")
+                })
+        
 
         serializer = OneTimeCodeSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        if serializer.is_valid(raise_exception=True):
 
-        email_code = serializer.validated_data["code"]
-        print(email_code)
+            email_code_value = serializer.validated_data["code"]
+            # Проверяем срок действия кода, если просрочен, то отправляем снова
+            if datetime.now(timezone.utc) - otc.updated_at > timedelta(
+                seconds=TIME_OTC
+            ):
+                # otc.delete()
+                create_code(user)  # Повторная отправка кода? 
+                otc.count_attempts += 1
+                otc.save()
+                # надо прибавлять 1 к попыткам ,чтобы все время не отправлять код, если чел просто оставил тут все как есть
+                return Response(
+                    {"error": "Время ожидания истекло"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
-        # Проверяем срок действия кода, если просрочен, то отправляем снова
-        if datetime.now(timezone.utc) - otc.updated_at > timedelta(
-            seconds=TIME_OTC
-        ):
-            # otc.delete()
-            create_code(user)  # Повторная отправка кода?
+            # Если код подходит, удаляем его из БД. Проверяем пользователя:
+            # если он впервые - отправляем заполнять данные, если нет - на главную
+            if otc.code == email_code_value:
+                otc.count_attempts += 1
+                otc.save()
+                # otc.delete()
+                # reffer = request.META.get("HTTP_REFERER")
+                # if reffer:
+                #     return redirect(reffer) -------- перенаправляет не так, как надо
+                #Проверка на то ,что юзер впервые только что была выше.
+                # if user.is_first:
+                #     user.is_first = False
+                #     user.save()
+                #     return redirect(reverse("bulletin:create_profile"))
+
+                login(request, user)
+                return redirect(reverse("bulletin:home"))
+
+            # Проверяем, нужен ли сброс попыток по времени (если скажут, что надо, то раскомментируем, но по-моему это лишнее пока)
+            # reset_attempts(otc)
+            otc.count_attempts += 1
+            ###################### Remove this block above
+            # if otc.count_attempts > ATTEMPTS:
+            #     user.is_banned = True
+            #     user.save()
+            #     attempts_passed = check_remaining_attempts()
+            #     return Response({
+            #         "error": (f"Вы ввели неправильно {attempts_passed} раза "
+            #                   "Вы забанены на 24 часа")
+            #     })
+            ################ Дальше не понял, зачем вычитаем попытки и сохраняем?
+            # otc.count_attempts -= 1
+            # otc.save()
+
+            # if otc.count_attempts != 0: Это условие тоже не понял, почему нам нужно знать равно или не равно нулю?
+            # otc.delete() зачем удалять?
+            # user.banned_at = datetime.now(timezone.utc) Поля auto_now_add, auto_now не надо прописывать, они подкапотом сами сохраняют 
+            # время. Я изменил названия полей у юзера, чтобы было нагляднее, не оязательно именно поле бана меняется, любое изменение будет учтено.
+               
+         
+
             return Response(
-                {"error": "Время ожидания истекло"},
-                status=status.HTTP_400_BAD_REQUEST
+                {
+                    "error": (f"Вы ввели код неправильно {attempts_passed} раза. "
+                            )
+                },
+                status=status.HTTP_200_OK
             )
-
-        # Если код подходит, удаляем его из БД. Проверяем пользователя:
-        # если он впервые - отправляем заполнять данные, если нет - на главную
-        if otc.code == email_code:
-            # otc.delete()
-            # reffer = request.META.get("HTTP_REFERER")
-            # if reffer:
-            #     return redirect(reffer) -------- перенаправляет не так, как надо
-            if user.is_first:
-                user.is_first = False
-                user.save()
-                return redirect(reverse("bulletin:create_profile"))
-
-            login(request, user)
-            return redirect(reverse("bulletin:home"))
-
-        # Проверяем, нужен ли сброс попыток по времени
-        reset_attempts(otc)
-
-        # if otc.count_attempts == 0:
-        #     user.is_banned = True
-        #     user.save()
-        #     return Response({
-        #         "error": (f"Вы ввели неправильно {attempts_passed} раза "
-        #                   "Вы забанены на 24 часа")
-        #     })
-
-        otc.count_attempts -= 1
-        otc.save()
-
-        if otc.count_attempts != 0:
-            return Response(
-                {"error": "Неверный код"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        # otc.delete()
-        user.banned_at = datetime.now(timezone.utc)
-        user.is_banned = True
-        user.save()
-
-        return Response(
-            {
-                "error": (f"Вы ввели код неправильно {COUNT_ATTEMPTS} раза. "
-                          "Вы забанены на 24 часа")
-            },
-            status=status.HTTP_400_BAD_REQUEST
-        )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])
@@ -304,14 +329,14 @@ def get_new_code(request):
         #     seconds=TIME_OTC
         # ):
         create_code(user)
-    return redirect(reverse("bulletin:confirm_code"))
+    # return redirect(reverse("bulletin:confirm_code"))
 
 
         user.save()
         login(request, user)
         return Response(status=status.HTTP_200_OK) 
         # return redirect("bulletin:home")
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(status=status.HTTP_200_OK)
 
 
 @api_view(["POST", "GET"])

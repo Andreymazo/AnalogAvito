@@ -175,7 +175,7 @@ def log_in(request):
                           f"Осталось {formatted_ban_time}")
             })
         email_code = create_code(user)  # Либо создаем, либо меняем поле code в существующем коде пользователя и отправлям на confirm_code
-        print("=========================email_code", email_code)
+        print("=========================email_code", email_code.code)
         request.session["email"] = email
         request.session["email_code"] = email_code.code
         return Response(status=status.HTTP_200_OK) 

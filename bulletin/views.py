@@ -183,45 +183,9 @@ def log_in(request):
 
 
 # добавить permission, если забанен - доступа нет
-@api_view(["GET", "POST"])
+@api_view(["POST"])
 def confirm_code(request):
     """Подтверждение кода."""
-    if request.method == "GET":
-        serializer = OneTimeCodeSerializer()
-        try:
-            email = request.session["email"]
-            email_code = request.session["email_code"]
-            print('email_code', email_code)
-        except email.DoesNotExist or email_code.DoesNotExist: # Прилетел как-то без емэйла и без кода, редиректим его обратно на логин
-            return redirect(reverse("bulletin:log_in"))
-        user = CustomUser.objects.get(email=email)
-        if not if_user_first(email) == True:# Если впервые зашел, перенаправим на регистрацию
-            redirect(reverse("bulletin:sign_up"))
-        otc = user.onetimecodes
-        
-        formatted_ban_time = check_ban(user)
-        if formatted_ban_time:
-            return Response({
-                "error": (f"Вы забанены на 24 часа. "
-                          f"Осталось {formatted_ban_time}")
-            })
-        return Response({
-            "data": serializer.data,
-        })
-    
-    
-    # if otc.code == email_code:
-        # otc.delete() Здесь не понял зачем удаляем? и зачем дальше узнаем 1 раз чел или нет? почему не логинем сразу?
-        # if user.is_first:# отдельное булевое поле, чтобы узнать впервый раз входит или нет, необязательно. Если емейла нет в списке емэйлов, то он впервые, так просто, надежно и база не грузится
-        #     return Response(status=status.HTTP_200_OK) 
-            # return redirect(reverse(
-            #     "bulletin:sign_up",
-            #     kwargs={"user_id": user_id}
-            # ))
-
-        # login(request, user)
-        # return Response(status=status.HTTP_200_OK) 
-        # return redirect("bulletin:home")
     if request.method == "POST":
        
         try:
@@ -251,7 +215,6 @@ def confirm_code(request):
                               "Вы забанены на 24 часа")
                 })
         
-
         serializer = OneTimeCodeSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
 
@@ -270,47 +233,15 @@ def confirm_code(request):
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-            # Если код подходит, удаляем его из БД. Проверяем пользователя:
+            # Если код подходит Проверяем пользователя:
             # если он впервые - отправляем заполнять данные, если нет - на главную
             if otc.code == email_code_value:
                 otc.count_attempts += 1
                 otc.save()
-                # otc.delete()
-                # reffer = request.META.get("HTTP_REFERER")
-                # if reffer:
-                #     return redirect(reffer) -------- перенаправляет не так, как надо
-                #Проверка на то ,что юзер впервые только что была выше.
-                # if user.is_first:
-                #     user.is_first = False
-                #     user.save()
-                #     return redirect(reverse("bulletin:create_profile"))
-
                 login(request, user)
                 return redirect(reverse("bulletin:home"))
 
-            # Проверяем, нужен ли сброс попыток по времени (если скажут, что надо, то раскомментируем, но по-моему это лишнее пока)
-            # reset_attempts(otc)
             otc.count_attempts += 1
-            ###################### Remove this block above
-            # if otc.count_attempts > ATTEMPTS:
-            #     user.is_banned = True
-            #     user.save()
-            #     attempts_passed = check_remaining_attempts()
-            #     return Response({
-            #         "error": (f"Вы ввели неправильно {attempts_passed} раза "
-            #                   "Вы забанены на 24 часа")
-            #     })
-            ################ Дальше не понял, зачем вычитаем попытки и сохраняем?
-            # otc.count_attempts -= 1
-            # otc.save()
-
-            # if otc.count_attempts != 0: Это условие тоже не понял, почему нам нужно знать равно или не равно нулю?
-            # otc.delete() зачем удалять?
-            # user.banned_at = datetime.now(timezone.utc) Поля auto_now_add, auto_now не надо прописывать, они подкапотом сами сохраняют 
-            # время. Я изменил названия полей у юзера, чтобы было нагляднее, не оязательно именно поле бана меняется, любое изменение будет учтено.
-               
-         
-
             return Response(
                 {
                     "error": (f"Вы ввели код неправильно {attempts_passed} раза. "

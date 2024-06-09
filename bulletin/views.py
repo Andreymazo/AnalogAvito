@@ -177,7 +177,7 @@ def log_in(request):
         email_code = create_code(user)  # Либо создаем, либо меняем поле code в существующем коде пользователя и отправлям на confirm_code
         print("=========================email_code", email_code.code)
         request.session["email"] = email
-        request.session["email_code"] = email_code.code
+        # request.session["email_code"] = email_code.code
         return Response(status=status.HTTP_200_OK) 
         # return redirect(reverse("bulletin:confirm_code"))
 
@@ -190,7 +190,9 @@ def confirm_code(request):
        
         try:
             email = request.session["email"]
-            email_code = request.session["email_code"]
+            user = CustomUser.objects.get(email=email)
+            # email_code = request.session["email_code"]
+            email_code = OneTimeCode.objects.get(user_id=user.id)
             print('email_code', email_code)
         except email.DoesNotExist or email_code.DoesNotExist: # Прилетел как-то без емэйла и без кода, редиректим его обратно на логин
             return redirect(reverse("bulletin:log_in"))

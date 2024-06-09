@@ -1,12 +1,11 @@
 import random
 from datetime import datetime, timedelta, timezone
-
 from django.conf import settings
 from django.core.mail import send_mail
-from users.models import COUNT_ATTEMPTS, OneTimeCode
+from config.settings import ATTEMPTS
+from users.models import COUNT_ATTEMPTS, CustomUser, OneTimeCode
 
 LEN_CODE = 5
-# COUNT_ATTEMPTS = 3
 TIME_BAN = 24 * 60 * 60  # Время бана в секундах
 
 
@@ -42,7 +41,7 @@ def check_ban(user):
     formatted_ban_time = ""
     if user.is_banned:
         # time_from_ban - время, прошедшее с момента бана
-        time_from_ban = datetime.now(timezone.utc) - user.banned_at
+        time_from_ban = datetime.now(timezone.utc) - user.changed_at
 
         if time_from_ban < timedelta(seconds=TIME_BAN):
             # ban_time - оставшееся время бана
@@ -58,3 +57,34 @@ def check_ban(user):
             user.save()
     # Возвращает пустую строку, если бан есть, или строку со значением оставшегося времени
     return formatted_ban_time
+
+def create_code(user):
+    """Создать одноразовый код."""
+    # Nado proverit est li cod libo update libo create
+    code = get_random_code()
+    email = user.email
+     # for test
+    # send_code_by_email(email, code)
+
+    try:
+        otc = OneTimeCode.objects.get(user=user)
+        otc.code = code
+        # otc.count_attempts += 1
+        otc.save(update_fields=["code"])  # Поменяли только поле code, remaining_attempts
+    except OneTimeCode.DoesNotExist:
+        otc = OneTimeCode.objects.create(user=user, code=code)  # создали новый код пользователя
+        otc.save()
+
+    return otc
+def if_user_first( email):
+    if email in [i.email for i in CustomUser.objects.all()]:
+        return True
+    
+def check_remaining_attempts(user):
+    attempts_passed = user.onetimecodes.count_attempts
+    attempts_left = ATTEMPTS - attempts_passed
+    if (datetime.now(timezone.utc) - user.onetimecodes.updated_at).days > 1:
+            print('33333333333333333333333333333')
+            user.onetimecodes.remaining_attempts = 0
+            user.onetimecodes.save()
+    return attempts_passed

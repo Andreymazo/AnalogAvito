@@ -58,6 +58,7 @@ def check_ban(user):
     # Возвращает пустую строку, если бан есть, или строку со значением оставшегося времени
     return formatted_ban_time
 
+
 def create_code(user):
     """Создать одноразовый код."""
     # Nado proverit est li cod libo update libo create
@@ -76,15 +77,9 @@ def create_code(user):
         otc.save()
 
     return otc
+
+
 def if_user_first( email):
     if email in [i.email for i in CustomUser.objects.all()]:
         return True
     
-def check_remaining_attempts(user):
-    attempts_passed = user.onetimecodes.count_attempts
-    attempts_left = ATTEMPTS - attempts_passed
-    if (datetime.now(timezone.utc) - user.onetimecodes.updated_at).days > 1:
-            print('33333333333333333333333333333')
-            user.onetimecodes.remaining_attempts = 0
-            user.onetimecodes.save()
-    return attempts_passed

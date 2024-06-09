@@ -13,7 +13,7 @@ from users.models import COUNT_ATTEMPTS, CustomUser, OneTimeCode
 from bulletin.serializers import (CreateProfileSerializer,
                                   CustomUserLoginSerializer,
                                   OneTimeCodeSerializer)
-from bulletin.utils import (check_ban, check_remaining_attempts, create_code, get_random_code, if_user_first, reset_attempts,)
+from bulletin.utils import (check_ban,  create_code, get_random_code, if_user_first)
 
 TIME_OTC = 30 * 60  # Время жизни кода в секундах
 
@@ -242,10 +242,10 @@ def confirm_code(request):
                           f"Осталось {formatted_ban_time}")
             })
         otc = user.onetimecodes
+        attempts_passed = otc.count_attempts
         if otc.count_attempts > ATTEMPTS:
                 user.is_banned = True
                 user.save()
-                attempts_passed = check_remaining_attempts(user)
                 return Response({
                     "error": (f"Вы ввели неправильно {attempts_passed} раза "
                               "Вы забанены на 24 часа")

@@ -82,7 +82,8 @@ def sign_up(request):
 
         request.session["email"] = email
         # check_ban(request)
-        return redirect(reverse("bulletin:confirm_code"))
+        return Response(status=status.HTTP_200_OK) 
+        # return redirect(reverse("bulletin:confirm_code"))
 
 
 @api_view(["GET", "POST"])
@@ -177,8 +178,8 @@ def log_in(request):
         print("=========================email_code", email_code)
         request.session["email"] = email
         request.session["email_code"] = email_code.code
-        # return Response(status=status.HTTP_200_OK) 
-        return redirect(reverse("bulletin:confirm_code"))
+        return Response(status=status.HTTP_200_OK) 
+        # return redirect(reverse("bulletin:confirm_code"))
 
 
 # добавить permission, если забанен - доступа нет
@@ -231,7 +232,8 @@ def confirm_code(request):
             return redirect(reverse("bulletin:log_in"))
         user = CustomUser.objects.get(email=email)
         if not if_user_first(email) == True:# Если впервые зашел, перенаправим на регистрацию
-            redirect(reverse("bulletin:sign_up"))
+            return Response(status=status.HTTP_200_OK) 
+            # redirect(reverse("bulletin:sign_up"))
 
         formatted_ban_time = check_ban(user)
         if formatted_ban_time:
@@ -319,45 +321,45 @@ def confirm_code(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(["POST"])
-def get_new_code(request):
-    """Запросить новый код."""
-    email = request.session.get("email")
-    if email:
-        user = CustomUser.objects.get(email=email)
-        # if datetime.now(timezone.utc) - otc.updated_at > timedelta(
-        #     seconds=TIME_OTC
-        # ):
-        create_code(user)
-    # return redirect(reverse("bulletin:confirm_code"))
+# @api_view(["POST"])
+# def get_new_code(request):
+#     """Запросить новый код."""
+#     email = request.session.get("email")
+#     if email:
+#         user = CustomUser.objects.get(email=email)
+#         # if datetime.now(timezone.utc) - otc.updated_at > timedelta(
+#         #     seconds=TIME_OTC
+#         # ):
+#         create_code(user)
+#     # return redirect(reverse("bulletin:confirm_code"))
 
 
-        user.save()
-        login(request, user)
-        return Response(status=status.HTTP_200_OK) 
-        # return redirect("bulletin:home")
-    return Response(status=status.HTTP_200_OK)
+#         user.save()
+#         login(request, user)
+#         return Response(status=status.HTTP_200_OK) 
+#         # return redirect("bulletin:home")
+#     return Response(status=status.HTTP_200_OK)
 
 
-@api_view(["POST", "GET"])
-def log_out(request):
-    """Выход из учетной записи пользователя."""
-    logout(request)
-    reffer = request.META.get("HTTP_REFERER")
-    # if reffer:
-    #     return redirect(reffer)
-    # return redirect(reverse("bulletin:log_in"))
-    return Response(status=status.HTTP_200_OK) 
+# @api_view(["POST", "GET"])
+# def log_out(request):
+#     """Выход из учетной записи пользователя."""
+#     logout(request)
+#     reffer = request.META.get("HTTP_REFERER")
+#     # if reffer:
+#     #     return redirect(reffer)
+#     # return redirect(reverse("bulletin:log_in"))
+#     return Response(status=status.HTTP_200_OK) 
   
-@api_view(["POST"])
-def log_out(request):
-    """Выход из учетной записи пользователя."""
-    logout(request)
-    return Response(status=status.HTTP_200_OK)
-    # reffer = request.META.get("HTTP_REFERER")
-    # if reffer:
-    #     return redirect(reffer)
-    # return redirect(reverse("bulletin:log_in"))
+# @api_view(["POST"])
+# def log_out(request):
+#     """Выход из учетной записи пользователя."""
+#     logout(request)
+#     return Response(status=status.HTTP_200_OK)
+#     # reffer = request.META.get("HTTP_REFERER")
+#     # if reffer:
+#     #     return redirect(reffer)
+#     # return redirect(reverse("bulletin:log_in"))
 
 
 @api_view(["POST", "GET"])

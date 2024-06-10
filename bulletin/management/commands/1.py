@@ -1,8 +1,9 @@
 
+import os
 from django.core.management import BaseCommand
 from config.settings import BASE_DIR, MEDIA_ROOT, MEDIA_URL
-from django.conf import settings
-
+# from django.conf import settings
+from config import settings
 from users.models import CustomUser
 
  #note settings is an object , hence you cannot import its contents
@@ -19,7 +20,9 @@ from users.models import CustomUser
 def ff():
     user = CustomUser.objects.get(email='andreymazo@mail.ru')
     otc = user.onetimecodes
-    print(otc)
+    # print(otc)
+    DJANGO_SETTINGS_MODULE=settings
+    print(os.environ['DJANGO_SETTINGS_MODULE'])
     # lang_dict = dict(settings.LANGUAGES)
     # user = CustomUser.objects.all().get(pk=17)
     # print(CodeCustomuser.objects.filter(customuser_id=user.id).exists())

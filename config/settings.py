@@ -24,9 +24,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
-
+    "debug_toolbar",
     "rest_framework",
-
+    
     "bulletin.apps.BulletinConfig",
     "users.apps.UsersConfig",
 ]
@@ -36,12 +36,32 @@ MIDDLEWARE = [
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django_session_timeout.middleware.SessionTimeoutMiddleware",
     'django.middleware.locale.LocaleMiddleware',
+    
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
+
+INTERNAL_IPS = [
+    # ...
+    "127.0.0.1",
+    # ...
+]
+# TESTING = "test" in sys.argv
+
+# if not TESTING:
+#     INSTALLED_APPS = [
+#         *INSTALLED_APPS,
+#         "debug_toolbar",
+#     ]
+#     MIDDLEWARE = [
+#         "debug_toolbar.middleware.DebugToolbarMiddleware",
+#         *MIDDLEWARE,
+#     ]
+
 
 ROOT_URLCONF = "config.urls"
 
@@ -134,7 +154,7 @@ STATICFILES_DIRS = ( os.path.join(BASE_DIR, 'config', 'static'), )
 #   pass
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-os.environ['DJANGO_SETTINGS_MODULE'] = 'config.settings'
+# os.environ['DJANGO_SETTINGS_MODULE'] = 'config.settings'
 
 EMAIL_HOST = os.getenv("EMAIL_HOST")
 EMAIL_PORT = os.getenv("EMAIL_PORT")
@@ -156,3 +176,4 @@ SESSION_TIMEOUT_REDIRECT = "bulletin:log_in"  # Add your URL
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Invalid session
 
 ATTEMPTS = 3 # Максимальное количество попыток ввести код
+SITE_ID=1

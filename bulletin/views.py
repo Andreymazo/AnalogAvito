@@ -119,16 +119,9 @@ def create_profile(request):
     return Response(status=status.HTTP_200_OK)
     # return Response(serializer.data, status=status.HTTP_200_OK)
 
-@api_view(["GET", "POST"])
+@api_view(["POST"])
 def log_in(request):
     """Вход по одноразовому коду."""
-    if request.method == "GET":
-        serializer = CustomUserLoginSerializer()
-        return Response({
-            "data": serializer.data,
-        })
-
-
     if request.method == "POST":
         serializer = CustomUserLoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -180,6 +173,7 @@ def log_in(request):
         # request.session["email_code"] = email_code.code
         return Response(status=status.HTTP_200_OK) 
         # return redirect(reverse("bulletin:confirm_code"))
+    return Response(serializer.errors, status=status.HTTP_403_FORBIDDEN)
 
 
 # добавить permission, если забанен - доступа нет

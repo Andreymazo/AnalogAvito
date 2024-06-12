@@ -26,9 +26,9 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     "debug_toolbar",
     "rest_framework",
-    
     "bulletin.apps.BulletinConfig",
     "users.apps.UsersConfig",
+    'drf_spectacular',
 ]
 
 MIDDLEWARE = [
@@ -61,7 +61,17 @@ INTERNAL_IPS = [
 #         "debug_toolbar.middleware.DebugToolbarMiddleware",
 #         *MIDDLEWARE,
 #     ]
+REST_FRAMEWORK = {
 
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Django5 Test Swagger API',
+    'DESCRIPTION': 'Django5 Test Swagger API description',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    # OTHER SETTINGS
+}
 
 ROOT_URLCONF = "config.urls"
 
@@ -148,10 +158,6 @@ MEDIA_URL = '/media/'
 STATIC_URL = '/static/' 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static') 
 STATICFILES_DIRS = ( os.path.join(BASE_DIR, 'config', 'static'), ) 
-# try: 
-#   from config.settings import * 
-# except: 
-#   pass
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # os.environ['DJANGO_SETTINGS_MODULE'] = 'config.settings'

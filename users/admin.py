@@ -6,8 +6,8 @@ from modeltranslation.admin import TranslationAdmin
 
 @register(CustomUser)
 class CustomUserAdmin(TranslationAdmin):
-    list_display_links = ("id", "username",)
-    list_display = ("id", "username", "first_name", "last_name", "email")
+    list_display_links = ("id",)
+    list_display = ("id", "first_name", "last_name", "email")
     search_fields = ("username", "first_name", "last_name", "email")
 
 

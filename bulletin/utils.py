@@ -75,7 +75,7 @@ def create_code(user):
     except OneTimeCode.DoesNotExist:
         otc = OneTimeCode.objects.create(user=user, code=code)  # создали новый код пользователя
         otc.save()
-
+    print('otc.code', otc.code)
     return otc
 
 

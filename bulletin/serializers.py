@@ -9,8 +9,8 @@ class CustomUserLoginSerializer(serializers.ModelSerializer):
     class Meta:
         """Конфигурация сериализатора для входа по одноразовому коду."""
         model = CustomUser
-        fields = ("email", "username")
-        read_only_fields = ("username",)
+        fields = ("email",)# "username")
+        # read_only_fields = ("username",)
         # read_only_fields = ("username",)
 
 

@@ -51,15 +51,9 @@ def home(request):
     # return otc
 
 
-@api_view(["GET", "POST"])
+@api_view(["POST"])
 def sign_up(request):
     """Регистрация пользователя."""
-    if request.method == "GET":
-        serializer = CustomUserLoginSerializer()
-        return Response({
-            "data": serializer.data,
-        })
-
     if request.method == "POST":
         serializer = CustomUserLoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -69,7 +63,7 @@ def sign_up(request):
             CustomUser.objects.get(email=email)
         except CustomUser.DoesNotExist:
             # Если пользователя нет,то создаем его
-            serializer.save(username=email, email=email)
+            serializer.save(email=email)
         else:
             # Если пользователь есть, то в ответе это пишем
             return Response(
@@ -79,11 +73,11 @@ def sign_up(request):
 
         # Создаем код для пользователя
         create_code(CustomUser.objects.get(email=email))
-
         request.session["email"] = email
         # check_ban(request)
         return Response(status=status.HTTP_200_OK) 
         # return redirect(reverse("bulletin:confirm_code"))
+    return Response(status=status.HTTP_403_FORBIDDEN)
 
 
 @api_view(["GET", "POST"])

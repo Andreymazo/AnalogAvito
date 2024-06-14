@@ -174,18 +174,23 @@ def log_in(request):
 @api_view(["POST"])
 def confirm_code(request):
     """Подтверждение кода."""
-
+    print('request.session.get("email")', request.session.get("email"))
     if request.method == "POST":
        
-        if request.session["email"]:
+        if request.session.get("email"):
             email = request.session["email"]
+            user = CustomUser.objects.get(email=email)
         else:
             return redirect(reverse("bulletin:sign_up"))
-        if OneTimeCode.objects.get(user_id=user.id):
-            email_code = OneTimeCode.objects.get(user_id=user.id)
-            print('email_code', email_code)
-        else:
-            return redirect(reverse("bulletin:sign_up"))
+        try:
+            otc = OneTimeCode.objects.get(user_id=user.id)
+        except OneTimeCode.DoesNotExist:
+            return redirect(reverse("bulletin:log_in"))
+
+           
+            # print('email_code', otc)
+        # else:
+        #     return redirect(reverse("bulletin:sign_up"))
         # try:
         #     email = request.session["email"]
         #     user = CustomUser.objects.get(email=email)
@@ -195,7 +200,7 @@ def confirm_code(request):
         # except email.DoesNotExist or email_code.DoesNotExist: # Прилетел как-то без емэйла и без кода, редиректим его обратно на логин
         #     return redirect(reverse("bulletin:log_in"))
         
-        user = CustomUser.objects.get(email=email)
+        # user = CustomUser.objects.get(email=email)
         if not if_user_first(email) == True:# Если впервые зашел, перенаправим на регистрацию
             return Response(status=status.HTTP_200_OK) 
             # redirect(reverse("bulletin:sign_up"))
@@ -206,7 +211,7 @@ def confirm_code(request):
                 "error": (f"Вы забанены на 24 часа. "
                           f"Осталось {formatted_ban_time}")
             })
-        otc = user.onetimecodes
+        # otc = user.onetimecodes
         if otc.count_attempts > ATTEMPTS:
                 user.is_banned = True
                 user.save()
@@ -214,15 +219,15 @@ def confirm_code(request):
                     "error": (f"Вы ввели неправильно {otc.count_attempts} раза "
                               "Вы забанены на 24 часа")
                 })
-        if datetime.now(timezone.utc) - otc.created_at > timedelta(
+        if datetime.now(timezone.utc) - otc.created_at< timedelta(
                 seconds=2
             ):#Проверяем, если свежий пользователь (изменения меньше 2х секунд, то есть только что создан код, то обнуляем попытки)
+            print('datetime.now(timezone.utc) - otc.created_at', datetime.now(timezone.utc) - otc.created_at)
             otc.count_attempts = 0
             otc.save()
         serializer = OneTimeCodeSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
-            otc.count_attempts += 1
-            print('8888888888888888888888888')
+            otc.count_attempts = otc.count_attempts + 1
             otc.save()
             email_code_value = serializer.validated_data["code"]
             # Проверяем срок действия кода, если просрочен, то отправляем снова
@@ -230,6 +235,7 @@ def confirm_code(request):
                 seconds=TIME_OTC
             ):
                 # otc.delete()
+                print('if we hhere ??????????????')
                 create_or_update_code(user)  # Повторная отправка кода? не лучше на log_in перенаправить? 
                 
                 return Response(

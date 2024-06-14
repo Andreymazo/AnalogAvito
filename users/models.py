@@ -51,7 +51,7 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         """Строковое представление объекта пользователя."""
-        return self.username
+        return str(self.username)
 
 
 class OneTimeCode(models.Model):
@@ -91,7 +91,7 @@ class OneTimeCode(models.Model):
 
     def __str__(self):
         """Строковое представление одноразового кода."""
-        return f"Код для {self.user.email}"
+        return str(f"Код для {self.user.email}")
 
 
 # class SessionCustomuser(models.Model):

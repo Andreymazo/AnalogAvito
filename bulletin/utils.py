@@ -59,7 +59,7 @@ def check_ban(user):
     return formatted_ban_time
 
 
-def create_code(user):
+def create_or_update_code(user):
     """Создать одноразовый код."""
     # Nado proverit est li cod libo update libo create
     code = get_random_code()

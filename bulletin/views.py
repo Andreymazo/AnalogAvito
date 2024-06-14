@@ -174,8 +174,6 @@ def log_in(request):
 @api_view(["POST"])
 def confirm_code(request):
     """Подтверждение кода."""
-    if not request.user.is_authenticated:
-        return redirect(reverse("bulletin:log_in"))
 
     if request.method == "POST":
        
@@ -224,6 +222,7 @@ def confirm_code(request):
         serializer = OneTimeCodeSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             otc.count_attempts += 1
+            print('8888888888888888888888888')
             otc.save()
             email_code_value = serializer.validated_data["code"]
             # Проверяем срок действия кода, если просрочен, то отправляем снова
@@ -240,6 +239,7 @@ def confirm_code(request):
             # Если код подходит Проверяем пользователя:
             # если он впервые - отправляем заполнять данные, если нет - на главную
             if otc.code == email_code_value:
+                print('777777777777777777')
                 login(request, user)
                 return redirect(reverse("bulletin:home"))
 

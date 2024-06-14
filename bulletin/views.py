@@ -1,25 +1,32 @@
+from config.settings import ATTEMPTS
 from datetime import datetime, timedelta, timezone
 from django.contrib.auth import authenticate, login, logout
 from django.core.cache import cache
 from django.shortcuts import redirect, render, reverse
-from rest_framework import permissions, status
+from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from bulletin.serializers import (OneTimeCodeSerializer)
-from config.settings import ATTEMPTS
-from users.models import CustomUser, OneTimeCode
-from users.models import COUNT_ATTEMPTS, CustomUser, OneTimeCode
 
-from bulletin.serializers import (CreateProfileSerializer,
-                                  CustomUserLoginSerializer,
-                                  OneTimeCodeSerializer)
-from bulletin.utils import (check_ban,  create_or_update_code, get_random_code, if_user_first)
+from ad.models import Category
+from bulletin.serializers import (
+    CategorySerializer,
+    CreateProfileSerializer,
+    CustomUserLoginSerializer,
+    OneTimeCodeSerializer
+)
+from bulletin.utils import (
+    check_ban, 
+    create_or_update_code,
+    get_random_code,
+    if_user_first
+)
+from users.models import COUNT_ATTEMPTS, CustomUser, OneTimeCode
 
 TIME_OTC = 30 * 60  # Время жизни кода в секундах
 
 def home(request):
     context = {}
-    return render(request, 'bulletin/templates/bulletin/home.html', context)
+    return render(request, "bulletin/templates/bulletin/home.html", context)
 
 
 
@@ -28,7 +35,7 @@ def home(request):
     #     otc = OneTimeCode.objects.get(user=user)
     #     otc.code = code
     #     otc.remaining_attempts += 1
-    #     otc.save(update_fields=['code', 'remaining_attempts'])  # Поменяли только поле code, remaining_attempts
+    #     otc.save(update_fields=["code", "remaining_attempts"])  # Поменяли только поле code, remaining_attempts
     # else:  # Polzovatel pervii raz zashel i u nego net coda
     #     otc = OneTimeCode.objects.create(user=user, remaining_attempts=0)  # создали новый код пользователя
     #     otc.save()
@@ -174,7 +181,7 @@ def log_in(request):
 @api_view(["POST"])
 def confirm_code(request):
     """Подтверждение кода."""
-    print('request.session.get("email")', request.session.get("email"))
+    # print("request.session.get("email")", request.session.get("email"))
     if request.method == "POST":
        
         if request.session.get("email"):
@@ -188,7 +195,7 @@ def confirm_code(request):
             return redirect(reverse("bulletin:log_in"))
 
            
-            # print('email_code', otc)
+            # print("email_code", otc)
         # else:
         #     return redirect(reverse("bulletin:sign_up"))
         # try:
@@ -196,7 +203,7 @@ def confirm_code(request):
         #     user = CustomUser.objects.get(email=email)
         #     # email_code = request.session["email_code"]
         #     email_code = OneTimeCode.objects.get(user_id=user.id)
-        #     print('email_code', email_code)
+        #     print("email_code", email_code)
         # except email.DoesNotExist or email_code.DoesNotExist: # Прилетел как-то без емэйла и без кода, редиректим его обратно на логин
         #     return redirect(reverse("bulletin:log_in"))
         
@@ -222,7 +229,7 @@ def confirm_code(request):
         if datetime.now(timezone.utc) - otc.created_at< timedelta(
                 seconds=2
             ):#Проверяем, если свежий пользователь (изменения меньше 2х секунд, то есть только что создан код, то обнуляем попытки)
-            print('datetime.now(timezone.utc) - otc.created_at', datetime.now(timezone.utc) - otc.created_at)
+            print("datetime.now(timezone.utc) - otc.created_at", datetime.now(timezone.utc) - otc.created_at)
             otc.count_attempts = 0
             otc.save()
         serializer = OneTimeCodeSerializer(data=request.data)
@@ -235,7 +242,7 @@ def confirm_code(request):
                 seconds=TIME_OTC
             ):
                 # otc.delete()
-                print('if we hhere ??????????????')
+                print("if we hhere ??????????????")
                 create_or_update_code(user)  # Повторная отправка кода? не лучше на log_in перенаправить? 
                 
                 return Response(
@@ -245,7 +252,7 @@ def confirm_code(request):
             # Если код подходит Проверяем пользователя:
             # если он впервые - отправляем заполнять данные, если нет - на главную
             if otc.code == email_code_value:
-                print('777777777777777777')
+                print("777777777777777777")
                 login(request, user)
                 return redirect(reverse("bulletin:home"))
 
@@ -308,3 +315,10 @@ def verify_code(request):
     # print(request.session["code"])
     # return Response(status=status.HTTP_200_OK)
     return Response(status=status.HTTP_200_OK)
+
+
+class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
+    """Вьюсет для категорий."""
+    http_method_names = ("get", "post")
+    queryset = Category.objects.prefetch_related('children').all()
+    serializer_class = CategorySerializer

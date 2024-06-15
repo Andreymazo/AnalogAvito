@@ -11,7 +11,8 @@ TIME_BAN = 24 * 60 * 60  # Время бана в секундах
 
 def get_random_code():
     """Получить временный код из 5-ти цифр."""
-    return "".join(random.sample("0123456789", LEN_CODE))
+    return "".join([str(random.randint(0, 9)) for _ in range(LEN_CODE)])
+    # return "".join(random.sample("0123456789", LEN_CODE))
 
 
 def send_code_by_email(email, code):
@@ -38,7 +39,8 @@ def reset_attempts(otc):
 
 def check_ban(user):
     """Проверка бана пользователя."""
-    formatted_ban_time = ""
+    # formatted_ban_time = ""
+    ban_time = ""
     if user.is_banned:
         # time_from_ban - время, прошедшее с момента бана
         time_from_ban = datetime.now(timezone.utc) - user.changed_at
@@ -46,40 +48,57 @@ def check_ban(user):
         if time_from_ban < timedelta(seconds=TIME_BAN):
             # ban_time - оставшееся время бана
             ban_time = timedelta(seconds=TIME_BAN) - time_from_ban
-            formatted_ban_time = ":".join(str(ban_time).split(":")[:2])
+            # formatted_ban_time = ":".join(str(ban_time).split(":")[:2])
         else:
             # Пользователь разбанен по истечении времени
-            otc = OneTimeCode.objects.get(user=user)
+            # try:
+            #     otc = OneTimeCode.objects.get(user=user)
+            # except OneTimeCode.DoesNotExist:
+            #     return Response(
+            #         {
+            #             "message": (
+            #                 "Пользователь с таким E-mail "
+            #                 "еще не зарегистрирован"
+            #             )
+            #         },
+            #         status=status.HTTP_404_NOT_FOUND
+            #     )
             # user.onetimecodes.count_attempts = COUNT_ATTEMPTS  # протестировать! -> не сохраняет
+            # otc = user.onetimecodes
+            otc = OneTimeCode.objects.get(user=user)
             otc.count_attempts = COUNT_ATTEMPTS
             otc.save()
             user.is_banned = False
             user.save()
-    # Возвращает пустую строку, если бан есть, или строку со значением оставшегося времени
-    return formatted_ban_time
+    # Возвращает пустую строку, если бана нет.
+    # Если есть - строку со значением оставшегося времени.
+    return ban_time
 
 
 def create_or_update_code(user):
     """Создать одноразовый код."""
     # Nado proverit est li cod libo update libo create
     code = get_random_code()
-    email = user.email
+    # email = user.email
      # for test
     # send_code_by_email(email, code)
 
     try:
         otc = OneTimeCode.objects.get(user=user)
-        otc.code = code
+        # otc.code = code
         # otc.count_attempts += 1
-        otc.save(update_fields=["code"])  # Поменяли только поле code, remaining_attempts
+        otc.save(update_fields=["code"])  # Поменяли только поле code
     except OneTimeCode.DoesNotExist:
-        otc = OneTimeCode.objects.create(user=user, code=code)  # создали новый код пользователя
-        otc.save()
-    print('otc.code', otc.code)
+        # создали новый код пользователя
+        otc = OneTimeCode.objects.create(user=user)
+        # otc.save()
+    otc.code = code
+    otc.count_attempts -= 1
+    otc.save(update_fields=["code", "count_attempts"])
+    print("code: ", code)
     return otc
 
 
-def if_user_first( email):
+def if_user_first(email):
     if email in [i.email for i in CustomUser.objects.all()]:
         return True
-    

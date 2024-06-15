@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     "debug_toolbar",
     "rest_framework",
     "mptt",
+    "phonenumber_field",
 
     "ad.apps.AdConfig",
     "bulletin.apps.BulletinConfig",

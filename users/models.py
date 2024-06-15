@@ -2,30 +2,34 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.validators import UnicodeUsernameValidator
+from phonenumber_field.modelfields import PhoneNumberField
 
 NULLABLE = {'blank': True, 'null': True}
 
 
 MAX_LEN_CODE = 5
 COUNT_ATTEMPTS = 3
+COUNT_SEND_CODE = 3
 
 
 class CustomUser(AbstractUser):
     """Кастомная модель пользователя."""
+
     info = models.TextField(
         _("Информация"),
         blank=True,
         null=True,
         help_text=_("Введите дополнительную информацию")
     )
-    
+# name = models.CharField(_("Имя пользователя"), max_length=150, blank=True)
     username_validator = UnicodeUsernameValidator()
     username = models.CharField(
         _("username"),
         max_length=150,
         unique=True,
         help_text=_(
-            "Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only."
+            "Required. 150 characters or fewer. "
+            "Letters, digits and @/./+/-/_ only."
         ),
         validators=[username_validator],
         error_messages={
@@ -39,7 +43,14 @@ class CustomUser(AbstractUser):
         unique=True,
         help_text=_("Введите email, не более 254 символов"),
     )
-    # is_first = models.BooleanField(_("Первый вход"), default=True)
+    # phone_number = PhoneNumberField()
+    phone_number = models.CharField(
+        _("Номер телефона"),
+        max_length=12,
+        # unique=True,
+        blank=True,
+    )
+    is_first = models.BooleanField(_("Первый вход"), default=True)
     is_banned = models.BooleanField(_("Бан"), default=False)
     changed_at = models.DateTimeField(_("Время изменения"), auto_now_add=True)
 
@@ -74,6 +85,10 @@ class OneTimeCode(models.Model):
     #     _("Код подтвержден"),
     #     default=False
     # )
+    count_send_code = models.PositiveSmallIntegerField(
+        _("Количество повторных отправок кода"),
+        default=COUNT_SEND_CODE
+    )
     updated_at = models.DateTimeField(
         _("Время обновления кода"),
         auto_now=True

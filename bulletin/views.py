@@ -6,30 +6,318 @@ from django.shortcuts import redirect, render, reverse
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from ad.models import Category
 from bulletin.serializers import (
     CategorySerializer,
-    CreateProfileSerializer,
+    # CreateProfileSerializer,
     CustomUserLoginSerializer,
-    OneTimeCodeSerializer
+    OneTimeCodeSerializer,
+    SignInSerializer,
+    SignUpSerializer
 )
 from bulletin.utils import (
-    check_ban, 
+    check_ban,
     create_or_update_code,
     get_random_code,
     if_user_first
 )
-from users.models import COUNT_ATTEMPTS, CustomUser, OneTimeCode
+from users.models import (
+    COUNT_ATTEMPTS,
+    COUNT_SEND_CODE,
+    CustomUser,
+    OneTimeCode
+)
+
 
 TIME_OTC = 30 * 60  # Время жизни кода в секундах
+TIME_RESEND_CODE = 3 * 60  # Время между повторными отправками кода
+
 
 def home(request):
     context = {}
     return render(request, "bulletin/templates/bulletin/home.html", context)
 
 
+class SignInView(APIView):
+    """Вход пользователя."""
 
+    def post(self, request):
+        serializer = CustomUserLoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        email = serializer.validated_data["email"]
+
+        try:
+            user = CustomUser.objects.select_related(
+                "onetimecodes"  # Нужен?
+            ).get(email=email)
+        except CustomUser.DoesNotExist:
+            user = CustomUser.objects.create(email=email)
+            # # Если пользователя нет, в ответе пишем, что не зарегистрирован
+            # return Response(
+            #     {
+            #         "message": (
+            #             "Пользователь с таким E-mail "
+            #             "еще не зарегистрирован"
+            #         )
+            #     },
+            #     status=status.HTTP_404_NOT_FOUND
+            # )
+
+        ban_time = check_ban(user)
+        if ban_time:
+            return Response(
+                {
+                    "message": "Вы забанены на 24 часа.",
+                    "ban_time": ban_time
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # if otc.count_attempts == 0:
+        #         user.is_banned = True
+        #         user.save()
+        #         return Response(
+        #             {"count_attempts": otc.count_attempts},
+        #             status=status.HTTP_400_BAD_REQUEST
+        #         )
+                        # "message": (
+                        #     f"Вы ввели неправильно {otc.count_attempts} раза "
+                        #       "Вы забанены на 24 часа")
+
+        # Либо создаем, либо меняем поле code в существующем коде пользователя
+        # и отправлям на confirm_code
+        create_or_update_code(user)
+        # print("=========================email_code", otc.code)
+        request.session["email"] = email
+        # request.session["email_code"] = email_code.code
+        return Response(status=status.HTTP_200_OK)
+        # return redirect(reverse("bulletin:confirm_code"))
+
+
+class ConfirmCodeView(APIView):
+    """Подтверждение кода."""
+
+    def post(self, request):
+        email = request.session.get("email")
+        try:
+            user = CustomUser.objects.select_related(
+                "onetimecodes"
+            ).get(email=email)
+        except CustomUser.DoesNotExist:
+            return Response(
+                {"message": "Пользователь не найден."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        otc = user.onetimecodes
+        if not otc:
+            return Response(
+                {"message": "Одноразовый код не найден."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        ban_time = check_ban(user)
+        if ban_time:
+            return Response(
+                {
+                    "message": "Вы забанены на 24 часа.",
+                    "ban_time": ban_time
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        if otc.count_attempts == 0:
+            user.is_banned = True
+            user.save()
+            return Response(
+                {
+                    "message": (
+                        f"Вы ввели неправильно {COUNT_ATTEMPTS} раз. "
+                        "Вы забанены на 24 часа."
+                    ),
+                    "count_attempts": COUNT_ATTEMPTS
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # if datetime.now(timezone.utc) - otc.created_at < timedelta(
+        #         seconds=2
+        #     ):#Проверяем, если свежий пользователь (изменения меньше 2х секунд, то есть только что создан код, то обнуляем попытки)
+        #     print("datetime.now(timezone.utc) - otc.created_at", datetime.now(timezone.utc) - otc.created_at)
+        #     otc.count_attempts = 0
+        #     otc.save()
+        serializer = OneTimeCodeSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        otc.count_attempts = otc.count_attempts - 1
+        otc.save()
+
+        email_code = serializer.validated_data["code"]
+        # Проверяем срок действия кода, если просрочен, то отправляем снова
+        if datetime.now(timezone.utc) - otc.updated_at > timedelta(
+            seconds=TIME_OTC
+        ):
+            # otc.delete()
+            create_or_update_code(user)  # Повторная отправка кода
+
+            return Response(
+                {"message": "Время ожидания истекло."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if otc.code == email_code:
+            if not user.is_first:
+                login(request, user)
+
+            otc.count_attempts = COUNT_ATTEMPTS
+            otc.count_send_code = COUNT_SEND_CODE
+            otc.save(
+                # update_fields=[
+                #     "count_attempts",
+                #     "count_send_code"
+                # ]
+            )
+
+            serializer = SignInSerializer(user)
+            return Response(
+                # {"is_first": user.is_first},
+                # {"user": user},  # Или сериализатор?
+                serializer.data,
+                status=status.HTTP_200_OK
+            )
+
+        lost_attempts = COUNT_ATTEMPTS - otc.count_attempts
+        return Response(
+            {
+                "message": f"Вы ввели код неправильно {lost_attempts} раза.",
+                "lost_attempts": lost_attempts
+            },
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+
+class SignUpView(APIView):
+    """Регистрация пользователя."""
+
+    def post(self, request):
+        email = request.session.get("email")
+        try:
+            user = CustomUser.objects.get(email=email)
+        except CustomUser.DoesNotExist:
+            return Response(
+                {"message": "Пользователь не найден."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        ban_time = check_ban(user)
+        if ban_time:
+            return Response(
+                {
+                    "message": "Вы забанены на 24 часа.",
+                    "ban_time": ban_time
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        serializer = SignUpSerializer(user, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        user.is_first = False
+        user.save(update_fields=["is_first"])
+        login(request, user)
+        # serializer = SignUpSerializer(user)
+        return Response(
+                # {"is_first": user.is_first},
+                # {"user": user},  # Или сериализатор?
+                serializer.data,
+                status=status.HTTP_200_OK
+            )
+
+
+class NewCodeView(APIView):
+    """Запрос на повторную отправку кода."""
+
+    def post(self, request):
+        email = request.session.get("email")
+        try:
+            user = CustomUser.objects.select_related(
+                "onetimecodes"
+            ).get(email=email)
+        except CustomUser.DoesNotExist:
+            return Response(
+                {"message": "Пользователь не найден."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        otc = user.onetimecodes
+        if not otc:
+            return Response(
+                {"message": "Одноразовый код не найден."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # Проверяем бан пользователя
+        ban_time = check_ban(user)
+        if ban_time:
+            return Response(
+                {
+                    "message": "Вы забанены на 24 часа.",
+                    "ban_time": ban_time
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # Проверям количество уже отправленных кодов
+        if otc.count_send_code == 0:
+            user.is_banned = True
+            user.save()
+            return Response(
+                {
+                    "message": (
+                        f"Вы запросили код более {COUNT_SEND_CODE} раз. "
+                        "Вы забанены на 24 часа."
+                    ),
+                    "count_send_code": COUNT_SEND_CODE
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # Проверяем, что между повторными отправками кода 
+        # было больше {TIME_RESEND_CODE} секунд
+        passed_time = (datetime.now(timezone.utc) - otc.updated_at)
+        if passed_time < timedelta(seconds=TIME_RESEND_CODE):
+            left_resend_time = (
+                TIME_RESEND_CODE - datetime.now(timezone.utc)  # .second?
+            )
+            return Response(
+                {
+                    "message": ("Между повторными отправками кода должно "
+                                f"пройти {TIME_RESEND_CODE} секунд."),
+                    "left_resend_time": left_resend_time
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        create_or_update_code(user)
+        return Response(
+            {"message": "Одноразовый код отправлен на почту."},
+            status=status.HTTP_200_OK
+        )
+
+
+@api_view(["POST"])
+def log_out(request):
+    """Выход из учетной записи пользователя."""
+    logout(request)
+    return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+
+    # reffer = request.META.get("HTTP_REFERER")
+    # if reffer:
+    #     return redirect(reffer)
+    # return redirect(reverse("bulletin:log_in"))
 
     # if user.onetimecodes:  # Обращаемся по обратному ключу onetimecodes, если код пользователя существует
     #     otc = OneTimeCode.objects.get(user=user)

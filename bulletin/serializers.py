@@ -1,4 +1,6 @@
 from rest_framework import serializers
+
+from ad.models import Category
 from users.models import MAX_LEN_CODE, CustomUser, OneTimeCode
 
 
@@ -54,3 +56,22 @@ class CreateProfileSerializer(serializers.ModelSerializer):
             # "phone_number",
             "info"
         )
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    """Сериализатор для категории."""
+
+    class Meta:
+        """Сериализатор для категории."""
+        model = Category
+        fields = (
+            "id",
+            "name",
+            "parent",
+            # "level"
+        )
+
+    def get_fields(self):
+        fields = super(CategorySerializer, self).get_fields()
+        fields["children"] = CategorySerializer(many=True, required=False)
+        return fields

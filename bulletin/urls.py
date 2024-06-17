@@ -5,15 +5,10 @@ from bulletin.apps import BulletinConfig
 from bulletin.views import (
     CategoryViewSet,
     ConfirmCodeView,
-    # confirm_code,
-    # create_profile,
     NewCodeView,
-    home,
-    # sign_in,
     log_out,
     SignInView,
     SignUpView,
-    # sign_up,
     verify_code
 )
 
@@ -38,5 +33,4 @@ url_v1 = [
 
 urlpatterns = [
     path("v1/", include(url_v1)),
-    path("", home, name="home"),
 ]

@@ -1,14 +1,20 @@
 from django.contrib.auth.models import AbstractUser
-from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from users.constants import (
+    MAX_LEN_CODE,
+    MAX_LEN_USERNAME,
+    MAX_LEN_EMAIL,
+    MAX_LEN_PHONE_NUMBER,
+    MAX_LEN_NAME_PROFILE,
+    COUNT_ATTEMPTS,
+    COUNT_SEND_CODE
+)
+
 
 NULLABLE = {'blank': True, 'null': True}
-
-MAX_LEN_CODE = 5
-COUNT_SEND_CODE = 3
 
 phone_validator = RegexValidator(
     r"^(\+?\d{0,4})?\s?-?\s?(\(?\d{3}\)?)\s?-?\s?(\(?\d{3}\)?)\s?-?\s?"
@@ -19,30 +25,22 @@ phone_validator = RegexValidator(
 
 class CustomUser(AbstractUser):
     """Кастомная модель пользователя."""
-    # username_validator = UnicodeUsernameValidator()
     username = models.CharField(
         _("username"),
-        max_length=150,
+        max_length=MAX_LEN_USERNAME,
         **NULLABLE
     )
     info = models.TextField(
         _("Информация"),
-        blank=True,
-        null=True,
+        **NULLABLE,
         help_text=_("Введите дополнительную информацию")
     )
     email = models.EmailField(
         _("Почта"),
-        max_length=254,
+        max_length=MAX_LEN_EMAIL,
         unique=True,
         help_text=_("Введите email, не более 254 символов"),
     )
-    # profile = models.OneToOneField(
-    #     Profile,
-    #     on_delete=models.CASCADE,
-    #     verbose_name="user"
-    # )
-    is_first = models.BooleanField(_("Первый вход"), default=True)
     is_banned = models.BooleanField(_("Бан"), default=False)
     banned_at = models.DateTimeField(
         _("Время начала бана"),
@@ -73,11 +71,14 @@ class Profile(models.Model):
     )
     phone_number = models.CharField(
         _("Номер телефона"),
-        max_length=12,
+        max_length=MAX_LEN_PHONE_NUMBER,
         unique=True,
         validators=[phone_validator]
     )
-    name = models.CharField(_("Имя пользователя"), max_length=150)
+    name = models.CharField(
+        _("Имя пользователя"),
+        max_length=MAX_LEN_NAME_PROFILE
+    )
 
 
 class OneTimeCode(models.Model):
@@ -94,11 +95,11 @@ class OneTimeCode(models.Model):
     )
     count_attempts = models.PositiveSmallIntegerField(
         _("Попытки"),
-        default=0
+        default=COUNT_ATTEMPTS
     )
     count_send_code = models.PositiveSmallIntegerField(
         _("Количество повторных отправок кода"),
-        default=0
+        default=COUNT_SEND_CODE
     )
     updated_at = models.DateTimeField(
         _("Время обновления кода"),

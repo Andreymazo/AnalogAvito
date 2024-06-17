@@ -34,15 +34,16 @@ class SignUpSerializer(serializers.ModelSerializer):
         fields = ("name", "phone_number")
         # read_only_fields = ("id", "email")
 
-    # def create(self, validated_data):
-    #     """Создание профиля."""
-    #     profile = Profile(
-    #         user=self.request.get("user"),
-    #         name=validated_data["name"],
-    #         phone_number=validated_data["phone_number"],
-    #     )
-    #     profile.save()
-    #     return profile
+    def create(self, validated_data):
+        """Создание профиля."""
+        print(self.request.get("user"))
+        profile = Profile(
+            user=self.request.get("user"),
+            name=validated_data["name"],
+            phone_number=validated_data["phone_number"],
+        )
+        profile.save()
+        return profile
 
 
 # class UserRegistrationSerializer(serializers.ModelSerializer):

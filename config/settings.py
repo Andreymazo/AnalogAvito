@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     "debug_toolbar",
     "rest_framework",
     "mptt",
+    "phonenumber_field",
 
     "ad.apps.AdConfig",
     "bulletin.apps.BulletinConfig",
@@ -99,11 +100,12 @@ DATABASES = {
             "POSTGRES_ENGINE",
             "django.db.backends.postgresql"
         ),
-        "NAME": os.getenv("POSTGRES_DB", "postgres"),
-        "USER": os.getenv("POSTGRES_USER", "postgres"),
-        "PASSWORD": os.getenv("POSTGRES_PASSWORD", "postgres"),
-        "HOST": os.getenv("DB_HOST", "db"),
-        "PORT": os.getenv("DB_PORT", 5432)
+        # "NAME": os.getenv("POSTGRES_DB"),
+        "NAME": "testpython",
+        "USER": os.getenv("POSTGRES_USER"),
+        "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
+        "HOST": os.getenv("DB_HOST"),
+        "PORT": os.getenv("DB_PORT")
     }
 }
 
@@ -185,6 +187,18 @@ ATTEMPTS = 3  # Максимальное количество попыток в�
 SITE_ID = 1
 
 REST_FRAMEWORK = {
-
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.AllowAny",
+    ],
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        # "rest_framework.authentication.BasicAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+        # "rest_framework.authentication.TokenAuthentication"
+    ],
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
+
+SESSION_EXPIRE_SECONDS = 30 * 60  # Expire after 30 minutes
+SESSION_EXPIRE_AFTER_LAST_ACTIVITY = True
+# SESSION_TIMEOUT_REDIRECT = "bulletin:log_in"  # Add your URL
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Invalid session

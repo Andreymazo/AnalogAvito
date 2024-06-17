@@ -1,47 +1,55 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from django.contrib.auth.validators import UnicodeUsernameValidator
+
+from users.constants import (
+    MAX_LEN_CODE,
+    MAX_LEN_USERNAME,
+    MAX_LEN_EMAIL,
+    MAX_LEN_PHONE_NUMBER,
+    MAX_LEN_NAME_PROFILE,
+    COUNT_ATTEMPTS,
+    COUNT_SEND_CODE
+)
+
 
 NULLABLE = {'blank': True, 'null': True}
 
-
-MAX_LEN_CODE = 5
-COUNT_ATTEMPTS = 3
+phone_validator = RegexValidator(
+    r"^(\+?\d{0,4})?\s?-?\s?(\(?\d{3}\)?)\s?-?\s?(\(?\d{3}\)?)\s?-?\s?"
+    r"(\(?\d{4}\)?)?$",
+    "The phone number provided is invalid"
+)
 
 
 class CustomUser(AbstractUser):
     """Кастомная модель пользователя."""
-    info = models.TextField(
-        _("Информация"),
-        blank=True,
-        null=True,
-        help_text=_("Введите дополнительную информацию")
-    )
-    
-    username_validator = UnicodeUsernameValidator()
     username = models.CharField(
         _("username"),
-        max_length=150,
-        unique=True,
-        help_text=_(
-            "Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only."
-        ),
-        validators=[username_validator],
-        error_messages={
-            "unique": _("A user with that username already exists."),
-        },
+        max_length=MAX_LEN_USERNAME,
         **NULLABLE
+    )
+    info = models.TextField(
+        _("Информация"),
+        **NULLABLE,
+        help_text=_("Введите дополнительную информацию")
     )
     email = models.EmailField(
         _("Почта"),
-        max_length=254,
+        max_length=MAX_LEN_EMAIL,
         unique=True,
         help_text=_("Введите email, не более 254 символов"),
     )
-    # is_first = models.BooleanField(_("Первый вход"), default=True)
     is_banned = models.BooleanField(_("Бан"), default=False)
+    banned_at = models.DateTimeField(
+        _("Время начала бана"),
+        **NULLABLE
+    )
     changed_at = models.DateTimeField(_("Время изменения"), auto_now_add=True)
+
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["username"]
 
     class Meta:
         """Конфигурация модели пользователя."""
@@ -52,6 +60,25 @@ class CustomUser(AbstractUser):
     def __str__(self):
         """Строковое представление объекта пользователя."""
         return str(self.username)
+
+
+class Profile(models.Model):
+    """Модель профайла."""
+    user = models.OneToOneField(
+        CustomUser,
+        on_delete=models.CASCADE,
+        verbose_name="profile"
+    )
+    phone_number = models.CharField(
+        _("Номер телефона"),
+        max_length=MAX_LEN_PHONE_NUMBER,
+        unique=True,
+        validators=[phone_validator]
+    )
+    name = models.CharField(
+        _("Имя пользователя"),
+        max_length=MAX_LEN_NAME_PROFILE
+    )
 
 
 class OneTimeCode(models.Model):
@@ -70,10 +97,10 @@ class OneTimeCode(models.Model):
         _("Попытки"),
         default=COUNT_ATTEMPTS
     )
-    # is_verified = models.BooleanField(
-    #     _("Код подтвержден"),
-    #     default=False
-    # )
+    count_send_code = models.PositiveSmallIntegerField(
+        _("Количество повторных отправок кода"),
+        default=COUNT_SEND_CODE
+    )
     updated_at = models.DateTimeField(
         _("Время обновления кода"),
         auto_now=True
@@ -92,10 +119,3 @@ class OneTimeCode(models.Model):
     def __str__(self):
         """Строковое представление одноразового кода."""
         return str(f"Код для {self.user.email}")
-
-
-# class SessionCustomuser(models.Model):
-#     """Модель сессии пользователя."""
-#     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-#     updated_at = models.DateTimeField(auto_now=True)
-#     created_at = models.DateTimeField(auto_now_add=True)

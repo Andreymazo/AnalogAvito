@@ -2,15 +2,23 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from mptt.models import MPTTModel, TreeForeignKey
 
+from ad.constants import MAX_LEN_NAME_CATEGORY
+
+
+NULLABLE = {'blank': True, 'null': True}
+
 
 class Category(MPTTModel):
     """Модель категории."""
-    name = models.CharField(_("Название"), max_length=50, unique=True)
+    name = models.CharField(
+        _("Название"),
+        max_length=MAX_LEN_NAME_CATEGORY,
+        unique=True
+    )
     parent = TreeForeignKey(
         "self",
         on_delete=models.CASCADE,
-        null=True,
-        blank=True,
+        **NULLABLE,
         related_name="children",
         verbose_name=_("Родитель")
     )

@@ -1,7 +1,8 @@
 from rest_framework import serializers
 
 from ad.models import Category
-from users.models import MAX_LEN_CODE, CustomUser, OneTimeCode
+from users.constants import MAX_LEN_CODE
+from users.models import CustomUser, OneTimeCode, Profile
 
 
 class CustomUserLoginSerializer(serializers.ModelSerializer):
@@ -11,9 +12,38 @@ class CustomUserLoginSerializer(serializers.ModelSerializer):
     class Meta:
         """Конфигурация сериализатора для входа по одноразовому коду."""
         model = CustomUser
-        fields = ("email",)# "username")
+        fields = ("email",)  # "username")
         # read_only_fields = ("username",)
         # read_only_fields = ("username",)
+
+
+class SignInSerializer(serializers.ModelSerializer):
+    """Сериализатор для представления пользователя после входа."""
+
+    class Meta:
+        model = CustomUser
+        fields = ("id", "email")
+        read_only_fields = ("id", "email")
+
+
+class SignUpSerializer(serializers.ModelSerializer):
+    """Сериализатор для регистрации пользователя."""
+
+    class Meta:
+        """Конфигурация сериализатора для регистрации пользователя."""
+        model = Profile
+        fields = ("user", "name", "phone_number")
+        read_only_fields = ("user",)
+
+    def create(self, validated_data):
+        user = self.context["user"]
+        profile = Profile.objects.create(
+            user=user,
+            name=validated_data["name"],
+            phone_number=validated_data["phone_number"],
+        )
+        profile.save()
+        return profile
 
 
 # class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -43,19 +73,19 @@ class OneTimeCodeSerializer(serializers.ModelSerializer):
         fields = ("code",)
 
 
-class CreateProfileSerializer(serializers.ModelSerializer):
-    """Сериализатор для ввода персональных данных."""
+# class CreateProfileSerializer(serializers.ModelSerializer):
+#     """Сериализатор для ввода персональных данных."""
 
-    class Meta:
-        """Конфигурация сериализатора для ввода персональных данных."""
-        model = CustomUser
-        fields = (
-            "username",
-            "first_name",
-            "last_name",
-            # "phone_number",
-            "info"
-        )
+#     class Meta:
+#         """Конфигурация сериализатора для ввода персональных данных."""
+#         model = CustomUser
+#         fields = (
+#             "username",
+#             "first_name",
+#             "last_name",
+#             # "phone_number",
+#             "info"
+#         )
 
 
 class CategorySerializer(serializers.ModelSerializer):

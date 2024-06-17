@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from ad.models import Category
-from users.models import MAX_LEN_CODE, CustomUser, OneTimeCode
+from users.models import MAX_LEN_CODE, CustomUser, OneTimeCode, Profile
 
 
 class CustomUserLoginSerializer(serializers.ModelSerializer):
@@ -18,7 +18,7 @@ class CustomUserLoginSerializer(serializers.ModelSerializer):
 
 class SignInSerializer(serializers.ModelSerializer):
     """Сериализатор для представления пользователя после входа."""
-    
+
     class Meta:
         model = CustomUser
         fields = ("id", "email")
@@ -30,9 +30,19 @@ class SignUpSerializer(serializers.ModelSerializer):
 
     class Meta:
         """Конфигурация сериализатора для регистрации пользователя."""
-        model = CustomUser
-        fields = ("first_name", "phone_number")
+        model = Profile
+        fields = ("name", "phone_number")
         # read_only_fields = ("id", "email")
+
+    # def create(self, validated_data):
+    #     """Создание профиля."""
+    #     profile = Profile(
+    #         user=self.request.get("user"),
+    #         name=validated_data["name"],
+    #         phone_number=validated_data["phone_number"],
+    #     )
+    #     profile.save()
+    #     return profile
 
 
 # class UserRegistrationSerializer(serializers.ModelSerializer):

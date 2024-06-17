@@ -7,6 +7,7 @@ from bulletin.views import (
     ConfirmCodeView,
     # confirm_code,
     # create_profile,
+    NewCodeView,
     home,
     # sign_in,
     log_out,
@@ -29,6 +30,7 @@ url_v1 = [
     # path("create_profile/", create_profile, name="create_profile"),
     path("confirm_code/", ConfirmCodeView.as_view(), name="confirm_code"),
     path("sign_up/", SignUpView.as_view(), name="sign_up"),
+    path("new_code/", NewCodeView.as_view(), name="new_code"),
     # path("get_new_code/", get_new_code, name="get_new_code"),
     path("", include(router.urls)),
 ]

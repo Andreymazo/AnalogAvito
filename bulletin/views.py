@@ -24,15 +24,64 @@ from bulletin.utils import (
     if_user_first
 )
 from users.models import (
-    COUNT_ATTEMPTS,
-    COUNT_SEND_CODE,
+    # COUNT_ATTEMPTS,
+    # COUNT_SEND_CODE,
     CustomUser,
     OneTimeCode
 )
 
 
 TIME_OTC = 30 * 60  # Время жизни кода в секундах
-TIME_RESEND_CODE = 3 * 60  # Время между повторными отправками кода
+# TIME_OTC = 5
+# TIME_RESEND_CODE = 3 * 60  # Время между повторными отправками кода
+TIME_RESEND_CODE = 10
+COUNT_ATTEMPTS = 3
+COUNT_SEND_CODE = 3
+
+
+# def check_user_ban(user):
+#     """Проверка бана пользователя."""
+#     ban_time = check_ban(user)
+#     if ban_time:
+#         return Response(
+#             {
+#                 "message": "Вы забанены на 24 часа.",
+#                 "ban_time": ban_time
+#             },
+#             status=status.HTTP_403_FORBIDDEN
+#         )
+
+# class CheckBanAttemptsMixin():
+#     """Миксин для проверки бана пользователя и количества попыток."""
+
+#     def check_user_ban(user):
+#         """Проверка бана пользователя."""
+#         ban_time = check_ban(user)
+#         if ban_time:
+#             return Response(
+#                 {
+#                     "message": "Вы забанены на 24 часа.",
+#                     "ban_time": ban_time
+#                 },
+#                 status=status.HTTP_403_FORBIDDEN
+#             )
+
+#     def check_user_attempts(user):
+#         """Проверка количества попыток ввода кода."""
+#         otc = user.onetimecodes
+#         if otc.count_attempts == 0:
+#             user.is_banned = True
+#             user.save()
+#             return Response(
+#                 {
+#                     "message": (
+#                         f"Вы ввели неправильно {COUNT_ATTEMPTS} раз. "
+#                         "Вы забанены на 24 часа."
+#                     ),
+#                     "count_attempts": COUNT_ATTEMPTS
+#                 },
+#                 status=status.HTTP_403_FORBIDDEN
+#             )
 
 
 def home(request):
@@ -54,6 +103,51 @@ class SignInView(APIView):
             ).get(email=email)
         except CustomUser.DoesNotExist:
             user = CustomUser.objects.create(email=email)
+
+        ban_time = check_ban(user)
+        if ban_time:
+            return Response(
+                {
+                    "message": "Вы забанены на 24 часа.",
+                    "ban_time": ban_time
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # Либо создаем, либо меняем поле code в существующем коде пользователя
+        # и отправлям на confirm_code
+        create_or_update_code(user)
+        request.session["email"] = email
+
+        return Response(status=status.HTTP_200_OK)
+
+        # try:
+        #     otc = user.onetimecodes
+        #     if otc.count_attempts == 0:
+        #         # user.is_banned = True
+        #         # user.save()
+        #         return Response(
+        #             {
+        #                 "message": (
+        #                     f"Вы ввели неправильно {COUNT_ATTEMPTS} раз. "
+        #                     "Вы забанены на 24 часа."
+        #                 ),
+        #                 "count_attempts": COUNT_ATTEMPTS
+        #             },
+        #             status=status.HTTP_403_FORBIDDEN
+        #         )
+        # except OneTimeCode.DoesNotExist:
+        #     pass
+
+        # if not otc:
+            # return Response(
+            #     {"message": "Одноразовый код не найден."},
+            #     status=status.HTTP_404_NOT_FOUND
+            # )
+
+        # CheckBanAttemptsMixin.check_user_ban(user)
+        # CheckBanAttemptsMixin.check_user_attempts(user)
+
             # # Если пользователя нет, в ответе пишем, что не зарегистрирован
             # return Response(
             #     {
@@ -65,15 +159,15 @@ class SignInView(APIView):
             #     status=status.HTTP_404_NOT_FOUND
             # )
 
-        ban_time = check_ban(user)
-        if ban_time:
-            return Response(
-                {
-                    "message": "Вы забанены на 24 часа.",
-                    "ban_time": ban_time
-                },
-                status=status.HTTP_403_FORBIDDEN
-            )
+        # ban_time = check_ban(user)
+        # if ban_time:
+        #     return Response(
+        #         {
+        #             "message": "Вы забанены на 24 часа.",
+        #             "ban_time": ban_time
+        #         },
+        #         status=status.HTTP_403_FORBIDDEN
+        #     )
 
         # if otc.count_attempts == 0:
         #         user.is_banned = True
@@ -86,13 +180,7 @@ class SignInView(APIView):
                         #     f"Вы ввели неправильно {otc.count_attempts} раза "
                         #       "Вы забанены на 24 часа")
 
-        # Либо создаем, либо меняем поле code в существующем коде пользователя
-        # и отправлям на confirm_code
-        create_or_update_code(user)
-        # print("=========================email_code", otc.code)
-        request.session["email"] = email
-        # request.session["email_code"] = email_code.code
-        return Response(status=status.HTTP_200_OK)
+        
         # return redirect(reverse("bulletin:confirm_code"))
 
 
@@ -111,8 +199,9 @@ class ConfirmCodeView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        otc = user.onetimecodes
-        if not otc:
+        try:
+            otc = user.onetimecodes
+        except OneTimeCode.DoesNotExist:
             return Response(
                 {"message": "Одноразовый код не найден."},
                 status=status.HTTP_404_NOT_FOUND
@@ -128,19 +217,21 @@ class ConfirmCodeView(APIView):
                 status=status.HTTP_403_FORBIDDEN
             )
 
-        if otc.count_attempts == 0:
-            user.is_banned = True
-            user.save()
-            return Response(
-                {
-                    "message": (
-                        f"Вы ввели неправильно {COUNT_ATTEMPTS} раз. "
-                        "Вы забанены на 24 часа."
-                    ),
-                    "count_attempts": COUNT_ATTEMPTS
-                },
-                status=status.HTTP_403_FORBIDDEN
-            )
+        # CheckBanAttemptsMixin.check_user_attempts(user)
+
+        # if otc.count_attempts == 0:
+        #     user.is_banned = True
+        #     user.save()
+        #     return Response(
+        #         {
+        #             "message": (
+        #                 f"Вы ввели неправильно {COUNT_ATTEMPTS} раза. "
+        #                 "Вы забанены на 24 часа."
+        #             ),
+        #             "remaining_attempts": otc.count_attempts
+        #         },
+        #         status=status.HTTP_403_FORBIDDEN
+        #     )
 
         # if datetime.now(timezone.utc) - otc.created_at < timedelta(
         #         seconds=2
@@ -151,16 +242,29 @@ class ConfirmCodeView(APIView):
         serializer = OneTimeCodeSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        otc.count_attempts = otc.count_attempts - 1
-        otc.save()
+        # otc.count_attempts = otc.count_attempts - 1
+        # otc.save()
 
         email_code = serializer.validated_data["code"]
         # Проверяем срок действия кода, если просрочен, то отправляем снова
         if datetime.now(timezone.utc) - otc.updated_at > timedelta(
             seconds=TIME_OTC
         ):
-            # otc.delete()
+            if otc.count_send_code == COUNT_SEND_CODE:
+                user.is_banned = True
+                user. banned_at = datetime.now(timezone.utc)
+                user.save()
+                return Response(
+                    {
+                        "message": ("Слишком много запросов на отправку кода. "
+                                    "Вы забанены на 24 часа."),
+                        "count_send_code": otc.count_send_code
+                    },
+                    status=status.HTTP_403_FORBIDDEN
+                )
             create_or_update_code(user)  # Повторная отправка кода
+            otc.count_send_code += 1
+            otc.save()
 
             return Response(
                 {"message": "Время ожидания истекло."},
@@ -170,8 +274,7 @@ class ConfirmCodeView(APIView):
         if otc.code == email_code:
             if not user.is_first:
                 login(request, user)
-
-            otc.count_attempts = COUNT_ATTEMPTS
+            otc.count_attempts = 0
             otc.count_send_code = COUNT_SEND_CODE
             otc.save(
                 # update_fields=[
@@ -188,11 +291,31 @@ class ConfirmCodeView(APIView):
                 status=status.HTTP_200_OK
             )
 
-        lost_attempts = COUNT_ATTEMPTS - otc.count_attempts
+        # otc.count_attempts = otc.count_attempts - 1
+        otc.count_attempts += 1
+        otc.save()
+        # remaining_attempts - количество использованных попыток
+        remaining_attempts = COUNT_ATTEMPTS - otc.count_attempts
+
+        if otc.count_attempts == COUNT_ATTEMPTS:
+            user.is_banned = True
+            user.banned_at = datetime.now(timezone.utc)
+            user.save(update_fields=["is_banned", "banned_at"])
+            return Response(
+                {
+                    "message": ("Вы ввели код неправильно "
+                                f"{otc.count_attempts} раза. "
+                                "Вы забанены на 24 часа."),
+                    "remaining_attempts": remaining_attempts
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
         return Response(
             {
-                "message": f"Вы ввели код неправильно {lost_attempts} раза.",
-                "lost_attempts": lost_attempts
+                "message": (f"Вы ввели код неправильно "
+                            f"{otc.count_attempts} раза."),
+                "remaining_attempts": remaining_attempts
             },
             status=status.HTTP_400_BAD_REQUEST
         )
@@ -225,7 +348,7 @@ class SignUpView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         user.is_first = False
-        user.save(update_fields=["is_first"])
+        user.save()
         login(request, user)
         # serializer = SignUpSerializer(user)
         return Response(
@@ -251,8 +374,9 @@ class NewCodeView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        otc = user.onetimecodes
-        if not otc:
+        try:
+            otc = user.onetimecodes
+        except OneTimeCode.DoesNotExist:
             return Response(
                 {"message": "Одноразовый код не найден."},
                 status=status.HTTP_404_NOT_FOUND
@@ -269,8 +393,31 @@ class NewCodeView(APIView):
                 status=status.HTTP_403_FORBIDDEN
             )
 
+        # if datetime.now(timezone.utc) - otc.updated_at > timedelta(
+        #     seconds=TIME_OTC
+        # ):
+        #     if otc.count_send_code == COUNT_SEND_CODE:
+        #         user.is_banned = True
+        #         user. banned_at = datetime.now(timezone.utc)
+        #         user.save()
+        #         return Response(
+        #             {
+        #                 "message": ("Слишком много запросов на отправку кода. "
+        #                             "Вы забанены на 24 часа.")
+        #             },
+        #             status=status.HTTP_403_FORBIDDEN
+        #         )
+        #     create_or_update_code(user)  # Повторная отправка кода
+        #     otc.count_send_code += 1
+        #     otc.save()
+
+        #     return Response(
+        #         {"message": "Время ожидания истекло."},
+        #         status=status.HTTP_400_BAD_REQUEST
+        #         )
+
         # Проверям количество уже отправленных кодов
-        if otc.count_send_code == 0:
+        if otc.count_send_code == COUNT_SEND_CODE:
             user.is_banned = True
             user.save()
             return Response(
@@ -279,7 +426,7 @@ class NewCodeView(APIView):
                         f"Вы запросили код более {COUNT_SEND_CODE} раз. "
                         "Вы забанены на 24 часа."
                     ),
-                    "count_send_code": COUNT_SEND_CODE
+                    "count_send_code": otc.count_send_code
                 },
                 status=status.HTTP_403_FORBIDDEN
             )
@@ -287,10 +434,13 @@ class NewCodeView(APIView):
         # Проверяем, что между повторными отправками кода 
         # было больше {TIME_RESEND_CODE} секунд
         passed_time = (datetime.now(timezone.utc) - otc.updated_at)
-        if passed_time < timedelta(seconds=TIME_RESEND_CODE):
+        print(passed_time)
+        formatted_time_resend_code = timedelta(seconds=TIME_RESEND_CODE)
+        if passed_time < formatted_time_resend_code:
             left_resend_time = (
-                TIME_RESEND_CODE - datetime.now(timezone.utc)  # .second?
-            )
+                formatted_time_resend_code - datetime.now(timezone.utc)
+            )  # ДОДЕЛАТЬ!
+            print(left_resend_time)
             return Response(
                 {
                     "message": ("Между повторными отправками кода должно "

@@ -3,10 +3,11 @@ from datetime import datetime, timedelta, timezone
 from django.conf import settings
 from django.core.mail import send_mail
 from config.settings import ATTEMPTS
-from users.models import COUNT_ATTEMPTS, CustomUser, OneTimeCode
+from users.models import CustomUser, OneTimeCode
 
 LEN_CODE = 5
-TIME_BAN = 24 * 60 * 60  # Время бана в секундах
+# TIME_BAN = 24 * 60 * 60  # Время бана в секундах
+TIME_BAN = 15
 
 
 def get_random_code():
@@ -43,7 +44,7 @@ def check_ban(user):
     ban_time = ""
     if user.is_banned:
         # time_from_ban - время, прошедшее с момента бана
-        time_from_ban = datetime.now(timezone.utc) - user.changed_at
+        time_from_ban = datetime.now(timezone.utc) - user.banned_at
 
         if time_from_ban < timedelta(seconds=TIME_BAN):
             # ban_time - оставшееся время бана
@@ -65,11 +66,13 @@ def check_ban(user):
             #     )
             # user.onetimecodes.count_attempts = COUNT_ATTEMPTS  # протестировать! -> не сохраняет
             # otc = user.onetimecodes
-            otc = OneTimeCode.objects.get(user=user)
-            otc.count_attempts = COUNT_ATTEMPTS
+            # otc = OneTimeCode.objects.get(user=user)
+            otc = user.onetimecodes
+            otc.count_attempts = 0
+            otc.count_send_code = 0
             otc.save()
             user.is_banned = False
-            user.save()
+            user.save(update_fields=["is_banned"])
     # Возвращает пустую строку, если бана нет.
     # Если есть - строку со значением оставшегося времени.
     return ban_time
@@ -83,18 +86,20 @@ def create_or_update_code(user):
      # for test
     # send_code_by_email(email, code)
 
-    try:
-        otc = OneTimeCode.objects.get(user=user)
-        # otc.code = code
-        # otc.count_attempts += 1
-        otc.save(update_fields=["code"])  # Поменяли только поле code
-    except OneTimeCode.DoesNotExist:
-        # создали новый код пользователя
-        otc = OneTimeCode.objects.create(user=user)
-        # otc.save()
+    # try:
+    #     otc = OneTimeCode.objects.get(user=user)
+    #     # otc.code = code
+    #     # otc.count_attempts += 1
+    #     # otc.save(update_fields=["code"])  # Поменяли только поле code
+    # except OneTimeCode.DoesNotExist:
+    #     # создали новый код пользователя
+    #     otc = OneTimeCode.objects.create(user=user)
+    #     # otc.save()
+    otc, _ = OneTimeCode.objects.get_or_create(user=user)
     otc.code = code
-    otc.count_attempts -= 1
-    otc.save(update_fields=["code", "count_attempts"])
+    # otc.count_attempts -= 1
+    # otc.save(update_fields=["code", "count_attempts"])
+    otc.save()
     print("code: ", code)
     return otc
 

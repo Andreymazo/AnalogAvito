@@ -217,6 +217,7 @@ class SignUpView(APIView):
             context={"user": user}
         )
         serializer.is_valid(raise_exception=True)
+        print('serializer.data',serializer.data)
         serializer.save()
         login(request, user)
         return Response(
@@ -306,6 +307,7 @@ class NewCodeView(APIView):
 
 @api_view(["POST"])
 def log_out(request):
+    print(request.user.is_authenticated)
     """Выход из учетной записи пользователя."""
     if not request.user.is_authenticated:
         return Response(
@@ -314,6 +316,7 @@ def log_out(request):
         )
 
     logout(request)
+    print(request.user.is_authenticated)
     return Response(status=status.HTTP_200_OK)
 
 

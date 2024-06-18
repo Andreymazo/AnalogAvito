@@ -3,14 +3,12 @@ from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from users.constants import (
+from config.constants import (
     MAX_LEN_CODE,
     MAX_LEN_USERNAME,
     MAX_LEN_EMAIL,
     MAX_LEN_PHONE_NUMBER,
     MAX_LEN_NAME_PROFILE,
-    COUNT_ATTEMPTS,
-    COUNT_SEND_CODE
 )
 
 
@@ -95,11 +93,11 @@ class OneTimeCode(models.Model):
     )
     count_attempts = models.PositiveSmallIntegerField(
         _("Попытки"),
-        default=COUNT_ATTEMPTS
+        default=0
     )
     count_send_code = models.PositiveSmallIntegerField(
         _("Количество повторных отправок кода"),
-        default=COUNT_SEND_CODE
+        default=0
     )
     updated_at = models.DateTimeField(
         _("Время обновления кода"),

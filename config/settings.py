@@ -28,7 +28,6 @@ INSTALLED_APPS = [
     "debug_toolbar",
     "rest_framework",
     "mptt",
-    "phonenumber_field",
 
     "ad.apps.AdConfig",
     "bulletin.apps.BulletinConfig",
@@ -96,16 +95,13 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": os.getenv(
-            "POSTGRES_ENGINE",
-            "django.db.backends.postgresql"
-        ),
-        # "NAME": os.getenv("POSTGRES_DB"),
-        "NAME": "testpython",
-        "USER": os.getenv("POSTGRES_USER"),
-        "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
+        "ENGINE": "django.db.backends.postgresql",
+        # "NAME": os.getenv("DB_NAME"),
         "HOST": os.getenv("DB_HOST"),
-        "PORT": os.getenv("DB_PORT")
+        "PORT": os.getenv("DB_PORT"),
+        "USER": os.getenv("DB_USER"),
+        "PASSWORD": os.getenv("DB_PASSWORD"),
+        "NAME": "testpython",
     }
 }
 

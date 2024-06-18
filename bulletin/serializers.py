@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from ad.models import Category
-from users.constants import MAX_LEN_CODE
+from config.constants import MAX_LEN_CODE
 from users.models import CustomUser, OneTimeCode, Profile
 
 

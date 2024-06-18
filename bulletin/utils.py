@@ -4,7 +4,7 @@ from django.conf import settings
 from django.core.mail import send_mail
 from users.models import OneTimeCode
 
-from bulletin.constants import LEN_CODE, TIME_BAN
+from config.constants import LEN_CODE, TIME_BAN
 
 
 def get_random_code():
@@ -34,15 +34,14 @@ def check_ban(user):
         time_from_ban = datetime.now(timezone.utc) - user.banned_at
 
         if time_from_ban < timedelta(seconds=TIME_BAN):
-            # ban_time - оставшееся время бана
-            ban_time = timedelta(seconds=TIME_BAN) - time_from_ban
+            ban_time = user.banned_at + timedelta(seconds=TIME_BAN)
         else:
             otc = user.onetimecodes
             otc.count_attempts = 0
             otc.count_send_code = 0
             otc.save()
             user.is_banned = False
-            user.save(update_fields=["is_banned"])
+            user.save()
     # Возвращает пустую строку, если бана нет.
     # Если есть - строку со значением оставшегося времени.
     return ban_time
@@ -51,7 +50,7 @@ def check_ban(user):
 def create_or_update_code(user):
     """Создать одноразовый код."""
     code = get_random_code()
-    
+
     otc, _ = OneTimeCode.objects.get_or_create(user=user)
     otc.code = code
     otc.save()

@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta, timezone
 from django.contrib.auth import login, logout
-from django.shortcuts import render
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -9,13 +8,12 @@ from rest_framework.views import APIView
 from ad.models import Category
 from bulletin.serializers import (
     CategorySerializer,
-    # CreateProfileSerializer,
     CustomUserLoginSerializer,
     OneTimeCodeSerializer,
     SignInSerializer,
     SignUpSerializer
 )
-from bulletin.constants import (
+from config.constants import (
     TIME_OTC,
     TIME_RESEND_CODE,
     COUNT_ATTEMPTS,
@@ -36,6 +34,12 @@ class SignInView(APIView):
     """Вход пользователя."""
 
     def post(self, request):
+        if request.user.is_authenticated:
+            return Response(
+                {"message": "Вы уже авторизированы."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         serializer = CustomUserLoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         email = serializer.validated_data["email"]
@@ -69,6 +73,12 @@ class ConfirmCodeView(APIView):
     """Подтверждение кода."""
 
     def post(self, request):
+        if request.user.is_authenticated:
+            return Response(
+                {"message": "Вы уже авторизированы."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         email = request.session.get("email")
         try:
             user = CustomUser.objects.select_related(
@@ -177,6 +187,12 @@ class SignUpView(APIView):
     """Регистрация пользователя."""
 
     def post(self, request):
+        if request.user.is_authenticated:
+            return Response(
+                {"message": "Вы уже авторизированы."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         email = request.session.get("email")
         try:
             user = CustomUser.objects.get(email=email)
@@ -213,6 +229,12 @@ class NewCodeView(APIView):
     """Запрос на повторную отправку кода."""
 
     def post(self, request):
+        if request.user.is_authenticated:
+            return Response(
+                {"message": "Вы уже авторизированы."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         email = request.session.get("email")
         try:
             user = CustomUser.objects.select_related(
@@ -259,17 +281,18 @@ class NewCodeView(APIView):
 
         # Проверяем, что между повторными отправками кода
         # было больше {TIME_RESEND_CODE} секунд
-        # passed_time - прошло времени с последней отправки кода
+        # next_send_time - время до следующей отправки кода
         time_from_send = datetime.now(timezone.utc) - otc.updated_at
-        formatted_time_resend_code = timedelta(seconds=TIME_RESEND_CODE)
-        if time_from_send < formatted_time_resend_code:
-            past_time = (formatted_time_resend_code - time_from_send)
+        if time_from_send < timedelta(seconds=TIME_RESEND_CODE):
+            next_send_time = otc.updated_at + timedelta(
+                seconds=TIME_RESEND_CODE
+            )
             return Response(
                 {
                     "message": ("Между повторными отправками кода должно "
                                 f"пройти {TIME_RESEND_CODE} секунд."),
                     "time": TIME_RESEND_CODE,
-                    "past_time": past_time.total_seconds()
+                    "next_send_time": next_send_time
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
@@ -284,8 +307,14 @@ class NewCodeView(APIView):
 @api_view(["POST"])
 def log_out(request):
     """Выход из учетной записи пользователя."""
+    if not request.user.is_authenticated:
+        return Response(
+            {"message": "Вы не авторизированы."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
     logout(request)
-    return Response(status=status.HTTP_401_UNAUTHORIZED)
+    return Response(status=status.HTTP_200_OK)
 
 
 @api_view(["POST", "GET"])

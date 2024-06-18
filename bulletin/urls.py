@@ -20,11 +20,11 @@ router.register("categories", CategoryViewSet)
 
 url_v1 = [
     path("verify_code/", verify_code, name="verify_code"),
-    path("sign_in/", SignInView.as_view(), name="sign_in"),
+    path("sign_in_email/", SignInView.as_view(), name="sign_in_email"),
     path("log_out/", log_out, name="log_out"),
     # path("create_profile/", create_profile, name="create_profile"),
     path("confirm_code/", ConfirmCodeView.as_view(), name="confirm_code"),
-    path("sign_up/", SignUpView.as_view(), name="sign_up"),
+    path("sign_up_profile/", SignUpView.as_view(), name="sign_up_profile"),
     path("new_code/", NewCodeView.as_view(), name="new_code"),
     # path("get_new_code/", get_new_code, name="get_new_code"),
     path("", include(router.urls)),

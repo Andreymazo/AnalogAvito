@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from mptt.models import MPTTModel, TreeForeignKey
 
-from ad.constants import MAX_LEN_NAME_CATEGORY
+from config.constants import MAX_LEN_NAME_CATEGORY
 
 
 NULLABLE = {'blank': True, 'null': True}

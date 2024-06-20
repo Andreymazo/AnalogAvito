@@ -2,7 +2,7 @@ from typing import Iterable
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from mptt.models import MPTTModel, TreeForeignKey
-
+from django.db.models.signals import post_save
 from config.constants import MAX_LEN_NAME_CATEGORY
 
 
@@ -45,8 +45,6 @@ class Advertisement(models.Model):
     changed = models.DateTimeField(auto_now_add=True)
     moderation = models.BooleanField(_("Модерация"), default=False)
 
-
-from django.db.models.signals import post_save
 
 class IP(models.Model):
     ip = models.CharField(max_length=100)

@@ -55,12 +55,9 @@ class IP(models.Model):
 
     @classmethod
     def post_create(cls, sender, instance, created, *args, **kwargs):
-        print('======================instance.id', instance.profile_id)
         queryset = IP.objects.all().filter(profile_id=instance.profile_id)
-        # print('--------------------------------------------------', instance.__dict__, sender, queryset)
       
         if len(queryset)>2:
-            # print('--------------------------------------------------', sender, instance, queryset)
             queryset.exclude(pk__in=queryset.values_list("pk")[:2]).delete()
         return
 

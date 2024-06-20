@@ -10,6 +10,7 @@ from config.constants import (
     MAX_LEN_PHONE_NUMBER,
     MAX_LEN_NAME_PROFILE,
 )
+from users.managers import CustomUserManager
 
 
 NULLABLE = {'blank': True, 'null': True}
@@ -23,11 +24,7 @@ phone_validator = RegexValidator(
 
 class CustomUser(AbstractUser):
     """Кастомная модель пользователя."""
-    username = models.CharField(
-        _("username"),
-        max_length=MAX_LEN_USERNAME,
-        **NULLABLE
-    )
+    username = None
     info = models.TextField(
         _("Информация"),
         **NULLABLE,
@@ -46,8 +43,10 @@ class CustomUser(AbstractUser):
     )
     changed_at = models.DateTimeField(_("Время изменения"), auto_now_add=True)
 
+    objects = CustomUserManager()
+
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ["username"]
+    REQUIRED_FIELDS = []
 
     class Meta:
         """Конфигурация модели пользователя."""

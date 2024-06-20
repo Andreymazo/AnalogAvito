@@ -52,20 +52,6 @@ class IP(models.Model):
     ip = models.CharField(max_length=100)
     profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, **NULLABLE)
     advertisement = models.ForeignKey("ad.Advertisement", on_delete=models.CASCADE, **NULLABLE)
-    
-    # def initialize(self, *args, **kwargs):
-    #     self.ip = kwargs['ip']
-    #     self.profile = kwargs['profile']
-    #     self.advertisement = kwargs['advertisement']
-
-    # @classmethod
-    # def create(cls, *args, **kwargs):
-    #     # LOGICS
-    #     print('--------------------------------------------------')
-
-    #     self = cls()
-    #     self.initialize(*args, **kwargs)
-    #     return self
 
     @classmethod
     def post_create(cls, sender, instance, created, *args, **kwargs):

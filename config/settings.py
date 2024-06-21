@@ -191,7 +191,12 @@ REST_FRAMEWORK = {
         # "rest_framework.authentication.TokenAuthentication"
     ],
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    'DEFAULT_FILTER_BACKENDS':(
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.OrderingFilter', 
+    ), 
 }
+
 
 SESSION_EXPIRE_SECONDS = 30 * 60  # Expire after 30 minutes
 SESSION_EXPIRE_AFTER_LAST_ACTIVITY = True

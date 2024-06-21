@@ -9,7 +9,7 @@ class AdvertisementFilter(django_filters.FilterSet):
 
     # name = django_filters.CharFilter(lookup_expr='gt')
     # name = django_filters.CharFilter(field_name='name')
-    created__gt = django_filters.DateTimeFilter(field_name='creted', lookup_expr='gt')
+    created__gt = django_filters.DateTimeFilter(field_name='created', lookup_expr='gt')
     # data__gt = django_filters.NumberFilter(field_name='data', lookup_expr='gt')
     # quantity__lt = django_filters.NumberFilter(field_name='quantity', lookup_expr='lt')
 
@@ -24,6 +24,6 @@ class AdvertisementFilter(django_filters.FilterSet):
     class Meta:
         model = Advertisement
         # ordering = ('title',)
-        fields = ['title', 'created']
+        fields = ['title', 'created',]
         
 

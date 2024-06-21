@@ -366,9 +366,13 @@ from rest_framework import generics
 from rest_framework.pagination import PageNumberPagination
 
 class AdvertisementList(generics.ListAPIView):
-    serializer_class = AdvertisementSerializer
-    filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
     queryset = Advertisement.objects.all()
+    serializer_class = AdvertisementSerializer
+    name = "ad_list"
+    filter_fields = ( 
+        'created', 
+    )
+
     """Можно передать на фронт сразу все кверисеты, там делать видимым один и селектом(select) давать возможность 
     пользователю переключаться, тогда вся джанговская фильтрация не нужна"""
     
@@ -379,12 +383,12 @@ class AdvertisementList(generics.ListAPIView):
     #     # queryset = {"queryset1":queryset1, "queryset2":queryset2, "queryset3":queryset3}
     #     return queryset1.order_by('-created')
     
-    def get(self, request):
-        paginator = PageNumberPagination()
-        paginator.page_query_param = 'page'
-        paginator.page_size_query_param = 'per_page'
-        paginator.page_size = 1
-        context = paginator.paginate_queryset(self.queryset, request)
-        serializer1=AdvertisementSerializer(context, many=True)
-        return paginator.get_paginated_response(serializer1.data)
+    # def get(self, request):
+    #     paginator = PageNumberPagination()
+    #     paginator.page_query_param = 'page'
+    #     paginator.page_size_query_param = 'per_page'
+    #     paginator.page_size = 1
+    #     context = paginator.paginate_queryset(self.queryset, request)
+    #     serializer1=AdvertisementSerializer(context, many=True)
+    #     return paginator.get_paginated_response(serializer1.data)
 

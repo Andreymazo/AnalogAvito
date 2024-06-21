@@ -24,15 +24,14 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.sites",
-
     "debug_toolbar",
     "rest_framework",
     "mptt",
-
     "ad.apps.AdConfig",
     "bulletin.apps.BulletinConfig",
     "users.apps.UsersConfig",
     "drf_spectacular",
+    'django_filters',
 ]
 
 MIDDLEWARE = [

@@ -3,9 +3,11 @@ from rest_framework import routers
 
 from bulletin.apps import BulletinConfig
 from bulletin.views import (
+    AdvertisementList,
     CategoryViewSet,
     ConfirmCodeView,
     NewCodeView,
+    #ad_list,
     log_out,
     SignInView,
     SignUpView,
@@ -27,6 +29,9 @@ url_v1 = [
     path("sign_up_profile/", SignUpView.as_view(), name="sign_up_profile"),
     path("new_code/", NewCodeView.as_view(), name="new_code"),
     # path("get_new_code/", get_new_code, name="get_new_code"),
+    # path("ad_list/", ad_list, name="ad_list"),
+    path("ad_list/", AdvertisementList.as_view(), name="ad_list"),
+    
     path("", include(router.urls)),
 ]
 

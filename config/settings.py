@@ -24,15 +24,14 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.sites",
-
     "debug_toolbar",
     "rest_framework",
     "mptt",
-
     "ad.apps.AdConfig",
     "bulletin.apps.BulletinConfig",
     "users.apps.UsersConfig",
     "drf_spectacular",
+    'django_filters',
 ]
 
 MIDDLEWARE = [
@@ -192,7 +191,14 @@ REST_FRAMEWORK = {
         # "rest_framework.authentication.TokenAuthentication"
     ],
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    'DEFAULT_FILTER_BACKENDS':(
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.OrderingFilter', 
+    ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 2
 }
+
 
 SESSION_EXPIRE_SECONDS = 30 * 60  # Expire after 30 minutes
 SESSION_EXPIRE_AFTER_LAST_ACTIVITY = True

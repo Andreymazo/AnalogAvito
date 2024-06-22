@@ -4,9 +4,10 @@ from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
-from ad.models import Category
+from rest_framework import generics
+from ad.models import Advertisement, Category
 from bulletin.serializers import (
+    AdvertisementSerializer,
     CategorySerializer,
     CustomUserLoginSerializer,
     OneTimeCodeSerializer,
@@ -335,3 +336,32 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     http_method_names = ("get", "post")
     queryset = Category.objects.prefetch_related('children').all()
     serializer_class = CategorySerializer
+
+
+class AdvertisementList(generics.ListAPIView):
+    queryset = Advertisement.objects.all()
+    serializer_class = AdvertisementSerializer
+    name = "ad_list"
+    filter_fields = ( 
+        '-created', 
+    )
+
+    """Можно передать на фронт сразу все кверисеты, там делать видимым один и селектом(select) давать возможность 
+    пользователю переключаться, тогда вся джанговская фильтрация не нужна"""
+    
+    # def get_queryset(self):
+    #     queryset1 = Advertisement.objects.all()
+    #     # queryset2 = Advertisement.objects.all()[:12]
+    #     # queryset3 = Advertisement.objects.order_by('-created')
+    #     # queryset = {"queryset1":queryset1, "queryset2":queryset2, "queryset3":queryset3}
+    #     return queryset1.order_by('-created')
+    """Кастомная пагинация на подружилась с фильтрацией"""
+    # def get(self, request):
+    #     paginator = PageNumberPagination()
+    #     paginator.page_query_param = 'page'
+    #     paginator.page_size_query_param = 'per_page'
+    #     paginator.page_size = 1
+    #     context = paginator.paginate_queryset(self.queryset, request)
+    #     serializer1=AdvertisementSerializer(context, many=True)
+    #     return paginator.get_paginated_response(serializer1.data)
+

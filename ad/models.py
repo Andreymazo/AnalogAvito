@@ -38,10 +38,10 @@ class Category(MPTTModel):
 
 
 class Advertisement(models.Model):
-    title = models.CharField(_("Название"),max_length=175)
-    description = models.CharField(_("Описание"), max_length=2000)
-    profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, **NULLABLE)
-    category = models.ForeignKey("ad.Category", on_delete=models.CASCADE, **NULLABLE)
+    # title = models.CharField(_("Название"),max_length=175)
+    # description = models.CharField(_("Описание"), max_length=2000)
+    # profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, **NULLABLE)
+    # category = models.ForeignKey("ad.Category", on_delete=models.CASCADE, **NULLABLE)
     created = models.DateTimeField(auto_now=True)
     changed = models.DateTimeField(auto_now_add=True)
     moderation = models.BooleanField(_("Модерация"), default=False)
@@ -73,7 +73,7 @@ class Auto(Advertisement):
     model = models.CharField(_("model"), max_length=100)
     price = models.CharField(_("price"), max_length=100)
     year = models.PositiveIntegerField(_('year'), default=current_year(), validators=[MinValueValidator(1984), 
-                                                                                      max_value_current_year])
+                                                                                    max_value_current_year])
     mileage = models.IntegerField()
     transmission = models.CharField(choices=BY_TRANSMISSION, **NULLABLE)
     by_wheel_drive = models.CharField(choices=BY_DRIVE, **NULLABLE)
@@ -85,12 +85,13 @@ class Auto(Advertisement):
     colour = models.CharField(choices=BY_COLOUR, **NULLABLE)
     fuel = models.CharField(choices=BY_FUEL, **NULLABLE)
     add_parametres =  models.CharField(_("additional"), max_length=150, **NULLABLE)
-
+    description = models.CharField(_("Описание"), max_length=2000)
+    profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, **NULLABLE)
 
 class IP(models.Model):
     ip = models.CharField(max_length=100)
     profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, **NULLABLE)
-    advertisement = models.ForeignKey("ad.Advertisement", on_delete=models.CASCADE, **NULLABLE)
+    auto = models.ForeignKey("ad.Auto", on_delete=models.CASCADE, **NULLABLE)
 
     @classmethod
     def post_create(cls, sender, instance, created, *args, **kwargs):
@@ -107,7 +108,7 @@ class Images(models.Model):
     title = models.CharField(max_length=150)
     image = models.FileField(_("Фотография"), upload_to="media/images")
     profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, **NULLABLE)
-    advertisement = models.ForeignKey("ad.Advertisement", on_delete=models.CASCADE, **NULLABLE)
+    auto = models.ForeignKey("ad.Auto", on_delete=models.CASCADE, **NULLABLE)
     created = models.DateTimeField(auto_now=True)
     changed = models.DateTimeField(auto_now_add=True)
 
@@ -116,5 +117,5 @@ class Documents(models.Model):
     title = models.CharField(max_length=150)
     document = models.FileField(_("Документ"), upload_to="media/documents")
     profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, **NULLABLE)
-    advertisement = models.ForeignKey("ad.Advertisement", on_delete=models.CASCADE, **NULLABLE)
+    auto = models.ForeignKey("ad.Auto", on_delete=models.CASCADE, **NULLABLE)
     created = models.DateTimeField(auto_now=True)

@@ -337,16 +337,17 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Category.objects.prefetch_related('children').all()
     serializer_class = CategorySerializer
 
+"""Так как модель Advertisement абстракт=Тру, то в базе ее нет. Пока закомментируем фильтрацию ,как пример для будущих 
+фильтраций существующих объявлений, например авто  """
+# class AdvertisementList(generics.ListAPIView):
+#     queryset = Advertisement.objects.all()
+#     serializer_class = AdvertisementSerializer
+#     name = "ad_list"
+#     filter_fields = ( 
+#         '-created', 
+#     )
 
-class AdvertisementList(generics.ListAPIView):
-    queryset = Advertisement.objects.all()
-    serializer_class = AdvertisementSerializer
-    name = "ad_list"
-    filter_fields = ( 
-        '-created', 
-    )
-
-    """Можно передать на фронт сразу все кверисеты, там делать видимым один и селектом(select) давать возможность 
+"""Можно передать на фронт сразу все кверисеты, там делать видимым один и селектом(select) давать возможность 
     пользователю переключаться, тогда вся джанговская фильтрация не нужна"""
     
     # def get_queryset(self):
@@ -355,7 +356,7 @@ class AdvertisementList(generics.ListAPIView):
     #     # queryset3 = Advertisement.objects.order_by('-created')
     #     # queryset = {"queryset1":queryset1, "queryset2":queryset2, "queryset3":queryset3}
     #     return queryset1.order_by('-created')
-    """Кастомная пагинация на подружилась с фильтрацией"""
+"""Кастомная пагинация на подружилась с фильтрацией"""
     # def get(self, request):
     #     paginator = PageNumberPagination()
     #     paginator.page_query_param = 'page'

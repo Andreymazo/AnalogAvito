@@ -38,10 +38,7 @@ class Category(MPTTModel):
 
 
 class Advertisement(models.Model):
-    # title = models.CharField(_("Название"),max_length=175)
-    # description = models.CharField(_("Описание"), max_length=2000)
     profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, **NULLABLE)
-    # category = models.ForeignKey("ad.Category", on_delete=models.CASCADE, **NULLABLE)
     created = models.DateTimeField(auto_now=True)
     changed = models.DateTimeField(auto_now_add=True)
     moderation = models.BooleanField(_("Модерация"), default=False)
@@ -86,7 +83,7 @@ class Auto(Advertisement):
     fuel = models.CharField(_("Differ by fuel"), choices=BY_FUEL, **NULLABLE)
     add_parametres =  models.CharField(_("additional"), max_length=150, **NULLABLE)
     description = models.CharField(_("Description"), max_length=2000)
-    # profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, **NULLABLE)
+
 
 class IP(models.Model):
     ip = models.CharField(max_length=100)
@@ -107,10 +104,10 @@ post_save.connect(IP.post_create, sender=IP)
 class Images(models.Model):
     title = models.CharField(_("Photoe's title"), max_length=150, **NULLABLE)
     image = models.FileField(_("Photo"), upload_to="media/images")
-    # profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, **NULLABLE)
+    profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, **NULLABLE)
     auto = models.ForeignKey("ad.Auto", on_delete=models.CASCADE, **NULLABLE)
-    # created = models.DateTimeField(auto_now=True)
-    # changed = models.DateTimeField(auto_now_add=True)
+    created = models.DateTimeField(auto_now=True)
+    changed = models.DateTimeField(auto_now_add=True)
 
 
 class Documents(models.Model):

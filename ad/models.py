@@ -104,13 +104,13 @@ class IP(models.Model):
 post_save.connect(IP.post_create, sender=IP)
 
 
-class Images(models.Model):
+class Images(Advertisement):
     title = models.CharField(max_length=150)
     image = models.FileField(_("Фотография"), upload_to="media/images")
     profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, **NULLABLE)
     auto = models.ForeignKey("ad.Auto", on_delete=models.CASCADE, **NULLABLE)
-    created = models.DateTimeField(auto_now=True)
-    changed = models.DateTimeField(auto_now_add=True)
+    # created = models.DateTimeField(auto_now=True)
+    # changed = models.DateTimeField(auto_now_add=True)
 
 
 class Documents(models.Model):

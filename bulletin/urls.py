@@ -7,6 +7,7 @@ from bulletin.views import (
     CategoryViewSet,
     ConfirmCodeView,
     NewCodeView,
+    home,
     #ad_list,
     log_out,
     SignInView,
@@ -37,5 +38,6 @@ url_v1 = [
 
 
 urlpatterns = [
+    path("home/", home, name="home"),
     path("v1/", include(url_v1)),
 ]

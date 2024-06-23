@@ -1,11 +1,12 @@
 from datetime import datetime, timedelta, timezone
 from django.contrib.auth import login, logout
+from django.shortcuts import render
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import generics
-from ad.models import Advertisement, Category
+from ad.models import Advertisement, Auto, Category
 from bulletin.serializers import (
     AdvertisementSerializer,
     CategorySerializer,
@@ -29,7 +30,11 @@ from users.models import (
     OneTimeCode,
     Profile
 )
-
+def home(request):
+    instance = Auto.objects.all().values("description").last()
+    
+    context = {"instance":instance}
+    return render(request, "bulletin/templates/bulletin/home.html", context)
 
 class SignInView(APIView):
     """Вход пользователя."""

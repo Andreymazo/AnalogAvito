@@ -104,7 +104,7 @@ class IP(models.Model):
 post_save.connect(IP.post_create, sender=IP)
 
 
-class Images(Advertisement):
+class Images(models.Model):
     title = models.CharField(max_length=150)
     image = models.FileField(_("Фотография"), upload_to="media/images")
     # profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, **NULLABLE)

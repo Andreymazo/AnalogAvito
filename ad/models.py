@@ -114,7 +114,7 @@ class Images(models.Model):
 
 
 class Documents(models.Model):
-    title = models.CharField(max_length=150)
+    title = models.CharField(_("title"), max_length=150, **NULLABLE)
     document = models.FileField(_("Документ"), upload_to="media/documents")
     profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, **NULLABLE)
     auto = models.ForeignKey("ad.Auto", on_delete=models.CASCADE, **NULLABLE)

@@ -3,7 +3,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from mptt.models import MPTTModel, TreeForeignKey
 from django.db.models.signals import post_save
-from config.constants import MAX_LEN_NAME_CATEGORY
+from config.constants import MAX_LEN_NAME_CATEGORY, MIN_YEAR_AUTO_CREATED
 import datetime
 from django.core.validators import MaxValueValidator, MinValueValidator
 
@@ -72,7 +72,7 @@ class Auto(Advertisement):
     brand = models.CharField(_("brand"), max_length=100)
     model = models.CharField(_("model"), max_length=100)
     price = models.CharField(_("price"), max_length=100)
-    year = models.PositiveIntegerField(_('year'), default=current_year(), validators=[MinValueValidator(1984), 
+    year = models.PositiveSmallIntegerField(_('year'), default=current_year(), validators=[MinValueValidator(MIN_YEAR_AUTO_CREATED), 
                                                                                     max_value_current_year])
     mileage = models.IntegerField()
     transmission = models.CharField(_("Differ by transmission"), choices=BY_TRANSMISSION, **NULLABLE)

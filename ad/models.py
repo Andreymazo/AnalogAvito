@@ -85,7 +85,7 @@ class Auto(Advertisement):
     colour = models.CharField(choices=BY_COLOUR, **NULLABLE)
     fuel = models.CharField(choices=BY_FUEL, **NULLABLE)
     add_parametres =  models.CharField(_("additional"), max_length=150, **NULLABLE)
-    description = models.CharField(_("Описание"), max_length=2000)
+    description = models.CharField(_("Description"), max_length=2000)
     # profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, **NULLABLE)
 
 class IP(models.Model):
@@ -106,7 +106,7 @@ post_save.connect(IP.post_create, sender=IP)
 
 class Images(models.Model):
     title = models.CharField(max_length=150)
-    image = models.FileField(_("Фотография"), upload_to="media/images")
+    image = models.FileField(_("Photo"), upload_to="media/images")
     # profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, **NULLABLE)
     auto = models.ForeignKey("ad.Auto", on_delete=models.CASCADE, **NULLABLE)
     # created = models.DateTimeField(auto_now=True)
@@ -115,7 +115,7 @@ class Images(models.Model):
 
 class Documents(models.Model):
     title = models.CharField(_("title"), max_length=150, **NULLABLE)
-    document = models.FileField(_("Документ"), upload_to="media/documents")
+    document = models.FileField(_("Document's title"), upload_to="media/documents")
     profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, **NULLABLE)
     auto = models.ForeignKey("ad.Auto", on_delete=models.CASCADE, **NULLABLE)
     created = models.DateTimeField(auto_now=True)

@@ -1,11 +1,12 @@
 from datetime import datetime, timedelta, timezone
 from django.contrib.auth import login, logout
+from django.shortcuts import render
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import generics
-from ad.models import Advertisement, Category
+from ad.models import Advertisement, Auto, Category
 from bulletin.serializers import (
     AdvertisementSerializer,
     CategorySerializer,
@@ -29,7 +30,11 @@ from users.models import (
     OneTimeCode,
     Profile
 )
-
+def home(request):
+    instance = Auto.objects.all().values("description").last()
+    
+    context = {"instance":instance}
+    return render(request, "bulletin/templates/bulletin/home.html", context)
 
 class SignInView(APIView):
     """Вход пользователя."""
@@ -337,16 +342,17 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Category.objects.prefetch_related('children').all()
     serializer_class = CategorySerializer
 
+"""Так как модель Advertisement абстракт=Тру, то в базе ее нет. Пока закомментируем фильтрацию ,как пример для будущих 
+фильтраций существующих объявлений, например авто  """
+# class AdvertisementList(generics.ListAPIView):
+#     queryset = Advertisement.objects.all()
+#     serializer_class = AdvertisementSerializer
+#     name = "ad_list"
+#     filter_fields = ( 
+#         '-created', 
+#     )
 
-class AdvertisementList(generics.ListAPIView):
-    queryset = Advertisement.objects.all()
-    serializer_class = AdvertisementSerializer
-    name = "ad_list"
-    filter_fields = ( 
-        '-created', 
-    )
-
-    """Можно передать на фронт сразу все кверисеты, там делать видимым один и селектом(select) давать возможность 
+"""Можно передать на фронт сразу все кверисеты, там делать видимым один и селектом(select) давать возможность 
     пользователю переключаться, тогда вся джанговская фильтрация не нужна"""
     
     # def get_queryset(self):
@@ -355,7 +361,7 @@ class AdvertisementList(generics.ListAPIView):
     #     # queryset3 = Advertisement.objects.order_by('-created')
     #     # queryset = {"queryset1":queryset1, "queryset2":queryset2, "queryset3":queryset3}
     #     return queryset1.order_by('-created')
-    """Кастомная пагинация на подружилась с фильтрацией"""
+"""Кастомная пагинация на подружилась с фильтрацией"""
     # def get(self, request):
     #     paginator = PageNumberPagination()
     #     paginator.page_query_param = 'page'

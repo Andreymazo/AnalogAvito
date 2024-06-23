@@ -3,8 +3,9 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from mptt.models import MPTTModel, TreeForeignKey
 from django.db.models.signals import post_save
-from config.constants import MAX_LEN_NAME_CATEGORY
-
+from config.constants import MAX_LEN_NAME_CATEGORY, MIN_YEAR_AUTO_CREATED
+import datetime
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 NULLABLE = {'blank': True, 'null': True}
 
@@ -37,19 +38,57 @@ class Category(MPTTModel):
 
 
 class Advertisement(models.Model):
-    title = models.CharField(_("Название"),max_length=175)
-    description = models.CharField(_("Описание"), max_length=2000)
     profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, **NULLABLE)
-    category = models.ForeignKey("ad.Category", on_delete=models.CASCADE, **NULLABLE)
     created = models.DateTimeField(auto_now=True)
     changed = models.DateTimeField(auto_now_add=True)
     moderation = models.BooleanField(_("Модерация"), default=False)
+
+    class Meta:
+        abstract = True
+
+BY_MILEAGE = [("ALL", "ALL"), ("NEW", "NEW"), ("WM", "With Mileage"),]
+
+BY_TRANSMISSION = [("A", "AUTO"), ("R", "ROBOT"), ("V", "VARIATOR"), ("M", "MECHANICAL"),]
+
+BY_DRIVE = [("FWD", "FRONT_WHEEL_DRIVE"), ("RWD", "REAR_WHEEL_DRIVE"), ("4WD", "VARIATOR"),]
+
+BY_TYPE = [("SD", "SEDAN"), ("UN", "UNIVERSAL"), ("OR", "OFF_ROAD"), ("HTB", "HATCHBACK")]
+
+BY_COLOUR = [("BLACK", "BLACK"), ("WHITE", "WHITE"), ("GREEN", "GREEN"), ("GREY", "GREY"), ("RED", "RED"), ("ORANGE", "ORANGE"), ("BEIGE", "BEIGE"), ("BROWN", "BROWN")]
+
+BY_FUEL = [("PTR", "PETROL"), ("GAS", "GAS"), ("HYBRID", "HYBRID"), ("ELECTRIC", "ELECTRIC"), ("DIESEL", "DIESEL")]
+
+def current_year():
+    return datetime.date.today().year
+
+def max_value_current_year(value):
+    return MaxValueValidator(current_year())(value)
+   
+class Auto(Advertisement):
+    by_mileage = models.CharField(_("Differ by mileage"), choices=BY_MILEAGE)
+    brand = models.CharField(_("brand"), max_length=100)
+    model = models.CharField(_("model"), max_length=100)
+    price = models.CharField(_("price"), max_length=100)
+    year = models.PositiveSmallIntegerField(_('year'), default=current_year(), validators=[MinValueValidator(MIN_YEAR_AUTO_CREATED), 
+                                                                                    max_value_current_year])
+    mileage = models.IntegerField()
+    transmission = models.CharField(_("Differ by transmission"), choices=BY_TRANSMISSION, **NULLABLE)
+    by_wheel_drive = models.CharField(_("Differ by wheel drive"), choices=BY_DRIVE, **NULLABLE)
+    engine_capacity = models.IntegerField(_("engine capacity"), validators=[MinValueValidator(0), MaxValueValidator(10000)], **NULLABLE)
+    engine_power = models.IntegerField(_("engine power in horse power"), validators=[MinValueValidator(0), MaxValueValidator(900)], **NULLABLE) 
+    fuel_consumption = models.IntegerField(_("fuel consumption per 100 km"), validators=[MinValueValidator(1), MaxValueValidator(40)], **NULLABLE)
+    location = models.CharField(_("location"), max_length=160, **NULLABLE)
+    type = models.CharField(_("Differ by type"), choices=BY_TYPE, **NULLABLE)
+    colour = models.CharField(_("Differ by colour"), choices=BY_COLOUR, **NULLABLE)
+    fuel = models.CharField(_("Differ by fuel"), choices=BY_FUEL, **NULLABLE)
+    add_parametres =  models.CharField(_("additional"), max_length=150, **NULLABLE)
+    description = models.CharField(_("Description"), max_length=2000)
 
 
 class IP(models.Model):
     ip = models.CharField(max_length=100)
     profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, **NULLABLE)
-    advertisement = models.ForeignKey("ad.Advertisement", on_delete=models.CASCADE, **NULLABLE)
+    auto = models.ForeignKey("ad.Auto", on_delete=models.CASCADE, **NULLABLE)
 
     @classmethod
     def post_create(cls, sender, instance, created, *args, **kwargs):
@@ -63,17 +102,17 @@ post_save.connect(IP.post_create, sender=IP)
 
 
 class Images(models.Model):
-    title = models.CharField(max_length=150)
-    image = models.FileField(_("Фотография"), upload_to="media/images")
+    title = models.CharField(_("Photoe's title"), max_length=150, **NULLABLE)
+    image = models.FileField(_("Photo"), upload_to="media/images")
     profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, **NULLABLE)
-    advertisement = models.ForeignKey("ad.Advertisement", on_delete=models.CASCADE, **NULLABLE)
+    auto = models.ForeignKey("ad.Auto", on_delete=models.CASCADE, **NULLABLE)
     created = models.DateTimeField(auto_now=True)
     changed = models.DateTimeField(auto_now_add=True)
 
 
 class Documents(models.Model):
-    title = models.CharField(max_length=150)
-    document = models.FileField(_("Документ"), upload_to="media/documents")
+    title = models.CharField(_("Document'stitle"), max_length=150, **NULLABLE)
+    document = models.FileField(_("Document's title"), upload_to="media/documents")
     profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, **NULLABLE)
-    advertisement = models.ForeignKey("ad.Advertisement", on_delete=models.CASCADE, **NULLABLE)
+    auto = models.ForeignKey("ad.Auto", on_delete=models.CASCADE, **NULLABLE)
     created = models.DateTimeField(auto_now=True)

@@ -1,13 +1,13 @@
 from rest_framework import serializers
 
 from ad.models import Category
-from config.constants import MAX_LEN_CODE
+from config.constants import MAX_LEN_CODE, MAX_LEN_EMAIL
 from users.models import CustomUser, OneTimeCode, Profile
 
 
 class CustomUserLoginSerializer(serializers.ModelSerializer):
     """Сериализатор для входа по одноразовому коду."""
-    email = serializers.EmailField(max_length=254)
+    email = serializers.EmailField(max_length=MAX_LEN_EMAIL)
 
     class Meta:
         """Конфигурация сериализатора для входа по одноразовому коду."""

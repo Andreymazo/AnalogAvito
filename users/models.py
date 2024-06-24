@@ -5,7 +5,6 @@ from django.utils.translation import gettext_lazy as _
 
 from config.constants import (
     MAX_LEN_CODE,
-    MAX_LEN_USERNAME,
     MAX_LEN_EMAIL,
     MAX_LEN_PHONE_NUMBER,
     MAX_LEN_NAME_PROFILE,
@@ -56,7 +55,7 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         """Строковое представление объекта пользователя."""
-        return str(self.username)
+        return str(self.email)
 
 
 class Profile(models.Model):

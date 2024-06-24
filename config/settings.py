@@ -67,11 +67,12 @@ INTERNAL_IPS = [
 #     ]
 
 SPECTACULAR_SETTINGS = {
-    "TITLE": "Django5 Test Swagger API",
+    "TITLE": "Bulletin board",
     "DESCRIPTION": "Django5 Test Swagger API description",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
-    # OTHER SETTINGS
+    # OTHER SETTINGS,
+    "COMPONENT_SPLIT_REQUEST": True
 }
 
 ROOT_URLCONF = "config.urls"

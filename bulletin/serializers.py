@@ -1,7 +1,6 @@
 from rest_framework import serializers
-
-from ad.models import Category
 from config.constants import MAX_LEN_CODE, MAX_LEN_EMAIL
+from ad.models import Advertisement, Category
 from users.models import CustomUser, OneTimeCode, Profile
 
 
@@ -87,6 +86,9 @@ class OneTimeCodeSerializer(serializers.ModelSerializer):
 #             "info"
 #         )
 
+class ProfileSerializer():
+    class Meta:
+        fields = "__all__"
 
 class CategorySerializer(serializers.ModelSerializer):
     """Сериализатор для категории."""
@@ -105,3 +107,21 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = super(CategorySerializer, self).get_fields()
         fields["children"] = CategorySerializer(many=True, required=False)
         return fields
+
+
+class AdvertisementSerializer(serializers.Serializer):
+
+    title = serializers.CharField()
+    description = serializers.CharField()
+    profile = ProfileSerializer() 
+    category = CategorySerializer(many=True)
+    created = serializers.DateTimeField()
+    changed = serializers.DateTimeField()
+    moderation = serializers.BooleanField()
+
+    # category = CategorySerializer()
+
+    # class Meta:
+    #     model = Advertisement
+    #     fields = ()
+

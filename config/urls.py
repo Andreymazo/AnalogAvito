@@ -8,7 +8,7 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
     SpectacularRedocView
 )
-
+from django.views.i18n import set_language
 
 urlpatterns = [
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
@@ -24,7 +24,9 @@ urlpatterns = [
         name='redoc'
     ),
     path('admin/', admin.site.urls),
+    path('i18n/', set_language, name='set_language'),
     path('i18n/', include('django.conf.urls.i18n')),
+    
     # path("__debug__/", include("debug_toolbar.urls")),
 ]
 urlpatterns += i18n_patterns(

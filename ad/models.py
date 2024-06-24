@@ -84,6 +84,13 @@ class Auto(Advertisement):
     add_parametres =  models.CharField(_("additional"), max_length=150, **NULLABLE)
     description = models.CharField(_("Description"), max_length=2000)
 
+    class Meta:
+        verbose_name = _("Automobile")
+        verbose_name_plural = _("Automobiles")
+
+    def __str__(self) -> str:
+        return str(self.model)
+    
 
 class IP(models.Model):
     ip = models.CharField(max_length=100)

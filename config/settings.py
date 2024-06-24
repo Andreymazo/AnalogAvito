@@ -140,9 +140,10 @@ USE_TZ = True
 
 gettext = lambda s: s
 LANGUAGES = (
+    ("es", gettext("Spanish")),
     ("ru", gettext("Russia")),
     ("en", gettext("English")),
-    ("es", gettext("Spanish")),
+    
 )
 
 LOCALE_PATHS = (

@@ -8,8 +8,8 @@ __2. Запуск базы postgresql под именем postgres__
 - Создаем базу bulletin и присоединяемся к ней
 ##
         create database bulletin;\c bulletin
-- выход из postgresql 
-        ctr+c
+- выход из postgresql ctr+c
+
 __3. Запускаем миграции__
 ##
         python manage.py makemigrations

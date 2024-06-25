@@ -127,7 +127,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-LANGUAGE_CODE = "es"
+LANGUAGE_CODE = "ru"
 
 TIME_ZONE = "UTC"
 
@@ -189,8 +189,9 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.AllowAny",
     ],
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        # "rest_framework.authentication.BasicAuthentication",
-        "rest_framework.authentication.SessionAuthentication",
+        
+        'rest_framework.authentication.BasicAuthentication',
+        # "rest_framework.authentication.SessionAuthentication",
         # "rest_framework.authentication.TokenAuthentication"
     ],
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
@@ -199,7 +200,7 @@ REST_FRAMEWORK = {
         'rest_framework.filters.OrderingFilter', 
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 2
+    'PAGE_SIZE': 5
 }
 
 

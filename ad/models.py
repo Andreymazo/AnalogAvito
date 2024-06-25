@@ -24,7 +24,6 @@ class Category(MPTTModel):
         related_name="children",
         verbose_name=_("Родитель")
     )
-    qwwq = models.Choices
 
     class MPTTMeta:
         """Конфигурация модели категории."""
@@ -38,6 +37,7 @@ class Category(MPTTModel):
 
 
 class Advertisement(models.Model):
+    category = TreeForeignKey('ad.Category', on_delete=models.CASCADE, related_name='advertisement')
     profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, **NULLABLE)
     created = models.DateTimeField(auto_now=True)
     changed = models.DateTimeField(auto_now_add=True)
@@ -64,7 +64,7 @@ def current_year():
 def max_value_current_year(value):
     return MaxValueValidator(current_year())(value)
    
-class Auto(Advertisement):
+class Car(Advertisement):
     by_mileage = models.CharField(_("Differ by mileage"), choices=BY_MILEAGE)
     brand = models.CharField(_("brand"), max_length=100)
     model = models.CharField(_("model"), max_length=100)
@@ -95,7 +95,7 @@ class Auto(Advertisement):
 class IP(models.Model):
     ip = models.CharField(max_length=100)
     profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, **NULLABLE)
-    auto = models.ForeignKey("ad.Auto", on_delete=models.CASCADE, **NULLABLE)
+    auto = models.ForeignKey("ad.Car", on_delete=models.CASCADE, **NULLABLE)
 
     @classmethod
     def post_create(cls, sender, instance, created, *args, **kwargs):
@@ -112,7 +112,7 @@ class Images(models.Model):
     title = models.CharField(_("Photoe's title"), max_length=150, **NULLABLE)
     image = models.FileField(_("Photo"), upload_to="media/images")
     profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, **NULLABLE)
-    auto = models.ForeignKey("ad.Auto", on_delete=models.CASCADE, **NULLABLE)
+    auto = models.ForeignKey("ad.Car", on_delete=models.CASCADE, **NULLABLE)
     created = models.DateTimeField(auto_now=True)
     changed = models.DateTimeField(auto_now_add=True)
 
@@ -121,5 +121,5 @@ class Documents(models.Model):
     title = models.CharField(_("Document'stitle"), max_length=150, **NULLABLE)
     document = models.FileField(_("Document's title"), upload_to="media/documents")
     profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, **NULLABLE)
-    auto = models.ForeignKey("ad.Auto", on_delete=models.CASCADE, **NULLABLE)
+    auto = models.ForeignKey("ad.Car", on_delete=models.CASCADE, **NULLABLE)
     created = models.DateTimeField(auto_now=True)

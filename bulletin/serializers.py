@@ -100,7 +100,7 @@ class CategorySerializer(serializers.ModelSerializer):
             "id",
             "name",
             "parent",
-            # "level"
+            "level"
         )
 
     def get_fields(self):

@@ -14,9 +14,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import generics
-from ad.models import Advertisement, Car, Category
+from ad.models import Car, Category
 from bulletin.serializers import (
-    AdvertisementSerializer,
     CategorySerializer,
     CustomUserLoginSerializer,
     OneTimeCodeSerializer,
@@ -882,10 +881,10 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     #     serializer1=AdvertisementSerializer(context, many=True)
     #     return paginator.get_paginated_response(serializer1.data)
 
-class CategoryList(generics.ListAPIView):
-    queryset = Category.objects.all()
-    serializer_class = CategorySerializer
-    name = "ad_list"
-    filter_fields = ( 
-        '-created', 
-    )
+# class CategoryList(generics.ListAPIView):
+#     queryset = Category.objects.all()
+#     serializer_class = CategorySerializer
+#     name = "ad_list"
+#     filter_fields = ( 
+#         '-created', 
+#     )

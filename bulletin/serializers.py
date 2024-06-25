@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from config.constants import MAX_LEN_CODE, MAX_LEN_EMAIL
-from ad.models import Advertisement, Category
+from ad.models import Advertisement, Car, Category
 from users.models import CustomUser, OneTimeCode, Profile
 
 
@@ -109,19 +109,24 @@ class CategorySerializer(serializers.ModelSerializer):
         return fields
 
 
-class AdvertisementSerializer(serializers.Serializer):
+# class AdvertisementSerializer(serializers.Serializer):
 
-    title = serializers.CharField()
-    description = serializers.CharField()
-    profile = ProfileSerializer() 
-    category = CategorySerializer(many=True)
-    created = serializers.DateTimeField()
-    changed = serializers.DateTimeField()
-    moderation = serializers.BooleanField()
+#     title = serializers.CharField()
+#     description = serializers.CharField()
+#     profile = ProfileSerializer() 
+#     category = CategorySerializer(many=True)
+#     created = serializers.DateTimeField()
+#     changed = serializers.DateTimeField()
+#     moderation = serializers.BooleanField()
 
     # category = CategorySerializer()
 
     # class Meta:
     #     model = Advertisement
     #     fields = ()
+
+class CarSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = Car
+            fields = ("year", "brand", "model", "mileage", "price",)
 

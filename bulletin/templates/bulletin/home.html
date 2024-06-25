@@ -1,4 +1,4 @@
-{% load i18n %}
+{% load static i18n %}
 
 <form action="{% url 'set_language' %}" method="post">{% csrf_token %}
     <input name="next" type="hidden" value="{{ redirect_to }}">
@@ -17,6 +17,6 @@
 HOME
 {{instance}}
 {% block content %}
- {% trans "остановись мгновенье" %}
+ {% trans 'остановись мгновенье' %}
 {% endblock %}
 

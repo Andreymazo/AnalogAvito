@@ -75,7 +75,9 @@ class Profile(models.Model):
         _("Имя пользователя"),
         max_length=MAX_LEN_NAME_PROFILE
     )
-
+    def __str__(self):
+        """Строковое представление объекта пользователя."""
+        return str(self.user.email)
 
 class OneTimeCode(models.Model):
     """Модель одноразового кода."""

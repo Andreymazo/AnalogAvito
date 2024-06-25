@@ -1,5 +1,5 @@
 from modeltranslation.translator import register, TranslationOptions
-from ad.models import Auto
+from ad.models import Car
 from users.models import CustomUser
 
 
@@ -7,6 +7,6 @@ from users.models import CustomUser
 class CategoryTranslationOptions(TranslationOptions):
     fields = ('email',)
 
-@register(Auto)
+@register(Car)
 class AutoTranslationOption(TranslationOptions):
     fields = ('description',)

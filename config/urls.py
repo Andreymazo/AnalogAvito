@@ -31,6 +31,7 @@ urlpatterns = [
 ]
 urlpatterns += i18n_patterns(
     path("api/", include("bulletin.urls", namespace="bulletin")),
+    path("ad/", include("ad.urls", namespace="ad")),
 )
 
 if settings.DEBUG:

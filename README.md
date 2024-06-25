@@ -1,4 +1,21 @@
 # Bulletin_board_backend
+__1. Скопировать из репозитория develop__
+##
+        git clone https://github.com/salfa-ru/Bulletin_board_backend/tree/develop
+__2. Запуск базы postgresql под именем postgres__
+##
+        psql -U postgres
+- Создаем базу bulletin и присоединяемся к ней
+##
+        create database bulletin;\c bulletin
+__3. Запускаем миграции__
+##
+        python manage.py makemigrations
+##
+        python manage.py migrate
+__4. Запуск проекта__
+##
+      python manage.py runserver
 
 sign_in_email:
 1. Авторизованный пользователь -> В ответе статус 400 и сообщение о том, что уже авторизован.

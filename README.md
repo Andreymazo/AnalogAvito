@@ -1,7 +1,7 @@
 # Bulletin_board_backend
 __1. Скопировать из репозитория develop__
 ##
-        git clone https://github.com/salfa-ru/Bulletin_board_backend/tree/develop
+        git clone https://github.com/salfa-ru/Bulletin_board_backend.git
 __2. Запуск базы postgresql под именем postgres__
 ##
         psql -U postgres

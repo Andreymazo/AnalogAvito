@@ -2,6 +2,9 @@
 __1. Скопировать из репозитория develop__
 ##
         git clone https://github.com/salfa-ru/Bulletin_board_backend.git
+__Если спрашивает имя, пароль, то попробуйте сначала склонировать по-другому:__
+##
+        git clone git@github.com:salfa-ru/Bulletin_board_backend.git
 __2. Запуск базы postgresql под именем postgres__
 ##
         psql -U postgres
@@ -18,7 +21,7 @@ __3. Запускаем миграции__
 __4. Зависимости__
 ##
         pip install -r requirements.txt
-        
+
 __5. Запуск проекта__
 ##
       python manage.py runserver

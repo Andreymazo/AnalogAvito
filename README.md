@@ -15,7 +15,11 @@ __3. Запускаем миграции__
         python manage.py makemigrations
 ##
         python manage.py migrate
-__4. Запуск проекта__
+__4. Зависимости__
+##
+        pip install -r requirements.txt
+        
+__5. Запуск проекта__
 ##
       python manage.py runserver
 

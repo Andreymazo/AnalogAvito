@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from config.constants import MAX_LEN_CODE, MAX_LEN_EMAIL
-from ad.models import Advertisement, Car, Category
+from ad.models import Advertisement, Car, Category, Images
 from users.models import CustomUser, OneTimeCode, Profile
 
 
@@ -126,7 +126,24 @@ class CategorySerializer(serializers.ModelSerializer):
     #     fields = ()
 
 class CarSerializer(serializers.ModelSerializer):
+        image = serializers.ImageField(source='images',)
+        # category_id = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all(), many=False)
+        
         class Meta:
             model = Car
-            fields = ("year", "brand", "model", "mileage", "price",)
+            fields = ("year", "brand", "model", "mileage", "price", "image", "category_id" )
+        
+        def create(self, validated_data):
+            
+            car_instance, created = Car.objects.get_or_create(year=validated_data.get('year', None), brand=validated_data.get('brand',
+                 None), model=validated_data.get('model', None), mileage=validated_data.get('mileage', None), price=validated_data.get('price',
+                 None), category_id=Category.objects.get(name='Транспорт',).id)#category_id=validated_data.get('category_id', None).id # В закомменченном 
+            #выбираем из категорий
+            return car_instance
+           
+
+class ImagesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Images
+        fields = ("title", "profile", "car", "created", "changed", "image" )
 

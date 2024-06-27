@@ -1,6 +1,6 @@
 from django.contrib.admin import ModelAdmin, register
 
-from ad.models import Car, Category
+from ad.models import Car, Category, Images
 from modeltranslation.admin import TranslationAdmin
 
 from modeltranslation.admin import TranslationAdmin
@@ -17,3 +17,7 @@ class CategoryAdmin(ModelAdmin):
 class CustomUserAdmin(TranslationAdmin):
     # list_display_links = ("id",)
     list_display = ("description",)
+
+@register(Images)
+class CategoryAdmin(ModelAdmin):
+    list_display = ("title",)

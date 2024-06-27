@@ -110,9 +110,9 @@ post_save.connect(IP.post_create, sender=IP)
 
 class Images(models.Model):
     title = models.CharField(_("Photoe's title"), max_length=150, **NULLABLE)
-    image = models.FileField(_("Photo"), upload_to="media/images")
+    image = models.ImageField(_("Photo"), upload_to="images")
     profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, **NULLABLE)
-    auto = models.ForeignKey("ad.Car", on_delete=models.CASCADE, **NULLABLE)
+    car = models.ForeignKey("ad.Car", related_name="images", on_delete=models.CASCADE, **NULLABLE)
     created = models.DateTimeField(auto_now=True)
     changed = models.DateTimeField(auto_now_add=True)
 

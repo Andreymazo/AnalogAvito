@@ -184,6 +184,13 @@ ATTEMPTS = 3  # Максимальное количество попыток в�
 SITE_ID = 1
 
 REST_FRAMEWORK = {
+
+    'DEFAULT_PARSER_CLASSES': [
+        # 'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.FormParser',
+        'rest_framework.parsers.MultiPartParser',
+        'rest_framework.parsers.FileUploadParser'
+    ],
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.AllowAny",
     ],
@@ -199,22 +206,17 @@ REST_FRAMEWORK = {
         'rest_framework.filters.OrderingFilter', 
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 5
-    
-}
-# DEFAULTS = {
-#     'DEFAULT_PARSER_CLASSES': [
-#         'rest_framework.parsers.JSONParser',
-#         'rest_framework.parsers.FormParser',
-#         'rest_framework.parsers.MultiPartParser'
-#     ],}
+    'PAGE_SIZE': 5,
 
-# FILE_UPLOAD_HANDLERS = [
+#     'FILE_UPLOAD_HANDLERS' : [
     
 #     "django.core.files.uploadhandler.MemoryFileUploadHandler",
 #     "django.core.files.uploadhandler.TemporaryFileUploadHandler",
 # ]
+}
 
+
+DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880
 SESSION_EXPIRE_SECONDS = 30 * 60  # Expire after 30 minutes
 SESSION_EXPIRE_AFTER_LAST_ACTIVITY = True
 # SESSION_TIMEOUT_REDIRECT = "bulletin:log_in"  # Add your URL

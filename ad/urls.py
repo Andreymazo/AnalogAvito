@@ -3,7 +3,7 @@ from ad.apps import AdConfig
 from ad.views import (
     CarList,
     CategoryList,   
-    # UploadFileImage,
+    UploadFileImage,
     UploadViewSet,
 
 )
@@ -27,8 +27,8 @@ router.register(r'upload', UploadViewSet, basename='upload')
 app_name = AdConfig.name
 
 urlpatterns = [
-   path('', include(router.urls)),
-#    path("upload_file_image/", UploadFileImage.as_view(), name="upload_file_image"), 
+   path('', include(router.urls)), 
+   path("upload_file_image/", UploadFileImage.as_view(), name="upload_file_image"), 
    path("category_list/", CategoryList.as_view(), name="ad_list"),
    path("car_list/", CarList.as_view(), name="car_list"),
 ]

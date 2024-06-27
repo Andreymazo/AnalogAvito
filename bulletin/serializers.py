@@ -135,10 +135,13 @@ class CarSerializer(serializers.ModelSerializer):
         
         def create(self, validated_data):
             
-            car_instance, created = Car.objects.get_or_create(year=validated_data.get('year', None), brand=validated_data.get('brand',
-                 None), model=validated_data.get('model', None), mileage=validated_data.get('mileage', None), price=validated_data.get('price',
-                 None), category_id=Category.objects.get(name='Транспорт',).id)#category_id=validated_data.get('category_id', None).id # В закомменченном 
-            #выбираем из категорий
+            car_instance, created = Car.objects.get_or_create(
+                year=validated_data.get('year', None), 
+                brand=validated_data.get('brand',
+                 None), model=validated_data.get('model', None), 
+                mileage=validated_data.get('mileage', None),
+                price=validated_data.get('price',
+                 None), category_id=Category.objects.get(name='Транспорт',).id)#category_id=validated_data.get('category_id', None).id # В закомменченном выбираем из категорий
             return car_instance
            
 
@@ -146,4 +149,4 @@ class ImagesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Images
         fields = ("title", "profile", "car", "created", "changed", "image" )
-
+    

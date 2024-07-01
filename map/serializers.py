@@ -11,7 +11,7 @@ class MarkerSerializer(
 ):
     profile_id = serializers.PrimaryKeyRelatedField(queryset=Profile.objects.all(), many=False)
     class Meta:
-        fields = ("id", "name", "profile_id")
+        fields = ( "name", "profile_id")
         geo_field = "location"
         model = Marker
         

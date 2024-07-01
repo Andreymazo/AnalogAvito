@@ -2,7 +2,7 @@
 import os
 from django.core.management import BaseCommand
 from ad.models import IP, Advertisement
-from config.settings import BASE_DIR, MEDIA_ROOT, MEDIA_URL
+from config.settings import BASE_DIR, MEDIA_ROOT, MEDIA_URL, STATIC_URL, STATICFILES_DIRS, TEMPLATES
 # from django.conf import settings
 from config import settings
 from users.models import CustomUser, Profile
@@ -46,6 +46,9 @@ def ff():
     # print(CodeCustomuser.objects.filter(customuser_id=user.id).exists())
     # code_user = user.codecustomuser.name
     # print (lang_dict)
+    print(BASE_DIR)
+    print(STATIC_URL, "00000", STATICFILES_DIRS)
+    print(TEMPLATES[0].get('DIRS'))
     
 class Command(BaseCommand):
 

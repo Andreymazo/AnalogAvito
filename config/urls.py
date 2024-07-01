@@ -30,8 +30,12 @@ urlpatterns = [
     # path("__debug__/", include("debug_toolbar.urls")),
 ]
 urlpatterns += i18n_patterns(
+    # path(
+        # "api2/", include("map.api")
+    # ),
     path("api/", include("bulletin.urls", namespace="bulletin")),
     path("ad/", include("ad.urls", namespace="ad")),
+    path("map/", include("map.urls", namespace="map")),
 )
 
 if settings.DEBUG:

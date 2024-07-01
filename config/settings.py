@@ -23,15 +23,19 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.gis",
     "django.contrib.sites",
     "debug_toolbar",
     "rest_framework",
+    'rest_framework_gis',
     "mptt",
     "ad.apps.AdConfig",
     "bulletin.apps.BulletinConfig",
     "users.apps.UsersConfig",
     "drf_spectacular",
     'django_filters',
+    "map",
+    
 ]
 
 MIDDLEWARE = [
@@ -97,7 +101,8 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
+        # "ENGINE": "django.db.backends.postgresql",
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
         "NAME": os.getenv("DB_NAME"),
         "HOST": os.getenv("DB_HOST"),
         "PORT": os.getenv("DB_PORT"),
@@ -155,9 +160,9 @@ MEDIA_URL = "/media/"
 
 # STATICFILES_DIRS = [ os.path.join(BASE_DIR, "static"), ]
 
-STATIC_URL = "/static/"
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
-STATICFILES_DIRS = (os.path.join(BASE_DIR, "config", "static"),)
+STATIC_URL = "static/"
+# STATIC_ROOT = os.path.join(BASE_DIR, "static")
+STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -214,7 +219,9 @@ REST_FRAMEWORK = {
 #     "django.core.files.uploadhandler.TemporaryFileUploadHandler",
 # ]
 }
-
+# SERIALIZATION_MODULES = {
+#     "geojson": "django.contrib.gis.serializers.geojson",
+#  }
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880
 SESSION_EXPIRE_SECONDS = 30 * 60  # Expire after 30 minutes

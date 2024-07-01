@@ -1,3 +1,4 @@
+import json
 from rest_framework import generics
 from ad.func_for_help import save_file
 from ad.models import Category, Car, Images
@@ -36,11 +37,13 @@ class UploadFileImage(mixins.ListModelMixin, mixins.CreateModelMixin, GenericAPI
 
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
-    
+
+from rest_framework import views
+# class UploadFileSimple(views.APIView):
 
     # def post(self, request, format='jpg'):
 
-    #     serializer = ImagesSerializer(request.FILES)
+    #     serializer = ImagesSerializerSimple(request.FILES)
         
     #     # serializer = ImagesSerializer(data=request.DATA, files=request.FILES)
     #     print("request.FILES================", request.FILES.__dict__)

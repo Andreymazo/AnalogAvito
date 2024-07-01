@@ -1,5 +1,4 @@
 from django.contrib.admin import ModelAdmin, register
-
 from users.models import CustomUser, OneTimeCode
 from modeltranslation.admin import TranslationAdmin
 
@@ -16,3 +15,5 @@ class OneTimeCodeAdmin(ModelAdmin):
     list_display_links = ("id", "user",)
     list_display = ("id", "user", "created_at")
     search_fields = ("user",)
+
+

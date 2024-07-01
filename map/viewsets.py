@@ -6,9 +6,8 @@ from map.serializers import (
     MarkerSerializer,
 )
 
-
 class MarkerViewSet(
-    viewsets.ReadOnlyModelViewSet
+    viewsets.ModelViewSet
 ):
     bbox_filter_field = "location"
     filter_backends = (

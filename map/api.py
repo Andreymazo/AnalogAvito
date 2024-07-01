@@ -1,9 +1,9 @@
-from rest_framework import routers
+# from rest_framework import routers
 
-from map.viewsets import MarkerViewSet
+# from map.viewsets import MarkerViewSet
 
-router = routers.DefaultRouter()
-router.register(r"markers", MarkerViewSet)
+# router = routers.DefaultRouter()
+# router.register(r"markers", MarkerViewSet)
 
-urlpatterns = router.urls
+# urlpatterns = router.urls
 

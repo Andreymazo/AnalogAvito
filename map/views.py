@@ -13,12 +13,9 @@ def MarkersMap(request):
 
 
 from django.views.generic.base import TemplateView
-
 from map.models import Marker
 
 # from map.models import ModelGis
-
-
 # class MarkersMapView(TemplateView):
 #     """Markers map view."""
 

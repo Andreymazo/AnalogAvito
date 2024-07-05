@@ -783,45 +783,45 @@ class NewCodeView(APIView):
             status=status.HTTP_200_OK
         )
 
-
-@extend_schema(
-    tags=["Вход/регистрация"],
-    description="Разлогиниться.",
-    summary="Выйти",
-    request=inline_serializer(
-        name="LogOut",
-        fields={}
-    ),
-    responses={
-        status.HTTP_200_OK: OpenApiResponse(
-            description="Пользователь разлогинен",
-            # response=inline_serializer(
-            #     name="Пользователь разлогинен",
-            #     fields={"message": "Пользователь разлогинен."}
-            # ),
-        ),
-        status.HTTP_400_BAD_REQUEST: OpenApiResponse(
-            description=(
-                "Пользователь уже авторизован"
-            ),
-            response=inline_serializer(
-                name="InvalidRequest",
-                fields={"message": serializers.CharField()}
-            ),
-            examples=[
-                OpenApiExample(
-                    "Пользователь уже авторизован",
-                    description=(
-                        "Пример ответа, если пользователь "
-                        "уже авторизирован"
-                    ),
-                    value={"message": "Вы уже авторизированы."},
-                ),
-            ],
-        ),
-    },
-)
-@api_view(["POST"])
+"""Здесь нет сериалайзера и сваггер ругается, нам вообще все эти апи здесь помоему не нужны"""
+# @extend_schema(
+#     tags=["Вход/регистрация"],
+#     description="Разлогиниться.",
+#     summary="Выйти",
+#     request=inline_serializer(
+#         name="LogOut",
+#         fields={}
+#     ),
+#     responses={
+#         status.HTTP_200_OK: OpenApiResponse(
+#             description="Пользователь разлогинен",
+#             # response=inline_serializer(
+#             #     name="Пользователь разлогинен",
+#             #     fields={"message": "Пользователь разлогинен."}
+#             # ),
+#         ),
+#         status.HTTP_400_BAD_REQUEST: OpenApiResponse(
+#             description=(
+#                 "Пользователь уже авторизован"
+#             ),
+#             response=inline_serializer(
+#                 name="InvalidRequest",
+#                 fields={"message": serializers.CharField()}
+#             ),
+#             examples=[
+#                 OpenApiExample(
+#                     "Пользователь уже авторизован",
+#                     description=(
+#                         "Пример ответа, если пользователь "
+#                         "уже авторизирован"
+#                     ),
+#                     value={"message": "Вы уже авторизированы."},
+#                 ),
+#             ],
+#         ),
+#     },
+# )
+# @api_view(["POST"])
 def log_out(request):
     print(request.user.is_authenticated)
     """Выход из учетной записи пользователя."""
@@ -836,8 +836,8 @@ def log_out(request):
     return Response(status=status.HTTP_200_OK)
 
 
-@api_view(["POST", "GET"])
-@permission_classes((permissions.IsAuthenticated,))
+# @api_view(["POST", "GET"])
+# @permission_classes((permissions.IsAuthenticated,))
 def verify_code(request):
     """Тестовая модель для проверки авторизации."""
     # print(request.session["email"])

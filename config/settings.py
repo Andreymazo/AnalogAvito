@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-
+from datetime import timedelta
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -201,9 +201,10 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_AUTHENTICATION_CLASSES": [
         
-        'rest_framework.authentication.BasicAuthentication',
-        # "rest_framework.authentication.SessionAuthentication",
+        # "rest_framework.authentication.BasicAuthentication'",
+        "rest_framework.authentication.SessionAuthentication",
         # "rest_framework.authentication.TokenAuthentication"
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     'DEFAULT_FILTER_BACKENDS':(
@@ -222,6 +223,16 @@ REST_FRAMEWORK = {
 # SERIALIZATION_MODULES = {
 #     "geojson": "django.contrib.gis.serializers.geojson",
 #  }
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": False,
+    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
+    "TOKEN_USER_CLASS": "rest_framework_simplejwt.models.TokenUser",
+    "AUTH_HEADER_TYPES": ("Bearer",),
+}
+
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880
 SESSION_EXPIRE_SECONDS = 30 * 60  # Expire after 30 minutes

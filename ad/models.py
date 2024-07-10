@@ -37,8 +37,8 @@ class Category(MPTTModel):
 
 
 class Advertisement(models.Model):
-    category = TreeForeignKey('ad.Category', on_delete=models.CASCADE, related_name='advertisement')
-    profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, **NULLABLE)
+    # category = TreeForeignKey('ad.Category', on_delete=models.CASCADE, related_name='advertisement')
+    # profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, **NULLABLE)
     created = models.DateTimeField(auto_now=True)
     changed = models.DateTimeField(auto_now_add=True)
     moderation = models.BooleanField(_("Модерация"), default=False)
@@ -64,7 +64,9 @@ def current_year():
 def max_value_current_year(value):
     return MaxValueValidator(current_year())(value)
    
-class Car(Advertisement):
+class Car(models.Model):
+    category = TreeForeignKey('ad.Category', on_delete=models.CASCADE, related_name='advertisement')
+    profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, **NULLABLE)
     by_mileage = models.CharField(_("Differ by mileage"), choices=BY_MILEAGE)
     brand = models.CharField(_("brand"), max_length=100)
     model = models.CharField(_("model"), max_length=100)

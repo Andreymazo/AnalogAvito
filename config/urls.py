@@ -9,7 +9,11 @@ from drf_spectacular.views import (
     SpectacularRedocView
 )
 from django.views.i18n import set_language
-
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+    TokenVerifyView
+)
 urlpatterns = [
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     # Optional UI:
@@ -30,9 +34,10 @@ urlpatterns = [
     # path("__debug__/", include("debug_toolbar.urls")),
 ]
 urlpatterns += i18n_patterns(
-    # path(
-        # "api2/", include("map.api")
-    # ),
+  
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     path("api/", include("bulletin.urls", namespace="bulletin")),
     path("ad/", include("ad.urls", namespace="ad")),
     path("map/", include("map.urls", namespace="map")),

@@ -124,7 +124,7 @@ class SignInView(APIView):
 
         user, is_created = CustomUser.objects.select_related(
                 "onetimecodes"
-            ).get_or_create(email=email)
+            ).get_or_create(email=email) # Тут лучше убрать get_or_create на get или проверку на создание левых аккаунтов
 
         ban_time = check_ban(user)
         if ban_time:
@@ -142,10 +142,10 @@ class SignInView(APIView):
         signer = Signer()
         signed_value = signer.sign(email)
 
-        response = (
-            Response(status=status.HTTP_201_CREATED)
+        response = (#Фронт попросил serializer.data тоже присылать
+            Response(serializer.data, status=status.HTTP_201_CREATED)
             if is_created else
-            Response(status=status.HTTP_200_OK)
+            Response(serializer.data, status=status.HTTP_200_OK)
         )
         response.set_cookie("email", signed_value, httponly=True)
         print(response.cookies)
@@ -783,45 +783,45 @@ class NewCodeView(APIView):
             status=status.HTTP_200_OK
         )
 
-
-@extend_schema(
-    tags=["Вход/регистрация"],
-    description="Разлогиниться.",
-    summary="Выйти",
-    request=inline_serializer(
-        name="LogOut",
-        fields={}
-    ),
-    responses={
-        status.HTTP_200_OK: OpenApiResponse(
-            description="Пользователь разлогинен",
-            # response=inline_serializer(
-            #     name="Пользователь разлогинен",
-            #     fields={"message": "Пользователь разлогинен."}
-            # ),
-        ),
-        status.HTTP_400_BAD_REQUEST: OpenApiResponse(
-            description=(
-                "Пользователь уже авторизован"
-            ),
-            response=inline_serializer(
-                name="InvalidRequest",
-                fields={"message": serializers.CharField()}
-            ),
-            examples=[
-                OpenApiExample(
-                    "Пользователь уже авторизован",
-                    description=(
-                        "Пример ответа, если пользователь "
-                        "уже авторизирован"
-                    ),
-                    value={"message": "Вы уже авторизированы."},
-                ),
-            ],
-        ),
-    },
-)
-@api_view(["POST"])
+"""Здесь нет сериалайзера и сваггер ругается, нам вообще все эти апи здесь помоему не нужны"""
+# @extend_schema(
+#     tags=["Вход/регистрация"],
+#     description="Разлогиниться.",
+#     summary="Выйти",
+#     request=inline_serializer(
+#         name="LogOut",
+#         fields={}
+#     ),
+#     responses={
+#         status.HTTP_200_OK: OpenApiResponse(
+#             description="Пользователь разлогинен",
+#             # response=inline_serializer(
+#             #     name="Пользователь разлогинен",
+#             #     fields={"message": "Пользователь разлогинен."}
+#             # ),
+#         ),
+#         status.HTTP_400_BAD_REQUEST: OpenApiResponse(
+#             description=(
+#                 "Пользователь уже авторизован"
+#             ),
+#             response=inline_serializer(
+#                 name="InvalidRequest",
+#                 fields={"message": serializers.CharField()}
+#             ),
+#             examples=[
+#                 OpenApiExample(
+#                     "Пользователь уже авторизован",
+#                     description=(
+#                         "Пример ответа, если пользователь "
+#                         "уже авторизирован"
+#                     ),
+#                     value={"message": "Вы уже авторизированы."},
+#                 ),
+#             ],
+#         ),
+#     },
+# )
+# @api_view(["POST"])
 def log_out(request):
     print(request.user.is_authenticated)
     """Выход из учетной записи пользователя."""
@@ -836,8 +836,8 @@ def log_out(request):
     return Response(status=status.HTTP_200_OK)
 
 
-@api_view(["POST", "GET"])
-@permission_classes((permissions.IsAuthenticated,))
+# @api_view(["POST", "GET"])
+# @permission_classes((permissions.IsAuthenticated,))
 def verify_code(request):
     """Тестовая модель для проверки авторизации."""
     # print(request.session["email"])

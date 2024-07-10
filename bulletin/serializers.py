@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from config.constants import MAX_LEN_CODE, MAX_LEN_EMAIL
-from ad.models import Advertisement, Car, Category, Images
+from ad.models import  Car, Category, Images, Advertisement
 from users.models import CustomUser, OneTimeCode, Profile
 
 
@@ -108,8 +108,14 @@ class CategorySerializer(serializers.ModelSerializer):
         fields["children"] = CategorySerializer(many=True, required=False)
         return fields
 
+class AdvertisementSerializer(serializers.Serializer):
 
-# class AdvertisementSerializer(serializers.Serializer):
+    class Meta:
+        model = Advertisement
+        fields = '__all__'
+        read_only_fields = ('created', 'changed')
+        # fields = ("category ", "profile", "created", "changed", "moderation")
+
 
 #     title = serializers.CharField()
 #     description = serializers.CharField()
@@ -124,29 +130,45 @@ class CategorySerializer(serializers.ModelSerializer):
     # class Meta:
     #     model = Advertisement
     #     fields = ()
-
-class CarSerializer(serializers.ModelSerializer):
-        image = serializers.ImageField(source='images',)
-        # category_id = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all(), many=False)
-        
-        class Meta:
-            model = Car
-            fields = ("year", "brand", "model", "mileage", "price", "image", "category_id" )
-        
-        def create(self, validated_data):
-            
-            car_instance, created = Car.objects.get_or_create(
-                year=validated_data.get('year', None), 
-                brand=validated_data.get('brand',
-                 None), model=validated_data.get('model', None), 
-                mileage=validated_data.get('mileage', None),
-                price=validated_data.get('price',
-                 None), category_id=Category.objects.get(name='Транспорт',).id)#category_id=validated_data.get('category_id', None).id # В закомменченном выбираем из категорий
-            return car_instance
-           
+# class ImagesImageSerializer():
+#     class Meta:
+#         model = Images
+#         fields = ("image",)
 
 class ImagesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Images
         fields = ("title", "profile", "car", "created", "changed", "image" )
+# from drf_spectacular.utils import (
+#     extend_schema_field,
+#     OpenApiTypes
+# ) 
 
+class CarSerializer(serializers.ModelSerializer):#, ):AdvertisementSerializer,
+        
+        image = serializers.ImageField( write_only=True )
+        title = serializers.CharField(write_only=True)
+    
+        class Meta:
+            model = Car
+            fields = ("by_mileage", "category_id", 'brand', "year", "model", "mileage", "price", "image", "title")
+
+        def create(self, validated_data):
+            car_instance, created = Car.objects.get_or_create(
+                by_mileage=validated_data.get('by_mileage', None),
+                year=validated_data.get('year', None), 
+                brand=validated_data.get('brand',None), 
+                model=validated_data.get('model', None), 
+                mileage=validated_data.get('mileage', None),
+                price=validated_data.get('price',None), 
+                category_id=Category.objects.get(name='Транспорт',).id,
+                )#category_id=validated_data.get('category_id', None).id # В закомменченном выбираем из категорий
+           
+            image_instance, created = Images.objects.get_or_create(
+                car=car_instance,
+                # title = title_of_image_value,#validated_data.get('title_of_image'),# validated_data.get('title'),
+                title=validated_data.get('title'),
+                image = str(validated_data.get('image')),#validated_data.get('image'),# validated_data.get('image'), 
+                # profile = image_value.get('profile'),# validated_data.get('profile'), 
+            )        
+            return car_instance, image_instance

@@ -31,7 +31,8 @@ def ff():
     #     'access': str(refresh.access_token),
     # }
     """Выводим по токену юзера"""
-    token = AccessToken(refresh.access_token)
+    # token = AccessToken(refresh.access_token)
+    token = AccessToken(str(refresh.access_token))
     user_id = token.payload['user_id']
     user = CustomUser.objects.get(id=user_id)
     print(user)
@@ -46,7 +47,7 @@ def ff():
     # # print(Advertisement.objects.all().values_list('profile_id'))
     # advertizement_queryset = Advertisement.objects.all()
     # print(Advertisement.objects.all())
-    print(BASE_DIR)
+    # print(BASE_DIR)
     # for i, j, ii in zip(ip_list, profile_queryset, advertizement_queryset):
     #     IP.objects.create(ip=i, profile=j, advertisement=ii)
     #########################
@@ -63,9 +64,9 @@ def ff():
     # print(CodeCustomuser.objects.filter(customuser_id=user.id).exists())
     # code_user = user.codecustomuser.name
     # print (lang_dict)
-    print(BASE_DIR)
-    print(STATIC_URL, "00000", STATICFILES_DIRS)
-    print(TEMPLATES[0].get('DIRS'))
+    # print(BASE_DIR)
+    # print(STATIC_URL, "00000", STATICFILES_DIRS)
+    # print(TEMPLATES[0].get('DIRS'))
     
 class Command(BaseCommand):
 

@@ -4,8 +4,12 @@ from django.utils.translation import gettext_lazy as _
 from mptt.models import MPTTModel, TreeForeignKey
 from django.db.models.signals import post_save
 from config.constants import MAX_LEN_NAME_CATEGORY, MIN_YEAR_AUTO_CREATED
+from config import settings
 import datetime
 from django.core.validators import MaxValueValidator, MinValueValidator
+# from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+# from django.contrib.contenttypes.models import ContentType
+
 
 NULLABLE = {'blank': True, 'null': True}
 
@@ -64,7 +68,7 @@ def current_year():
 def max_value_current_year(value):
     return MaxValueValidator(current_year())(value)
    
-class Car(models.Model):
+class Car(Advertisement):
     category = TreeForeignKey('ad.Category', on_delete=models.CASCADE, related_name='advertisement')
     profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, **NULLABLE)
     by_mileage = models.CharField(_("Differ by mileage"), choices=BY_MILEAGE)
@@ -113,8 +117,9 @@ post_save.connect(IP.post_create, sender=IP)
 class Images(models.Model):
     title = models.CharField(_("Photoe's title"), max_length=150, **NULLABLE)
     image = models.ImageField(_("Photo"), upload_to="images")
-    profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, **NULLABLE)
+    profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, related_name="images", **NULLABLE)
     car = models.ForeignKey("ad.Car", related_name="images", on_delete=models.CASCADE, **NULLABLE)
+    card = models.ForeignKey("ad.Card", on_delete=models.CASCADE, related_name="images")
     created = models.DateTimeField(auto_now=True)
     changed = models.DateTimeField(auto_now_add=True)
 
@@ -125,3 +130,46 @@ class Documents(models.Model):
     profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, **NULLABLE)
     auto = models.ForeignKey("ad.Car", on_delete=models.CASCADE, **NULLABLE)
     created = models.DateTimeField(auto_now=True)
+
+
+class Like(models.Model):
+    is_liked = models.BooleanField()
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             related_name='likes',
+                             on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now=True)
+    card = models.ForeignKey("ad.Card", on_delete=models.CASCADE, related_name="likes")
+    # content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    # object_id = models.PositiveIntegerField()
+    # content_object = GenericForeignKey('content_type', 'object_id')#Как я понял вместотого, чтобы было понятно все написано с форейн кеями к каждой модели, можно так написать через content_type
+    def __str__(self):
+        """Строковое представление объекта Лайк."""
+        return f"{self.user}"
+    
+    # @property
+    # def total_likes_user(self):
+    #     return self.likes.count()
+    
+
+class Card(models.Model):
+    title = models.CharField(_("Document'stitle"), max_length=150, **NULLABLE)
+    price = models.CharField(_("price"), max_length=100)
+    description = models.CharField(_("Description"), max_length=2000)
+    marker = models.OneToOneField('map.Marker', on_delete=models.CASCADE, related_name="card")
+    profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, related_name="card", **NULLABLE)
+    created = models.DateTimeField(auto_now=True)
+    # likes = GenericRelation(Like)
+    
+    def __str__(self):
+        return str(self.id)
+    
+    # @property
+    # def total_likes(self):
+    #     return self.likes.count()
+    
+#   promo: '2024-08-03T14:00:00.000Z',
+#   userName: 'Андрей',
+#   createAdDate: '2024-07-03T14:00:00.000Z',
+#   userCreate: '2022-03-22T14:00:00.000Z',
+#   adCounter: '10',
+#   image: ['/cardMockImage.png'],

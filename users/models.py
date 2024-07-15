@@ -62,7 +62,7 @@ class Profile(models.Model):
     """Модель профайла."""
     user = models.OneToOneField(
         CustomUser,
-        on_delete=models.CASCADE,
+        on_delete=models.CASCADE,related_name="profile",
         verbose_name="profile"
     )
     phone_number = models.CharField(

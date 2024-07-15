@@ -112,6 +112,7 @@ class SignInView(APIView):
         },
     )
     def post(self, request):
+        print('-------------------00---------------')
         if request.user.is_authenticated:
             return Response(
                 {"message": "Вы уже авторизированы."},
@@ -148,8 +149,8 @@ class SignInView(APIView):
             Response(serializer.data, status=status.HTTP_200_OK)
         )
         response.set_cookie("email", signed_value, httponly=True)
-        print(response.cookies)
-        print(response.cookies["email"])
+        print("----------------111-------------------", response.cookies)
+        print("---------------------222---------------", response.cookies["email"])
         return response
 
 
@@ -380,9 +381,13 @@ class ConfirmCodeView(APIView):
         if otc.code == email_code:
             try:
                 user.profile
+                print("loged_in_________1___")
                 login(request, user)
+                return Response(serializer.data, status=status.HTTP_307_TEMPORARY_REDIRECT) # Перенаправить на создание профиля
+                
             except Profile.DoesNotExist:
                 pass
+            print("not_loged_in______go_to_sign_up ______")
             otc.count_attempts = 0
             otc.count_send_code = 0
             otc.save()

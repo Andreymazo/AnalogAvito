@@ -5,6 +5,7 @@ from ad.views import (
     CategoryList,   
     UploadFileImage,
     UploadViewSet,
+    like_list_create,
 
 )
 from django.urls import include, path
@@ -31,6 +32,7 @@ urlpatterns = [
    path("upload_file_image/", UploadFileImage.as_view(), name="upload_file_image"), 
    path("category_list/", CategoryList.as_view(), name="ad_list"),
    path("car_list/", CarList.as_view(), name="car_list"),
+   path("like_list_create/", like_list_create, name="like_list_create"),
    
 ]
 

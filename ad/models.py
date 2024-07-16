@@ -124,7 +124,7 @@ class Car(Advertisement):
         verbose_name_plural = _("Automobiles")
 
     def __str__(self) -> str:
-        return str(self.model)
+        return str(self.id)
     
 
 class IP(models.Model):

@@ -383,7 +383,7 @@ class ConfirmCodeView(APIView):
                 user.profile
                 print("loged_in_________1___")
                 login(request, user)
-                return Response(serializer.data, status=status.HTTP_307_TEMPORARY_REDIRECT) # Перенаправить на создание профиля
+                return Response(serializer.data, status=status.HTTP_200_OK)
                 
             except Profile.DoesNotExist:
                 pass
@@ -395,7 +395,7 @@ class ConfirmCodeView(APIView):
             serializer = SignInSerializer(user)
             return Response(
                 serializer.data,
-                status=status.HTTP_200_OK
+                status=status.HTTP_307_TEMPORARY_REDIRECT # Перенаправить на создание профиля
             )
 
         # otc.count_attempts = otc.count_attempts - 1

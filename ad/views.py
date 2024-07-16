@@ -1,12 +1,10 @@
 import json
 from rest_framework import generics
 from ad.func_for_help import save_file
-from ad.models import Card, Category, Car, Images, Like
+from ad.models import Category, Car, Images, Like
 from ad.serializers import LikeSerializer
 from bulletin.serializers import CarSerializer, CategorySerializer, ImagesSerializer
 from rest_framework import status
-# from rest_framework.views import APIView #Почему то обычный не видит и не грузит файл, либо Генерик, либо МоделВьюсет грузят файл
-from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.generics import GenericAPIView
@@ -99,44 +97,47 @@ from django import forms
 from django.shortcuts import redirect
 from django.urls import reverse
 from rest_framework.parsers import JSONParser
+
 class LikeForm(forms.Form):
-    queryset = Card.objects.all()
+    queryset = Car.objects.all()
     choices = [(f"{i}", i) for i in queryset]
     choose_card = forms.ChoiceField(choices=choices)
+
+
 """Функция на входе юзер и карточку, надо ввести, для этого форма, после тестирования, уберем, на выходе добавляем лайк от пользователя карточке"""
 # @csrf_exempt
 @api_view(['GET', 'POST'])
 @renderer_classes((TemplateHTMLRenderer, JSONRenderer))
 def like_list_create(request):
-    
-    user_instance = request.user
-    card_queryset = Card.objects.all()
-    card_instance=card_queryset.get(id=1)#Для проверки вставим 1ую карточку
-    print('user_instance', user_instance)
     if request.user.is_anonymous:
         return redirect(reverse("bulletin:sign_in_email"))
+    user_instance = request.user
+    car_queryset = Car.objects.all()
+    car_instance=car_queryset.get(id=3)#Для проверки вставим 1 объявление авто
+    print('user_instance', user_instance)
+    
     form = LikeForm()
     if request.method == 'GET':
-        like_queryset = Like.objects.all().filter(card_id=card_instance.id)
+        like_queryset = Like.objects.all().filter(card_id=car_instance.id)
         serializer = LikeSerializer(like_queryset, many=True) 
         # return JsonResponse(serializer.data, safe=False) 
         print('serializer.data', type(serializer.data), serializer.data)
         
         print('like_queryset', like_queryset)
         print('data_for_template ================', serializer.data)
-        total_likes = card_instance.likes.count()
+        total_likes = car_instance.likes.count()
         tottal_likes_user = Like.objects.filter(user_id = request.user.id).count()
         return Response({"form": form, "data": request.data, "like_queryset":serializer.data, "tottal_likes_user": tottal_likes_user, "card_instance":card_instance, "total_likes":total_likes}, template_name="ad/templates/ad/template_for_like.html", status=status.HTTP_200_OK)
     form = LikeForm(request.POST)
     if request.method == 'POST':
         if form.is_valid():
             form_value = form.cleaned_data.get("choose_card")
-            card_instance = card_queryset.get(id=form_value)
+            car_instance = car_queryset.get(id=form_value)
             print("form_value", form_value)
             context = {"form_value":form_value}
         # Response(data, status=None, template_name=None, headers=None, content_type=None)
             print('user_instance====================', user_instance, "-----------form_value", form_value)#user_instance==================== andreymazo3@mail.ru -----------form_value Card object (2)
-            Like.objects.get_or_create(user=user_instance,card=card_instance,is_liked=False)
-            print(f"like added to card {card_instance} from {user_instance} _______________________")
+            Like.objects.get_or_create(user=user_instance,card=car_instance,is_liked=False)
+            print(f"like added to card {car_instance} from {user_instance} _______________________")
             return Response(context, template_name="ad/templates/ad/template_for_like.html", status=status.HTTP_201_CREATED)
 #   kill -9 $(lsof -t -i:8080)

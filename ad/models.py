@@ -7,8 +7,8 @@ from config.constants import MAX_LEN_NAME_CATEGORY, MIN_YEAR_AUTO_CREATED
 from config import settings
 import datetime
 from django.core.validators import MaxValueValidator, MinValueValidator
-# from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
-# from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.models import ContentType
 
 
 NULLABLE = {'blank': True, 'null': True}
@@ -39,16 +39,27 @@ class Category(MPTTModel):
         """Строковое представление категории."""
         return self.name
 
-
+"""Модель объявление (абстрактная) поля, которой будут у всех объявлений"""
 class Advertisement(models.Model):
     # category = TreeForeignKey('ad.Category', on_delete=models.CASCADE, related_name='advertisement')
     # profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, **NULLABLE)
+    title = models.CharField(_("Document'stitle"), max_length=150, **NULLABLE)
     created = models.DateTimeField(auto_now=True)
     changed = models.DateTimeField(auto_now_add=True)
     moderation = models.BooleanField(_("Модерация"), default=False)
+    price = models.CharField(_("price"), max_length=100)
+    description = models.CharField(_("Description"), max_length=2000)
+    marker = models.OneToOneField('map.Marker', on_delete=models.CASCADE, related_name="card")
+    profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, related_name="card", **NULLABLE)
 
     class Meta:
         abstract = True
+
+    
+    # likes = GenericRelation(Like)
+    
+    def __str__(self):
+        return str(self.id)
 
 BY_MILEAGE = [("ALL", "ALL"), ("NEW", "NEW"), ("WM", "With Mileage"),]
 
@@ -67,7 +78,24 @@ def current_year():
 
 def max_value_current_year(value):
     return MaxValueValidator(current_year())(value)
-   
+
+class Like(models.Model):
+    is_liked = models.BooleanField()
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             related_name='likes',
+                             on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now=True)
+    # card = models.ForeignKey("ad.Card", on_delete=models.CASCADE, related_name="likes")# Удалили, вместо нее Advertisement
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')#Как я понял вместотого, чтобы было понятно все написано с форейн кеями к каждой модели, можно так написать через content_type
+    def __str__(self):
+        """Строковое представление объекта Лайк."""
+        return f"{self.user}"
+    
+    # @property
+    # def total_likes_user(self):
+    #     return self.likes.count()  
 class Car(Advertisement):
     category = TreeForeignKey('ad.Category', on_delete=models.CASCADE, related_name='advertisement')
     profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, **NULLABLE)
@@ -89,6 +117,7 @@ class Car(Advertisement):
     fuel = models.CharField(_("Differ by fuel"), choices=BY_FUEL, **NULLABLE)
     add_parametres =  models.CharField(_("additional"), max_length=150, **NULLABLE)
     description = models.CharField(_("Description"), max_length=2000)
+    likes = GenericRelation(Like, related_query_name='cars')
 
     class Meta:
         verbose_name = _("Automobile")
@@ -119,7 +148,7 @@ class Images(models.Model):
     image = models.ImageField(_("Photo"), upload_to="images")
     profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, related_name="images", **NULLABLE)
     car = models.ForeignKey("ad.Car", related_name="images", on_delete=models.CASCADE, **NULLABLE)
-    card = models.ForeignKey("ad.Card", on_delete=models.CASCADE, related_name="images")
+    # card = models.ForeignKey("ad.Card", on_delete=models.CASCADE, related_name="images")# Удалили, вместо нее Advertisement
     created = models.DateTimeField(auto_now=True)
     changed = models.DateTimeField(auto_now_add=True)
 
@@ -132,36 +161,18 @@ class Documents(models.Model):
     created = models.DateTimeField(auto_now=True)
 
 
-class Like(models.Model):
-    is_liked = models.BooleanField()
-    user = models.ForeignKey(settings.AUTH_USER_MODEL,
-                             related_name='likes',
-                             on_delete=models.CASCADE)
-    created = models.DateTimeField(auto_now=True)
-    card = models.ForeignKey("ad.Card", on_delete=models.CASCADE, related_name="likes")
-    # content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    # object_id = models.PositiveIntegerField()
-    # content_object = GenericForeignKey('content_type', 'object_id')#Как я понял вместотого, чтобы было понятно все написано с форейн кеями к каждой модели, можно так написать через content_type
-    def __str__(self):
-        """Строковое представление объекта Лайк."""
-        return f"{self.user}"
-    
-    # @property
-    # def total_likes_user(self):
-    #     return self.likes.count()
-    
 
-class Card(models.Model):
-    title = models.CharField(_("Document'stitle"), max_length=150, **NULLABLE)
-    price = models.CharField(_("price"), max_length=100)
-    description = models.CharField(_("Description"), max_length=2000)
-    marker = models.OneToOneField('map.Marker', on_delete=models.CASCADE, related_name="card")
-    profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, related_name="card", **NULLABLE)
-    created = models.DateTimeField(auto_now=True)
-    # likes = GenericRelation(Like)
+# class Card(models.Model):
+#     title = models.CharField(_("Document'stitle"), max_length=150, **NULLABLE)
+#     price = models.CharField(_("price"), max_length=100)
+#     description = models.CharField(_("Description"), max_length=2000)
+#     marker = models.OneToOneField('map.Marker', on_delete=models.CASCADE, related_name="card")
+#     profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, related_name="card", **NULLABLE)
+#     created = models.DateTimeField(auto_now=True)
+#     # likes = GenericRelation(Like)
     
-    def __str__(self):
-        return str(self.id)
+#     def __str__(self):
+#         return str(self.id)
     
     # @property
     # def total_likes(self):

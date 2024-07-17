@@ -5,6 +5,7 @@ from ad.views import (
     CategoryList,   
     UploadFileImage,
     UploadViewSet,
+    check_car_images_db_requests,
     like_list_create,
 
 )
@@ -33,6 +34,7 @@ urlpatterns = [
    path("category_list/", CategoryList.as_view(), name="ad_list"),
    path("car_list/", CarList.as_view(), name="car_list"),
    path("like_list_create/", like_list_create, name="like_list_create"),
+   path("check_car_images_db_requests/", check_car_images_db_requests, name="check_car_images_db_requests"),
    
 ]
 

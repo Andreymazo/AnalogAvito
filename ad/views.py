@@ -84,6 +84,16 @@ class UploadViewSet(ModelViewSet):
     queryset = Images.objects.all()
     serializer_class = ImagesSerializer
 
+@api_view(["GET"])
+def check_car_images_db_requests(request):# Пробросить черерз тулбар, увидим 2 запроса в базу 89 и 94 строчки, а не 1+3 по количеству фоток (их там хоть сколько)
+    car_obj = Car.objects.get(id=5)
+    if request.method == "GET":
+        # print('car_obj.images.all()', car_obj.images.all())
+        serializer= ImagesSerializer(car_obj.images.all(), many=True)
+        return Response(serializer.data)
+        
+        
+
 
 
 # from django.views.decorators.csrf import csrf_exempt 
@@ -126,6 +136,8 @@ def like_list_create(request):
         print('data_for_template ================', serializer.data)
         total_likes = obj.likes.count()
         tottal_likes_user = Like.objects.filter(user_id = request.user.id).count()
+        print('==========total_likes===========', total_likes)
+        print('==========total_likes_usr===========', tottal_likes_user)
         return Response({"form": form, "data": request.data, "like_queryset":serializer.data, "tottal_likes_user": tottal_likes_user, "card_instance":obj, "total_likes":total_likes}, template_name="ad/templates/ad/template_for_like.html", status=status.HTTP_200_OK)
     form = LikeForm(request.POST)
     if request.method == 'POST':

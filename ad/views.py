@@ -1,6 +1,6 @@
 from rest_framework import generics
 from ad.models import Category, Car, Images, Like
-from ad.serializers import LikeSerializer
+from ad.serializers import LikeSerializer, LikeSerializerCreate
 from bulletin.serializers import CarSerializer, CategorySerializer, ImagesSerializer
 from rest_framework import status
 from rest_framework.response import Response
@@ -19,6 +19,8 @@ from django.core.files.uploadedfile import TemporaryUploadedFile, InMemoryUpload
 from rest_framework.decorators import api_view
 from collections import OrderedDict
 from rest_framework import serializers
+
+from users.models import CustomUser
 
 class CategoryList(generics.ListAPIView):#ListCreateAPIView
     queryset = Category.objects.all()
@@ -79,16 +81,42 @@ def check_car_images_db_requests(request):# Пробросить черерз т
         return Response(serializer.data)
         
 
-"""Функция возвращает лайки по объекту (объявлению)""" 
+"""Функция возвращает лайки по объекту (объявлению)"""
+@extend_schema(
+     
+        description="Лайки объявления",
+        request=LikeSerializer,
+        responses={
+            status.HTTP_200_OK: OpenApiResponse(
+                description="Вывод лайков по объявлению",
+                response=LikeSerializer,
+            ),
+        },
+         
+    )
 @api_view(["GET"])
-def like_list_obj(request, obj):    
+def like_list_obj(request, ContentType_id=16, obj_id=6):
+    content_type = ContentType.objects.get_for_id(ContentType_id)
+    obj = content_type.get_object_for_this_type(pk=obj_id)
     if request.method == "GET":
         like_queryset_obj = Like.objects.all().filter(object_id=obj.id)
         serializer= LikeSerializer(like_queryset_obj, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-"""Функция возвращает лайки по пользователю"""  
+"""Функция возвращает лайки по пользователю залогиненному""" 
+@extend_schema(
+     
+        description="Лайки объявления",
+        request=LikeSerializer,
+        responses={
+            status.HTTP_200_OK: OpenApiResponse(
+                description="Вывод лайков по пользователю-залогиненному",
+                response=LikeSerializer,
+            ),
+        },
+         
+    )
 @api_view(["GET"])
 def like_list_user(request):
     if request.user.is_anonymous:
@@ -99,19 +127,86 @@ def like_list_user(request):
         serializer= LikeSerializer(like_queryset_user, many=True)
         return Response(serializer.data)
     
-
-"""Функция добавляет лайк"""
-@api_view(['POST'])
-def like_add(request, obj, is_liked):
+"""Функция возвращает лайки по пользователю, может смотреть любой залогиненный, по дефлоту выведет для первого""" 
+@extend_schema(
+     
+        description="Лайки объявления",
+        request=LikeSerializer,
+        responses={
+            status.HTTP_200_OK: OpenApiResponse(
+                description="Вывод лайков по пользователю",
+                response=LikeSerializer,
+            ),
+        },
+         
+    )
+@api_view(["GET"])
+def like_list_user(request, user_id=1):
     if request.user.is_anonymous:
         return redirect(reverse("bulletin:sign_in_email"))
+    user_instance = CustomUser.objects.get(id=user_id)
+    if request.method == "GET":
+        like_queryset_user = Like.objects.all().filter(user_id=user_instance.id)
+        serializer= LikeSerializer(like_queryset_user, many=True)
+        return Response(serializer.data)
+    
+
+"""Функция добавляет лайк текущего пользователя к объявлению"""
+@extend_schema(
+     
+        description="Лайки объявления",
+        request=LikeSerializerCreate,
+        responses={
+            status.HTTP_201_CREATED: OpenApiResponse(
+                description="Добавление лайка пользователя",
+                response=LikeSerializerCreate,
+            ),
+            status.HTTP_200_OK: OpenApiResponse(
+                description=(
+                    "Лайк у пользователя уже существует"
+                ),
+                response=LikeSerializerCreate,
+            ),
+            status.HTTP_400_BAD_REQUEST: OpenApiResponse(
+                description=(
+                    "Ввели неправильные данные"
+                ),
+                response=inline_serializer(
+                    name="ValidationErrorInConfirmCode",
+                    fields={"email": serializers.ListField(
+                        child=serializers.CharField()
+                    )}
+                ),
+            )
+        }, 
+    )
+@api_view(['POST'])
+def like_add(request):# is_liked=False, ContentType_id=16, obj_id=6):
+    print('request.user', request.user)
+    if request.user.is_anonymous:
+        return redirect(reverse("bulletin:sign_in_email"))
+    # content_type = ContentType.objects.get_for_id(ContentType_id)
+    # obj = content_type.get_object_for_this_type(pk=obj_id)
     user_instance = request.user
     if request.method == "POST":
-        Like.objects.get_or_create(user=user_instance, content_type=ContentType.objects.get_for_model(obj), object_id=obj.id,is_liked=is_liked)
-        serializer = LikeSerializer(data=request.data)
+        serializer = LikeSerializerCreate(data=request.data)
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            print('serializer.data', serializer.data)
+            content_type = serializer.validated_data.get("content_type")
+            object_id = serializer.validated_data.get('object_id')
+            is_liked = serializer.validated_data.get('is_liked')
+            try:
+                print('1111111111111111111111111')
+                like_instance = Like.objects.get(user=user_instance, content_type=content_type, object_id=object_id,is_liked=is_liked)
+                return Response([{"message" : "Лайки уже существуют"},serializer.data], status=status.HTTP_200_OK)
+            except Like.DoesNotExist:
+                # obj.votes.create(user=request.user, vote=self.vote_type)
+                # result = True
+                print('22222222222222222222222222')
+                like_instance = Like.objects.create(user=user_instance, content_type=content_type, object_id=object_id,is_liked=is_liked)
+                like_instance.save()
+            # serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

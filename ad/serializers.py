@@ -6,3 +6,9 @@ class LikeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Like
         fields = "__all__"
+
+class LikeSerializerCreate(serializers.ModelSerializer):
+    class Meta:
+        model = Like
+        exclude = ["user"]
+     

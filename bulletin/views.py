@@ -125,7 +125,7 @@ class SignInView(APIView):
 
         user, is_created = CustomUser.objects.select_related(
                 "onetimecodes"
-            ).get_or_create(email=email) # Тут лучше убрать get_or_create на get или проверку на создание левых аккаунтов
+            ).get_or_create(email=email)
 
         ban_time = check_ban(user)
         if ban_time:
@@ -383,6 +383,7 @@ class ConfirmCodeView(APIView):
                 user.profile
                 print("loged_in_________1___")
                 login(request, user)
+                print('request.user', request.user)
                 return Response(serializer.data, status=status.HTTP_200_OK)
                 
             except Profile.DoesNotExist:

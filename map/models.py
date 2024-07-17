@@ -1,4 +1,4 @@
-from django.db import models
+# from django.db import models
 from django.contrib.gis.db.models import PointField
 from django.contrib.gis.db import models
 NULLABLE = {'blank': True, 'null': True}

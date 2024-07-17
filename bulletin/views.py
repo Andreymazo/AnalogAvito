@@ -383,7 +383,7 @@ class ConfirmCodeView(APIView):
                 user.profile
                 print("loged_in_________1___")
                 login(request, user)
-                return Response(serializer.data, status=status.HTTP_307_TEMPORARY_REDIRECT) # Перенаправить на создание профиля
+                return Response(serializer.data, status=status.HTTP_200_OK)
                 
             except Profile.DoesNotExist:
                 pass
@@ -395,7 +395,7 @@ class ConfirmCodeView(APIView):
             serializer = SignInSerializer(user)
             return Response(
                 serializer.data,
-                status=status.HTTP_200_OK
+                status=status.HTTP_307_TEMPORARY_REDIRECT # Перенаправить на создание профиля
             )
 
         # otc.count_attempts = otc.count_attempts - 1
@@ -856,40 +856,3 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     http_method_names = ("get",)
     queryset = Category.objects.prefetch_related("children").all()
     serializer_class = CategorySerializer
-
-"""Так как модель Advertisement абстракт=Тру, то в базе ее нет. Пока закомментируем фильтрацию ,как пример для будущих 
-фильтраций существующих объявлений, например авто"""
-# class AdvertisementList(generics.ListAPIView):
-#     queryset = Advertisement.objects.all()
-#     serializer_class = AdvertisementSerializer
-#     name = "ad_list"
-#     filter_fields = ( 
-#         '-created', 
-#     )
-
-"""Можно передать на фронт сразу все кверисеты, там делать видимым один и селектом(select) давать возможность 
-    пользователю переключаться, тогда вся джанговская фильтрация не нужна"""
-    
-    # def get_queryset(self):
-    #     queryset1 = Advertisement.objects.all()
-    #     # queryset2 = Advertisement.objects.all()[:12]
-    #     # queryset3 = Advertisement.objects.order_by('-created')
-    #     # queryset = {"queryset1":queryset1, "queryset2":queryset2, "queryset3":queryset3}
-    #     return queryset1.order_by('-created')
-"""Кастомная пагинация на подружилась с фильтрацией"""
-    # def get(self, request):
-    #     paginator = PageNumberPagination()
-    #     paginator.page_query_param = 'page'
-    #     paginator.page_size_query_param = 'per_page'
-    #     paginator.page_size = 1
-    #     context = paginator.paginate_queryset(self.queryset, request)
-    #     serializer1=AdvertisementSerializer(context, many=True)
-    #     return paginator.get_paginated_response(serializer1.data)
-
-# class CategoryList(generics.ListAPIView):
-#     queryset = Category.objects.all()
-#     serializer_class = CategorySerializer
-#     name = "ad_list"
-#     filter_fields = ( 
-#         '-created', 
-#     )

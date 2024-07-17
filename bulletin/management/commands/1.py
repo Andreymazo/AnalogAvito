@@ -1,7 +1,7 @@
 
 import os
 from django.core.management import BaseCommand
-from ad.models import IP, Advertisement
+from ad.models import IP, Advertisement, Category
 from config.settings import BASE_DIR, MEDIA_ROOT, MEDIA_URL, STATIC_URL, STATICFILES_DIRS, TEMPLATES
 # from django.conf import settings
 from config import settings
@@ -21,22 +21,23 @@ from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 #     return Token.objects.get(key=token).user
 
 def ff():
-    """Принтим акцесс и рефреш токены"""
-    user, _ = CustomUser.objects.get_or_create(email='andreymazo@mail.ru')
-    refresh = RefreshToken.for_user(user)
-    print('str(refresh.access_token: ', str(refresh.access_token))
-    print('str(refresh): ', str(refresh))
-    # return {
-    #     'refresh': str(refresh),
-    #     'access': str(refresh.access_token),
-    # }
-    """Выводим по токену юзера"""
-    # token = AccessToken(refresh.access_token)
-    token = AccessToken(str(refresh.access_token))
-    user_id = token.payload['user_id']
-    user = CustomUser.objects.get(id=user_id)
-    print(user)
-
+    # """Принтим акцесс и рефреш токены"""
+    # user, _ = CustomUser.objects.get_or_create(email='andreymazo@mail.ru')
+    # refresh = RefreshToken.for_user(user)
+    # print('str(refresh.access_token: ', str(refresh.access_token))
+    # print('str(refresh): ', str(refresh))
+    # # return {
+    # #     'refresh': str(refresh),
+    # #     'access': str(refresh.access_token),
+    # # }
+    # """Выводим по токену юзера"""
+    # # token = AccessToken(refresh.access_token)
+    # token = AccessToken(str(refresh.access_token))
+    # user_id = token.payload['user_id']
+    # user = CustomUser.objects.get(id=user_id)
+    # print(user)
+    category = Category.objects.get_or_create(name="Транспорт")
+    print(category, type(category))
 
     # # ip_queryset = IP.objects.all()
     # # advert_list = [("ad1", "ad_disr_1", profile_queryset.get(id=5)), ("ad2","ad_disr_2", profile_queryset.get(id=6)), ("ad3","ad_disr_3", profile_queryset.get(id=6))]

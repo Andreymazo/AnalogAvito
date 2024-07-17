@@ -2,10 +2,13 @@ from django.urls import path
 from ad.apps import AdConfig
 from ad.views import (
     CarList,
-    CategoryList,   
-    UploadFileImage,
+    CategoryList, 
     UploadViewSet,
+    check_car_images_db_requests,
+    like_add,
     like_list_create,
+    like_list_obj,
+    like_list_user,
 
 )
 from django.urls import include, path
@@ -17,22 +20,18 @@ from ad.views import UploadViewSet
 router = SimpleRouter()
 router.register(r'upload', UploadViewSet, basename='upload')
 
-# urlpatterns = [
-#     path('', include(router.urls)),
-# ]
-
-# from rest_framework import routers
-# router = routers.DefaultRouter()
-# router.register(r'upload', UploadViewSet)
 
 app_name = AdConfig.name
 
 urlpatterns = [
    path('', include(router.urls)), 
-   path("upload_file_image/", UploadFileImage.as_view(), name="upload_file_image"), 
    path("category_list/", CategoryList.as_view(), name="ad_list"),
    path("car_list/", CarList.as_view(), name="car_list"),
    path("like_list_create/", like_list_create, name="like_list_create"),
+   path("check_car_images_db_requests/", check_car_images_db_requests, name="check_car_images_db_requests"),
+   path("like_list_obj/", like_list_obj, name="like_list_obj"),
+   path("like_list_user/", like_list_user, name="like_list_user"),
+   path("like_add/", like_add, name="like_add"),
    
 ]
 

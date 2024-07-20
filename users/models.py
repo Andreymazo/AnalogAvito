@@ -1,8 +1,8 @@
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractBaseUser, AbstractUser
 from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-
+from django.utils import timezone
 from config.constants import (
     MAX_LEN_CODE,
     MAX_LEN_EMAIL,
@@ -46,6 +46,58 @@ class CustomUser(AbstractUser):
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
+
+
+# class CustomUser(AbstractBaseUser):  # , PermissionsMixin):
+#     email = models.EmailField(max_length=100, unique=True)
+#     # VERIFICATION_TYPE = [
+#     #     ('sms', 'SMS'),
+#     # ]
+#     # phone_number = PhoneNumberField(unique = True)
+#     # verification_method = models.CharField(max_length=10,choices= VERIFICATION_TYPE)
+#     # phone_number = models.CharField(max_length=16, validators=[phone_validator], unique=True)
+#     first_name = models.CharField(_("first name"), max_length=150, blank=True)
+#     last_name = models.CharField(_("last name"), max_length=150, blank=True)
+#     is_staff = models.BooleanField(
+#         _("staff status"),
+#         default=False,
+#         help_text=_("Designates whether the user can log into this admin site."),
+#     )
+#     is_active = models.BooleanField(
+#         _("active"),
+#         default=True,
+#         help_text=_(
+#             "Designates whether this user should be treated as active. "
+#             "Unselect this instead of deleting accounts."
+#         ),
+#     )
+#     date_joined = models.DateTimeField(_("date joined"), auto_now_add=True, default=timezone.now)
+
+#     objects = UserManager()
+
+#     EMAIL_FIELD = "email"
+#     USERNAME_FIELD = "username"
+#     REQUIRED_FIELDS = ["email"]
+#     is_staff = models.BooleanField(default=False)
+#     is_admin = models.BooleanField(default=False)
+#     is_active = models.BooleanField(default=True)
+#     # is_superuser = models.BooleanField(default=False)
+#     date_joined = models.DateTimeField(auto_now_add=True)
+#     USERNAME_FIELD = 'email'
+#     REQUIRED_FIELDS = []
+#     objects = CustomUserManager()
+
+#     def __str__(self):
+#         return f"{self.id}: {self.email}"
+
+#     class Meta:
+#         verbose_name = "Пользователь"
+#         verbose_name_plural = "Пользователи"
+#         # permissions = [("worktime.add_customuser", "Can add customuser"),
+#         #                ("worktime.change_customuser", "Can change customuser"),
+#         #                ("worktime.delete_customuser", "Can delete customuser"),
+#         #                ("worktime.view_customuser", "Can view customuser")]
+
 
     class Meta:
         """Конфигурация модели пользователя."""

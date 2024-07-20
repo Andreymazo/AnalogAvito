@@ -6,11 +6,11 @@ from bulletin.views import (
     CategoryViewSet,
     ConfirmCodeView,
     NewCodeView,
-    home,
     #ad_list,
     log_out,
     SignInView,
     SignUpView,
+    sign_in_alternative,
     verify_code
 )
 
@@ -23,6 +23,7 @@ router.register("categories", CategoryViewSet)
 url_v1 = [
     path("verify_code/", verify_code, name="verify_code"),
     path("sign_in_email/", SignInView.as_view(), name="sign_in_email"),
+    path("sign_in_alternative/", sign_in_alternative, name="sign_in_alternative"),
     path("log_out/", log_out, name="log_out"),
     # path("create_profile/", create_profile, name="create_profile"),
     path("confirm_code/", ConfirmCodeView.as_view(), name="confirm_code"),
@@ -36,6 +37,5 @@ url_v1 = [
 
 
 urlpatterns = [
-    path("home/", home, name="home"),
     path("v1/", include(url_v1)),
 ]

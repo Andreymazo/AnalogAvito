@@ -3,8 +3,8 @@ from datetime import datetime, timedelta, timezone
 from django.conf import settings
 from django.core.mail import send_mail
 from users.models import OneTimeCode
-
 from config.constants import LEN_CODE, TIME_BAN
+import re
 
 
 def get_random_code():
@@ -56,3 +56,17 @@ def create_or_update_code(user):
     otc.save()
     print("code: ", code)
     return otc
+
+"""Проверяет то, что ввел пользователь, возвращает емэйл и телефон с соответсвующими флагами"""
+def check_email_phone(s):
+    pat_email = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'
+    pat_phone = r"^(\+\d{1,3})?\s?\(?\d{1,4}\)?[\s.-]?\d{3}[\s.-]?\d{4}$"
+    if re.match(pat_email,s):
+        print("Valid Email")
+        return (s, "email")
+    if re.match(pat_phone, s):
+        print('Valid phone')
+        return (s, "phone")
+    else:
+        print("Invalid Email and Phone")
+        return None

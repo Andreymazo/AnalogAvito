@@ -4,17 +4,34 @@ from ad.models import  Car, Category, Images, Advertisement
 from users.models import CustomUser, OneTimeCode, Profile
 
 
-class CustomUserLoginSerializer(serializers.ModelSerializer):
-    """Сериализатор для входа по одноразовому коду."""
-    email = serializers.EmailField(max_length=MAX_LEN_EMAIL)
+class AlternativeAuthSerializer(serializers.Serializer):
+    user_input_value = serializers.CharField()
 
-    class Meta:
-        """Конфигурация сериализатора для входа по одноразовому коду."""
-        model = CustomUser
-        fields = ("email",)  # "username")
-        # read_only_fields = ("username",)
-        # read_only_fields = ("username",)
+# class ProfileRegistrationSerializer():
+#     class Meta:
+#         model = Profile
+#         fields = "phone_number",#"phone_number"
 
+# class CustomUserLoginSerializer(serializers.ModelSerializer):
+#     """Сериализатор для входа по одноразовому коду."""
+#     email = serializers.EmailField(max_length=MAX_LEN_EMAIL)
+#     profile = ProfileRegistrationSerializer()
+#     # phone_number = serializers.CharField(source='profile.phone_number')
+    
+#     class Meta:
+#         """Конфигурация сериализатора для входа по одноразовому коду."""
+#         model = CustomUser
+#         fields = ['email', 'profile',]# 'phone_number']
+#         # fields = ("email", "phone",)  # "username")
+#         # read_only_fields = ("username",)
+#         # read_only_fields = ("username",)
+        
+    def create(self, validated_data):
+        print('nnnnnnnnnnnnnnnnnnnnnnnnnnn')
+        profile_data = validated_data.pop('profile')
+        user = CustomUser.objects.create(**validated_data)
+        Profile.objects.create(user=user, **profile_data)
+        return user
 
 class SignInSerializer(serializers.ModelSerializer):
     """Сериализатор для представления пользователя после входа."""

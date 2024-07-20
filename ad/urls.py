@@ -6,7 +6,7 @@ from ad.views import (
     UploadViewSet,
     check_car_images_db_requests,
     like_add,
-    like_list_create,
+    # like_list_create,
     like_list_obj,
     like_list_user,
 
@@ -27,7 +27,7 @@ urlpatterns = [
    path('', include(router.urls)), 
    path("category_list/", CategoryList.as_view(), name="ad_list"),
    path("car_list/", CarList.as_view(), name="car_list"),
-   path("like_list_create/", like_list_create, name="like_list_create"),
+#    path("like_list_create/", like_list_create, name="like_list_create"),
    path("check_car_images_db_requests/", check_car_images_db_requests, name="check_car_images_db_requests"),
    path("like_list_obj/", like_list_obj, name="like_list_obj"),
    path("like_list_user/", like_list_user, name="like_list_user"),

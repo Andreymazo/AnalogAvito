@@ -16,8 +16,8 @@ from rest_framework.views import APIView
 from rest_framework import generics
 from ad.models import Car, Category
 from bulletin.serializers import (
+    AlternativeAuthSerializer,
     CategorySerializer,
-    CustomUserLoginSerializer,
     OneTimeCodeSerializer,
     SignInSerializer,
     SignUpSerializer
@@ -30,6 +30,7 @@ from config.constants import (
 )
 from bulletin.utils import (
     check_ban,
+    check_email_phone,
     create_or_update_code,
 )
 from users.models import (
@@ -37,12 +38,36 @@ from users.models import (
     OneTimeCode,
     Profile
 )
-def home(request):
-    instance = Car.objects.all().values("description").last()
-    
-    context = {"instance":instance}
-    return render(request, "bulletin/templates/bulletin/home.html", context)
 
+  
+"""Тренировочный ендпоинт для альтернативной авторизации"""
+@api_view(["POST"])
+def sign_in_alternative(request):
+    if request.user.is_authenticated:
+        logout(request)
+        print('Разлогинили ...........')
+    serializer = AlternativeAuthSerializer(data=request.data)
+    if request.method=="POST":
+        print('111111111111111111111s')
+        if serializer.is_valid():
+            print('request.user.is_authenticated____', request.user.is_authenticated)
+            user_input_value = serializer.validated_data['user_input_value']
+            user_input_value=check_email_phone(user_input_value)
+            if user_input_value[1]=="email":
+                user = CustomUser.objects.get(email=user_input_value[0])
+                login(request, user)
+                print('000_________request.user.is_authenticated____', request.user.is_authenticated)
+            if user_input_value[1]=="phone":
+                user = Profile.objects.get(phone_number=user_input_value[0]).user
+                login(request, user)
+            # print('user_input_value', user_input_value)
+                print('request.user.is_authenticated____', request.user.is_authenticated)
+            return Response(serializer.data)
+        print('jjjjjjjjjjjjjj', serializer.data)
+        return Response([serializer.errors, {"messg":"Invalid input"}])
+
+        
+    
 class SignInView(APIView):
     """Вход пользователя."""
 
@@ -50,15 +75,15 @@ class SignInView(APIView):
         tags=["Вход/регистрация"],
         description="Аутентификация и создание пользователя.",
         summary="Вход пользователя",
-        request=CustomUserLoginSerializer,
+        request=AlternativeAuthSerializer,
         responses={
             status.HTTP_200_OK: OpenApiResponse(
                 description="Успешная аутентификация",
-                response=CustomUserLoginSerializer,
+                response=AlternativeAuthSerializer,
             ),
             status.HTTP_201_CREATED: OpenApiResponse(
                 description="Пользователь создан",
-                response=CustomUserLoginSerializer,
+                response=AlternativeAuthSerializer,
             ),
             status.HTTP_400_BAD_REQUEST: OpenApiResponse(
                 description="Ошибка валидации, пользователь уже авторизован",
@@ -118,15 +143,43 @@ class SignInView(APIView):
                 {"message": "Вы уже авторизированы."},
                 status=status.HTTP_400_BAD_REQUEST
             )
-
-        serializer = CustomUserLoginSerializer(data=request.data)
+        """Пробуем залогиниться по введенным данным"""
+        serializer = AlternativeAuthSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        email = serializer.validated_data["email"]
-
-        user, is_created = CustomUser.objects.select_related(
+        user_input_value = serializer.validated_data["user_input_value"]
+        user_input_value = check_email_phone(user_input_value)
+        
+        if not user_input_value:# Сразу обезопасим себя от user_input_value=None
+            return Response([serializer.data, {"message":"Ввели неправильные данные"}])
+        
+        if user_input_value[1]=="email":
+            try:
+                email= user_input_value[0]      
+                user = CustomUser.objects.get(email = email)
+                print('ddd00000_________request.user.is_authenticated____', request.user.is_authenticated)
+                login(request, user=user)
+                print('dddd11111_________request.user.is_authenticated____', request.user.is_authenticated)
+                return Response([serializer.data, {"message": "Авторизированы по емэйл"}])
+            except CustomUser.DoesNotExist:
+                user, is_created = CustomUser.objects.select_related(
                 "onetimecodes"
-            ).get_or_create(email=email)
-
+                ).get_or_create(email=email)
+        if user_input_value[1]=="phone":
+            try:
+                user = Profile.objects.get(phone_number=user_input_value[0]).user
+                # email = user.email
+                print('000_________request.user.is_authenticated____', request.user.is_authenticated)
+                login(request, user=user)
+                print('001_________request.user.is_authenticated____', request.user.is_authenticated)
+                return Response([serializer.data, {"message": "Авторизированы по телефону"}])
+            except Profile.DoesNotExist:
+                return Response([serializer.data, {"message":"Профиля с таким номером телефона не существует, введите свой емэйл или существующий номер телефона"}])
+        # email = serializer.validated_data["email"]
+        
+        # user, is_created = CustomUser.objects.select_related(
+        #         "onetimecodes"
+        #     ).get_or_create(email=email)
+        
         ban_time = check_ban(user)
         if ban_time:
             return Response(
@@ -173,10 +226,12 @@ class ConfirmCodeView(APIView):
                     "время ожидания истекло, неправильный ввод кода"
                 ),
                 response=inline_serializer(
-                    name="ValidationErrorInConfirmCode",
-                    fields={"email": serializers.ListField(
-                        child=serializers.CharField()
-                    )}
+                    name = "CustomUser",
+                    fields = {"email":serializers.EmailField()}
+                    # name="ValidationErrorInConfirmCode",
+                    # fields={"email": serializers.ListField(
+                    #     child=serializers.CharField()
+                    # )}
                 ),
                 examples=[
                     OpenApiExample(

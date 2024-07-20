@@ -188,6 +188,10 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Invalid session
 ATTEMPTS = 3  # Максимальное количество попыток ввести код
 SITE_ID = 1
 
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+
+]
 REST_FRAMEWORK = {
 
     # 'DEFAULT_PARSER_CLASSES': [

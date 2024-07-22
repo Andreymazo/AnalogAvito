@@ -150,15 +150,16 @@ class SignInView(APIView):
         user_input_value = check_email_phone(user_input_value)
         
         if not user_input_value:# Сразу обезопасим себя от user_input_value=None
-            return Response([serializer.data, {"message":"Ввели неправильные данные"}])
+            return Response([serializer.data, {"message":"Ввели неправильные данные"}], status=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION)
         
         if user_input_value[1]=="email":
             try:
                 email= user_input_value[0]      
                 user = CustomUser.objects.get(email = email)
-                print('ddd00000_________request.user.is_authenticated____', request.user.is_authenticated)
-                login(request, user=user)
-                print('dddd11111_________request.user.is_authenticated____', request.user.is_authenticated)
+                """Сразу логинить нельзя, чел просто не будут вводить код, а пойдет на другие ендпоинты"""
+                # print('ddd00000_________request.user.is_authenticated____', request.user.is_authenticated)
+                # login(request, user=user)
+                # print('dddd11111_________request.user.is_authenticated____', request.user.is_authenticated)
                 return Response([serializer.data, {"message": "Авторизированы по емэйл"}])
             except CustomUser.DoesNotExist:
                 user, is_created = CustomUser.objects.select_related(
@@ -167,10 +168,11 @@ class SignInView(APIView):
         if user_input_value[1]=="phone":
             try:
                 user = Profile.objects.get(phone_number=user_input_value[0]).user
-                # email = user.email
-                print('000_________request.user.is_authenticated____', request.user.is_authenticated)
-                login(request, user=user)
-                print('001_________request.user.is_authenticated____', request.user.is_authenticated)
+                email = user.email
+                """Сразу логинить нельзя, чел просто не будут вводить код, а пойдет на другие ендпоинты"""
+                # print('000_________request.user.is_authenticated____', request.user.is_authenticated)
+                # login(request, user=user)
+                # print('001_________request.user.is_authenticated____', request.user.is_authenticated)
                 return Response([serializer.data, {"message": "Авторизированы по телефону"}])
             except Profile.DoesNotExist:
                 return Response([serializer.data, {"message":"Профиля с таким номером телефона не существует, введите свой емэйл или существующий номер телефона"}])

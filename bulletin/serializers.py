@@ -153,14 +153,13 @@ class AdvertisementSerializer(serializers.Serializer):
 #         fields = ("image",)
 
 class ImagesSerializer(serializers.ModelSerializer):
+    # content_object = serializers.SerializerMethodField()
     class Meta:
         model = Images
-        fields = ("title", "profile", "car", "created", "changed", "image" )
-# from drf_spectacular.utils import (
-#     extend_schema_field,
-#     OpenApiTypes
-# ) 
+        fields = ("title", "profile", "image" )
 
+    # def get_content_object(self, obj):
+    #     return 
 class CarSerializer(serializers.ModelSerializer):#, ):AdvertisementSerializer,
         
         image = serializers.ImageField( write_only=True )
@@ -170,22 +169,24 @@ class CarSerializer(serializers.ModelSerializer):#, ):AdvertisementSerializer,
             model = Car
             fields = ("by_mileage", "category_id", 'brand', "year", "model", "mileage", "price", "image", "title")
 
-        def create(self, validated_data):
-            car_instance, created = Car.objects.get_or_create(
-                by_mileage=validated_data.get('by_mileage', None),
-                year=validated_data.get('year', None), 
-                brand=validated_data.get('brand',None), 
-                model=validated_data.get('model', None), 
-                mileage=validated_data.get('mileage', None),
-                price=validated_data.get('price',None), 
-                category_id=Category.objects.get(name='Транспорт',).id,
-                )#category_id=validated_data.get('category_id', None).id # В закомменченном выбираем из категорий
+        # def create(self, validated_data):
+        #     car_instance, created = Car.objects.get_or_create(
+        #         by_mileage=validated_data.get('by_mileage', None),
+        #         year=validated_data.get('year', None), 
+        #         brand=validated_data.get('brand',None), 
+        #         model=validated_data.get('model', None), 
+        #         mileage=validated_data.get('mileage', None),
+        #         price=validated_data.get('price',None), 
+        #         category_id=Category.objects.get(name='Транспорт',).id,
+        #         marker_id = Marker.objects.get()
+        #         )#category_id=validated_data.get('category_id', None).id # В закомменченном выбираем из категорий
+                
            
-            image_instance, created = Images.objects.get_or_create(
-                car=car_instance,
-                # title = title_of_image_value,#validated_data.get('title_of_image'),# validated_data.get('title'),
-                title=validated_data.get('title'),
-                image = str(validated_data.get('image')),#validated_data.get('image'),# validated_data.get('image'), 
-                # profile = image_value.get('profile'),# validated_data.get('profile'), 
-            )        
-            return car_instance, image_instance
+        #     image_instance, created = Images.objects.get_or_create(
+        #         car=car_instance,
+        #         # title = title_of_image_value,#validated_data.get('title_of_image'),# validated_data.get('title'),
+        #         title=validated_data.get('title'),
+        #         image = validated_data.get('image'),#validated_data.get('image'),# validated_data.get('image'), 
+        #         # profile = image_value.get('profile'),# validated_data.get('profile'), 
+        #     )        
+        #     return car_instance, image_instance

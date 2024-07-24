@@ -49,7 +49,7 @@ class Advertisement(models.Model):
     moderation = models.BooleanField(_("Модерация"), default=False)
     price = models.CharField(_("price"), max_length=100)
     description = models.CharField(_("Description"), max_length=2000)
-    marker = models.OneToOneField('map.Marker', on_delete=models.CASCADE, related_name="card")
+    # marker = models.OneToOneField('map.Marker', on_delete=models.CASCADE, related_name="card")
     profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, related_name="card", **NULLABLE)
 
     class Meta:
@@ -117,7 +117,8 @@ class Car(Advertisement):
     fuel = models.CharField(_("Differ by fuel"), choices=BY_FUEL, **NULLABLE)
     add_parametres =  models.CharField(_("additional"), max_length=150, **NULLABLE)
     description = models.CharField(_("Description"), max_length=2000)
-    likes = GenericRelation(Like, related_query_name='cars')
+    likes = GenericRelation("ad.Like", related_query_name='cars')
+    images = GenericRelation("ad.Images", related_query_name='cars')
 
     class Meta:
         verbose_name = _("Automobile")
@@ -126,7 +127,7 @@ class Car(Advertisement):
     def __str__(self) -> str:
         return str(self.id)
     
-
+"""This model is a profile's IP, more then two IPs will be deleted when created"""
 class IP(models.Model):
     ip = models.CharField(max_length=100)
     profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, **NULLABLE)
@@ -141,18 +142,47 @@ class IP(models.Model):
         return
 
 post_save.connect(IP.post_create, sender=IP)
+# from django.core.files.storage import FileSystemStorage
+# import os
+# class OverwriteStorage(FileSystemStorage):
 
+#     def get_available_name(self, name, max_length=None):
+#         pass
+#         """Returns a filename that's free on the target storage system, and
+#         available for new content to be written to.
 
+#         Found at http://djangosnippets.org/snippets/976/
+
+#         This file storage solves overwrite on upload problem. Another
+#         proposed solution was to override the save method on the model
+#         like so (from https://code.djangoproject.com/ticket/11663):
+
+#         def save(self, *args, **kwargs):
+#             try:
+#                 this = MyModelName.objects.get(id=self.id)
+#                 if this.MyImageFieldName != self.MyImageFieldName:
+#                     this.MyImageFieldName.delete()
+#             except: pass
+#             super(MyModelName, self).save(*args, **kwargs)
+#         """
+#         # If the filename already exists, remove it as if it was a true file system
+#         # if self.exists(name):
+#         #     os.remove(os.path.join(settings.MEDIA_ROOT, name))
+#         # return name
+"""This model related to Car and other ad models, using content_type model"""
 class Images(models.Model):
     title = models.CharField(_("Photoe's title"), max_length=150, **NULLABLE)
-    image = models.ImageField(_("Photo"), upload_to="images")
+    image = models.ImageField(_("Photo"),  upload_to="images")#storage= OverwriteStorage()
     profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, related_name="images", **NULLABLE)
-    car = models.ForeignKey("ad.Car", related_name="images", on_delete=models.CASCADE, **NULLABLE)
+    # car = models.ForeignKey("ad.Car", related_name="images", on_delete=models.CASCADE, **NULLABLE)
     # card = models.ForeignKey("ad.Card", on_delete=models.CASCADE, related_name="images")# Удалили, вместо нее Advertisement
     created = models.DateTimeField(auto_now=True)
     changed = models.DateTimeField(auto_now_add=True)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
 
-
+"""This model - profile's documents"""
 class Documents(models.Model):
     title = models.CharField(_("Document'stitle"), max_length=150, **NULLABLE)
     document = models.FileField(_("Document's title"), upload_to="media/documents")
@@ -161,7 +191,16 @@ class Documents(models.Model):
     created = models.DateTimeField(auto_now=True)
 
 
+"""This model for promotion: will be highlighted and up in filtering. Related to other ad models by content_type model"""
+class Promotion(models.Model):
+    created = models.DateTimeField(auto_now=True)
+    changed = models.DateTimeField(auto_now_add=True)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()    
+    content_object = GenericForeignKey('content_type', 'object_id')
 
+
+"""This is changed by model Advertisement, must be deleted after testing"""
 # class Card(models.Model):
 #     title = models.CharField(_("Document'stitle"), max_length=150, **NULLABLE)
 #     price = models.CharField(_("price"), max_length=100)

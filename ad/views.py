@@ -1,5 +1,6 @@
+from django.db import IntegrityError
 from rest_framework import generics
-from ad.models import Category, Car, Images, Like
+from ad.models import Category, Car, Like, Images
 from ad.serializers import LikeSerializer, LikeSerializerCreate
 from bulletin.serializers import CarSerializer, CategorySerializer, ImagesSerializer
 from rest_framework import status
@@ -19,8 +20,14 @@ from django.core.files.uploadedfile import TemporaryUploadedFile, InMemoryUpload
 from rest_framework.decorators import api_view
 from collections import OrderedDict
 from rest_framework import serializers
-
-from users.models import CustomUser
+from users.models import CustomUser, Profile
+from rest_framework.decorators import api_view
+from django.shortcuts import redirect
+from django.urls import reverse
+from django.contrib.contenttypes.models import ContentType
+from rest_framework.parsers import MultiPartParser
+from map.models import Marker
+from django.db import transaction
 
 class CategoryList(generics.ListAPIView):#ListCreateAPIView
     queryset = Category.objects.all()
@@ -32,40 +39,93 @@ class CategoryList(generics.ListAPIView):#ListCreateAPIView
 
 
 @extend_schema(
-    parameters=[
-        CarSerializer,  # serializer fields are converted to parameters  
-        ],
+    # parameters=[
+    #     CarSerializer,  # serializer fields are converted to parameters  
+    #     ],
     request=CarSerializer,
+    # request=inline_serializer(
+    #     name="InlineFormSerializer",
+    #     fields={
+    #         "str_field": serializers.CharField(),
+    #         "int_field": serializers.IntegerField(),
+    #         "file_field": serializers.FileField(),
+    #     },
+    # ),
     responses={status.HTTP_201_CREATED: OpenApiResponse(
                 description="Объявление автомобиль создано",
                 response=CarSerializer,
             ),}
+            
 )
+
 class CarList(generics.ListCreateAPIView):
     queryset = Car.objects.all()
+    parser_classes = [MultiPartParser]
     serializer_class = CarSerializer
     name = "Car list"
     filter_fields = ( 
         '-created', 
     )
-    
-    def change_image_to_string(self, obj):
-        if type(obj) == InMemoryUploadedFile:
-            return f"images/{obj}"
-        if type(obj) == TemporaryUploadedFile:
-            return f"images/{obj}"
-        else:
-            return obj
+    """This func was necessary if serializer.data after serializer.save() called, since we commented serializer.save() in perform_create no need this"""
+    # def change_image_to_string(self, obj):
+    #     if type(obj) == InMemoryUploadedFile:
+    #         return f"images/{obj}"
+    #     if type(obj) == TemporaryUploadedFile:
+    #         return f"images/{obj}"
+    #     else:
+    #         return obj
 
-    def create(self, request, *args, **kwargs):
+    def create(self, request, *args, **kwargs):#, ContentType_id=16, obj_id=6
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        s = OrderedDict([(k, self.change_image_to_string(v)) for k,v  in serializer.validated_data.items()])
-        self.perform_create(serializer)
-        headers = self.get_success_headers(s)
-        return Response(s, status=status.HTTP_201_CREATED, headers=headers)
-    
+        # print('serializer.data', serializer.data)
+        # content_type = ContentType.objects.get_for_id(ContentType_id)
+        # obj = content_type.get_object_for_this_type(pk=obj_id)
+        # print('77777777777777777777777777', content_type, obj)
+        # s = OrderedDict([(k, self.change_image_to_string(v)) for k,v  in serializer.validated_data.items()])
+        car_instance, created = Car.objects.get_or_create(
+                by_mileage=serializer.validated_data.get('by_mileage', None),
+                year=serializer.validated_data.get('year', None), 
+                brand=serializer.validated_data.get('brand',None), 
+                model=serializer.validated_data.get('model', None), 
+                mileage=serializer.validated_data.get('mileage', None),
+                price=serializer.validated_data.get('price',None), 
+                category_id=Category.objects.get(name='Транспорт',).id,
+                profile = Profile.objects.get(user=request.user)
+                )#category_id=validated_data.get('category_id', None).id # Can choose
+                
+        try:
+            #Photoes anyway will be loaded even the same
+            image_instance, created = Images.objects.get_or_create(
+                    content_type = ContentType.objects.get_for_model(type(car_instance)),object_id = car_instance.id,
+                    title=serializer.validated_data.get('title'),image = serializer.validated_data.get('image'),
+                    )
+            # return Response( [serializer.data, {"message": "This photo already uploaded"}], status=status.HTTP_206_PARTIAL_CONTENT)
+        except Images.MultipleObjectsReturned:
+            image = Images.objects.filter(content_type = ContentType.objects.get_for_model(type(car_instance)),
+                    object_id = car_instance.id,title=serializer.validated_data.get('title'),).order_by('id').first()  
+            
 
+
+        # try:
+        #     print('type image', type(serializer.validated_data.get('image')))
+        #     obj = Images.objects.get(content_type = ContentType.objects.get_for_model(type(car_instance)),object_id = car_instance.id,
+        #             title=serializer.validated_data.get('title'),image = serializer.validated_data.get('image'),)
+        #     print('444444444444444444444', obj)
+        #     return Response( [serializer.data, {"message": "This photo already uploaded"}], status=status.HTTP_206_PARTIAL_CONTENT)
+        # except Images.DoesNotExist:
+        #     obj = Images.objects.create(content_type = ContentType.objects.get_for_model(type(car_instance)),object_id = car_instance.id,
+        #                         title=serializer.validated_data.get('title'),image = serializer.validated_data.get('image'),)
+        #     return Response( [serializer.data, {"message": "Uploaded"}], status=status.HTTP_201_CREATED)
+
+
+        # self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response([serializer.data, {"message": "Uploaded"}], status=status.HTTP_201_CREATED, headers=headers)
+    
+    
+            
+            # return car_instance, image_instance
     
 class UploadViewSet(ModelViewSet):
     queryset = Images.objects.all()
@@ -116,7 +176,7 @@ def like_list_obj(request, ContentType_id=16, obj_id=6):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-"""Функция возвращает лайки по пользователю залогиненному""" 
+"""Function returns likes for requested user""" 
 @extend_schema(
      
         description="Лайки объявления",
@@ -139,7 +199,7 @@ def like_list_user(request):
         serializer= LikeSerializer(like_queryset_user, many=True)
         return Response(serializer.data)
     
-"""Функция возвращает лайки по пользователю, может смотреть любой залогиненный, по дефлоту выведет для первого""" 
+"""Function returns likes for user instance, for 1st by default""" 
 @extend_schema(
      
         description="Лайки объявления",
@@ -163,25 +223,25 @@ def like_list_user(request, user_id=1):
         return Response(serializer.data)
     
 
-"""Функция добавляет лайк текущего пользователя к объявлению"""
+"""Function add like from requested user"""
 @extend_schema(
      
-        description="Лайки объявления",
+        description="Likes for the instance",
         request=LikeSerializerCreate,
         responses={
             status.HTTP_201_CREATED: OpenApiResponse(
-                description="Добавление лайка пользователя",
+                description="Added like",
                 response=LikeSerializerCreate,
             ),
             status.HTTP_200_OK: OpenApiResponse(
                 description=(
-                    "Лайк у пользователя уже существует"
+                    "Like from the user already exists"
                 ),
                 response=LikeSerializerCreate,
             ),
             status.HTTP_400_BAD_REQUEST: OpenApiResponse(
                 description=(
-                    "Ввели неправильные данные"
+                    "Invalid data"
                 ),
                 response=inline_serializer(
                     name="ValidationErrorInConfirmCode",
@@ -221,26 +281,24 @@ def like_add(request):# is_liked=False, ContentType_id=16, obj_id=6):
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+"""Function for test likes: In: user and car_object (form for this, must be commented if migrations needed), all must be deleted after testing,
+  Out: like added from user to car object"""
 
 # from django.views.decorators.csrf import csrf_exempt 
-from rest_framework.decorators import api_view, renderer_classes
-from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer
-from django.http import HttpResponse, JsonResponse 
-from django import forms
-from django.shortcuts import redirect
-from django.urls import reverse
-from rest_framework.parsers import JSONParser
-from django.contrib.contenttypes.models import ContentType
-
+# from rest_framework.decorators import api_view, renderer_classes
+# from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer
+# from django.http import HttpResponse, JsonResponse 
+# from django import forms
+# from django.shortcuts import redirect
+# from django.urls import reverse
+# from rest_framework.parsers import JSONParser
+# from django.contrib.contenttypes.models import ContentType
 
 # class LikeForm(forms.Form):
 #     queryset = Car.objects.all()
 #     choices = [(f"{i}", i) for i in queryset]
 #     choose_car = forms.ChoiceField(choices=choices)
 
-
-# """Функция для тестирования лайков: на входе юзер и карточку, надо ввести, для этого форма (с ней миграции не проходят), после тестирования уберем,
-#  на выходе добавляем лайк от пользователя карточке"""
 # # @csrf_exempt
 # @api_view(['GET', 'POST'])
 # @renderer_classes((TemplateHTMLRenderer, JSONRenderer))
@@ -285,3 +343,58 @@ from django.contrib.contenttypes.models import ContentType
 #             print(form.errors.as_data())
 #             return Response(template_name="ad/templates/ad/template_for_like.html", status=status.HTTP_204_NO_CONTENT)
 #   kill -9 $(lsof -t -i:8080)
+
+####################################
+
+
+# def proverka_na_vhode(request):# If requestuser authentificated and if there mssgs for request user 
+#     notifications = NotificationMssg.objects.all().filter(key_to_recepient=request.user.email) | NotificationMssg.objects.all().filter(key_to_recepient=request.user.id)
+#     num_new_mssgs=notifications.count()
+    
+#     if not request.user.is_authenticated:
+#         login_url = reverse_lazy('workingtimeprivate:login')
+#         return redirect(login_url)
+#     if not notifications:
+#         messages.info(request, f'Дорогой {request.user.email}б вас нет сообщений') 
+#         with open('worktimeprivate/templates/worktimeprivate/mssg_room.html', 'w+') as f:
+#             f.write(f' {{% block content %}}\n <div>\n <h1>Dear {request.user.email} there is nothing for you yet</h1>\n <a class="nav-link active" aria-current="page" href="{{% url \'worktimeprivate:mssg_create\' %}}"> Create message </a>\n <a class="nav-link active" ar>
+#         return render(request, f'worktimeprivate/templates/worktimeprivate/mssg_room.html')
+#     return messages.success(request, f'Дорогой {request.user.email}, у вас {num_new_mssgs} сообщений') 
+
+# def mssg_room(request):
+#     proverka_na_vhode(request)#est li mssgs for request.user 
+
+#     print('request.user, request.user.id', request.user.email, request.user.id)
+#     f = open('worktimeprivate/templates/worktimeprivate/mssg_room.html', 'w')
+#     f.write(' {% block content %}\n <div>\n <h1>Your mssgs: </h1>\n')
+#     f.close()
+#     for index,i in enumerate(NotificationMssg.objects.all()):
+#         if i.key_to_recepient == request.user.email or str(i.key_to_recepient) == str(request.user.id):
+#             j = 0
+#             if  i.counteragent:
+#                 j = i.counteragent
+#             if i.employee:
+#                 j = i.employee
+#             if i.employer:
+#                 j = i.employer
+#             print('index+1', index+1, j)
+#             f = open('worktimeprivate/templates/worktimeprivate/mssg_room.html', 'a')
+#             f.write(f'<p>message N {index+1}:  <a class="nav-link active" aria-current="page" href="{{% url \"worktimeprivate:mssg_detail\" {i.pk}%}}">{i.text[0:5]}...</a>\n from: {j}\n, <a class="nav-link active" aria-current="page" href="{{% url \"worktimeprivate:mssg_>
+#             f.close()
+#     f = open('worktimeprivate/templates/worktimeprivate/mssg_room.html', 'a')
+#     f.write('<a class="nav-link active" aria-current="page" href="{% url \'worktimeprivate:mssg_create\' %}"> Create message with proper recipient</a>\n <a class="nav-link active" aria-current="page" href="{% url \'worktimeprivate:employee_employer_lists\' %}"> Back bttn>
+#     f.close() 
+#     return render(request, 'worktimeprivate/templates/worktimeprivate/mssg_room.html')
+
+
+# def message_room(request):
+#     proverka_na_vhode(request)#Est li soobshenia dlia request usera
+    
+#     context = {}
+#     notification_mssg_queryset = NotificationMssg.objects.all().filter(key_to_recepient=request.user.email)| \
+#         NotificationMssg.objects.all().filter(key_to_recepient=request.user.id)  
+#     context = {'notification_mssg_queryset':notification_mssg_queryset,
+#                'request_user_email': request.user.email,
+#                }
+#     # https://developer.mozilla.org/ru/docs/Web/API/Document/querySelector
+#     return render(request, 'worktimeprivate/templates/worktimeprivate/message_room.html', context)

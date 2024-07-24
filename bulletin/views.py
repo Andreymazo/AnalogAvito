@@ -151,7 +151,7 @@ class SignInView(APIView):
         
         if not user_input_value:# Сразу обезопасим себя от user_input_value=None
             return Response([serializer.data, {"message":"Ввели неправильные данные"}], status=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION)
-        
+        is_created = False# This flag to pass to front data if user is a new-created or already was in base
         if user_input_value[1]=="email":
             try:
                 email= user_input_value[0]      
@@ -160,7 +160,7 @@ class SignInView(APIView):
                 # print('ddd00000_________request.user.is_authenticated____', request.user.is_authenticated)
                 # login(request, user=user)
                 # print('dddd11111_________request.user.is_authenticated____', request.user.is_authenticated)
-                return Response([serializer.data, {"message": "Авторизированы по емэйл"}])
+                # return Response([serializer.data, {"message": "Авторизированы по емэйл"}])
             except CustomUser.DoesNotExist:
                 user, is_created = CustomUser.objects.select_related(
                 "onetimecodes"
@@ -173,7 +173,7 @@ class SignInView(APIView):
                 # print('000_________request.user.is_authenticated____', request.user.is_authenticated)
                 # login(request, user=user)
                 # print('001_________request.user.is_authenticated____', request.user.is_authenticated)
-                return Response([serializer.data, {"message": "Авторизированы по телефону"}])
+                # return Response([serializer.data, {"message": "Авторизированы по телефону"}])
             except Profile.DoesNotExist:
                 return Response([serializer.data, {"message":"Профиля с таким номером телефона не существует, введите свой емэйл или существующий номер телефона"}])
         # email = serializer.validated_data["email"]

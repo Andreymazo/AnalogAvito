@@ -111,22 +111,13 @@ class CustomUser(AbstractUser):
 
 
 class Profile(models.Model):
-    """Модель профайла."""
+    """Модель профайла"""
     user = models.OneToOneField(
         CustomUser,
-        on_delete=models.CASCADE,related_name="profile",
-        verbose_name="profile"
-    )
-    phone_number = models.CharField(
-        _("Номер телефона"),
-        max_length=MAX_LEN_PHONE_NUMBER,
-        unique=True,
-        validators=[phone_validator]
-    )
-    name = models.CharField(
-        _("Имя пользователя"),
-        max_length=MAX_LEN_NAME_PROFILE
-    )
+        on_delete=models.CASCADE,related_name="profile",)
+    phone_number = models.CharField(_("Номер телефона"), max_length=MAX_LEN_PHONE_NUMBER, unique=True, validators=[phone_validator])
+    name = models.CharField(_("Имя пользователя"), max_length=MAX_LEN_NAME_PROFILE)
+    marker =  models.OneToOneField("map.Marker", on_delete=models.CASCADE,related_name="profile",)
     def __str__(self):
         """Строковое представление объекта пользователя."""
         return str(self.user.email)

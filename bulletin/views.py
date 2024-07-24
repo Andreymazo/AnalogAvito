@@ -137,7 +137,7 @@ class SignInView(APIView):
         },
     )
     def post(self, request):
-        print('-------------------00---------------')
+        # print('-------------------00---------------')
         if request.user.is_authenticated:
             return Response(
                 {"message": "Вы уже авторизированы."},

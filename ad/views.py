@@ -233,10 +233,10 @@ from rest_framework.parsers import JSONParser
 from django.contrib.contenttypes.models import ContentType
 
 
-class LikeForm(forms.Form):
-    queryset = Car.objects.all()
-    choices = [(f"{i}", i) for i in queryset]
-    choose_car = forms.ChoiceField(choices=choices)
+# class LikeForm(forms.Form):
+#     queryset = Car.objects.all()
+#     choices = [(f"{i}", i) for i in queryset]
+#     choose_car = forms.ChoiceField(choices=choices)
 
 
 # """Функция для тестирования лайков: на входе юзер и карточку, надо ввести, для этого форма (с ней миграции не проходят), после тестирования уберем,

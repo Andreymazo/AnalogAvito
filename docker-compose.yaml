@@ -1,0 +1,80 @@
+version: '3'
+services:
+  web:
+    container_name: web
+    build:     
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      .env.dev  
+    tty: true
+    ports:
+      - 8000:8000
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      sh -c " python manage.py makemigrations && python manage.py migrate && python manage.py update_translation_fields && python manage.py runserver 0.0.0.0:8000"
+  db:
+    container_name: db
+    build:
+      context: .
+      dockerfile: Dockerfile-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "123456"
+      POSTGRES_DB: bulletin
+      # - "POSTGRES_HOST_AUTH_METHOD=trust"
+    env_file:
+      - .env.dev
+    ports:
+      - '5432'
+    volumes:
+      - ./db:/docker-entrypoint-initdb.d/
+      - database_volume:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "sh -c 'pg_isready -U postgres -d bulletin'"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+volumes:
+  database_volume:
+    
+
+    
+  #   networks:
+  #   some_network:
+  # networks:
+  #  some_network:
+
+
+  # docker-compose down --volumes && docker-compose up
+  # docker system prune -a
+  # https://www.gangofcoders.net/solution/could-not-translate-host-name-db-to-address-using-postgres-docker-compose-and/
+  
+#   version: '3'
+#  services:
+#   db:
+#      image: 'postgres'
+#      ports:
+#        - '5432'
+#      networks:
+#       some_network:
+#   core:
+#     build:
+#       context: .
+#       dockerfile: Dockerfile
+#     command: python3 manage.py runserver 0.0.0.0:8000
+#     ports:
+#       - '8000:8000'
+#     volumes:
+#       - .:/code
+#     depends_on:
+#       - db
+#     links:
+#       - db:db
+#     networks:
+#       some_network:
+#   networks:
+#    some_network:

@@ -199,6 +199,11 @@ class Promotion(models.Model):
     object_id = models.PositiveIntegerField()    
     content_object = GenericForeignKey('content_type', 'object_id')
 
+"""THis Notification model"""
+class Notification(models.Model):
+    text = models.CharField(max_length=400, **NULLABLE)
+    profile = models.ForeignKey('users.Profile', on_delete=models.CASCADE, related_name='notification', **NULLABLE)
+    key_to_recepient = models.CharField(max_length=50, verbose_name='Enter id or email of the user', **NULLABLE)
 
 """This is changed by model Advertisement, must be deleted after testing"""
 # class Card(models.Model):

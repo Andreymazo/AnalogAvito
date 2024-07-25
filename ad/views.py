@@ -1,7 +1,7 @@
 from django.db import IntegrityError
 from rest_framework import generics
-from ad.models import Category, Car, Like, Images
-from ad.serializers import LikeSerializer, LikeSerializerCreate
+from ad.models import Category, Car, Like, Images, Notification
+from ad.serializers import LikeSerializer, LikeSerializerCreate, NotificationSerializer
 from bulletin.serializers import CarSerializer, CategorySerializer, ImagesSerializer
 from rest_framework import status
 from rest_framework.response import Response
@@ -28,6 +28,7 @@ from django.contrib.contenttypes.models import ContentType
 from rest_framework.parsers import MultiPartParser
 from map.models import Marker
 from django.db import transaction
+from django.contrib import messages
 
 class CategoryList(generics.ListAPIView):#ListCreateAPIView
     queryset = Category.objects.all()
@@ -124,43 +125,19 @@ class CarList(generics.ListCreateAPIView):
         return Response([serializer.data, {"message": "Uploaded"}], status=status.HTTP_201_CREATED, headers=headers)
     
     
-            
-            # return car_instance, image_instance
-    
 class UploadViewSet(ModelViewSet):
     queryset = Images.objects.all()
     serializer_class = ImagesSerializer
+    
 
-
-"""Функция для проверки сколько запросов в базу через релейтед нейм"""
-@extend_schema(
-     
-        
-        request=ImagesSerializer,
-        responses={
-            status.HTTP_200_OK: OpenApiResponse(
-                description="Вывод фоток автомобиля",
-                response=ImagesSerializer,
-            ),
-        },
-         
-    )
-@api_view(["GET"])
-def check_car_images_db_requests(request):# Пробросить черерз тулбар, увидим 2 запроса в базу 89 и 94 строчки, а не 1+3 по количеству фоток (их там хоть сколько)
-    car_obj = Car.objects.get(id=5)
-    if request.method == "GET":
-        serializer= ImagesSerializer(car_obj.images.all(), many=True)
-        return Response(serializer.data)
-        
-
-"""Функция возвращает лайки по объекту (объявлению)"""
+"""Func returns likes by obj (ad)"""
 @extend_schema(
      
         description="Лайки объявления",
         request=LikeSerializer,
         responses={
             status.HTTP_200_OK: OpenApiResponse(
-                description="Вывод лайков по объявлению",
+                description="Likes by advertisement",
                 response=LikeSerializer,
             ),
         },
@@ -345,21 +322,26 @@ def like_add(request):# is_liked=False, ContentType_id=16, obj_id=6):
 #   kill -9 $(lsof -t -i:8080)
 
 ####################################
-
-
-# def proverka_na_vhode(request):# If requestuser authentificated and if there mssgs for request user 
-#     notifications = NotificationMssg.objects.all().filter(key_to_recepient=request.user.email) | NotificationMssg.objects.all().filter(key_to_recepient=request.user.id)
-#     num_new_mssgs=notifications.count()
+"""Func returns notifications requested user reffered"""
+@extend_schema(
+    tags=["Notifications by user"],
+    request=NotificationSerializer,
+)
+@api_view(["GET"])
+def notifications_by_enter(request):# If requestuser authentificated and if there mssgs for request user 
+    if not request.user.is_authenticated:
+        # login_url = reverse_lazy('bulletin:sign_in_email')
+        # return redirect(login_url)
+        return Response({"message": "Вы неавторизированы. Перенаправляем на авторизацию"},status=status.HTTP_400_BAD_REQUEST)
+    serializer = NotificationSerializer(data=request.data)
+    notifications = Notification.objects.all().filter(key_to_recepient=request.user.email) | Notification.objects.all().filter(key_to_recepient=request.user.id)
+    num_mssgs=notifications.count()
     
-#     if not request.user.is_authenticated:
-#         login_url = reverse_lazy('workingtimeprivate:login')
-#         return redirect(login_url)
-#     if not notifications:
-#         messages.info(request, f'Дорогой {request.user.email}б вас нет сообщений') 
-#         with open('worktimeprivate/templates/worktimeprivate/mssg_room.html', 'w+') as f:
-#             f.write(f' {{% block content %}}\n <div>\n <h1>Dear {request.user.email} there is nothing for you yet</h1>\n <a class="nav-link active" aria-current="page" href="{{% url \'worktimeprivate:mssg_create\' %}}"> Create message </a>\n <a class="nav-link active" ar>
-#         return render(request, f'worktimeprivate/templates/worktimeprivate/mssg_room.html')
-#     return messages.success(request, f'Дорогой {request.user.email}, у вас {num_new_mssgs} сообщений') 
+    if not notifications:
+        return Response([serializer.data, {"message":f"Дорогой {request.user.email}у вас нет сообщений"}], status=status.HTTP_200_OK)
+    return Response([serializer.data, {"message":f'Дорогой {request.user.email}, у вас {num_mssgs} сообщений'}], status=status.HTTP_200_OK)
+
+  
 
 # def mssg_room(request):
 #     proverka_na_vhode(request)#est li mssgs for request.user 

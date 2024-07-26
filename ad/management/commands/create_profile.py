@@ -9,11 +9,11 @@ def ff():
     user_list = [user_queryset.first(), user_queryset.last()]
     name_list = ["Kirill", "Serega"]
     phone_number_list = ["+7854328954", "+78095326765"]
-    pnt2 = Marker.objects.first()
-    pnt3 = Marker.objects.last()
+    pnt2 =Point(23, 55)
+    pnt3 = Point(25, 56)
     point_list = [pnt2, pnt3]
     for i, ii, iii, iiii in zip(user_list, name_list, phone_number_list, point_list):
-        Profile.objects.create(user=i, name=ii, phone_number=iii, marker=iiii)
+        Profile.objects.create(user=i, name=ii, phone_number=iii, location=iiii)
   
 class Command(BaseCommand):
 

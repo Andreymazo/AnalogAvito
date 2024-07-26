@@ -119,6 +119,7 @@ class Car(Advertisement):
     description = models.CharField(_("Description"), max_length=2000)
     likes = GenericRelation("ad.Like", related_query_name='cars')
     images = GenericRelation("ad.Images", related_query_name='cars')
+    promotions = GenericRelation("ad.Promotion", related_query_name='cars')
 
     class Meta:
         verbose_name = _("Automobile")
@@ -195,15 +196,11 @@ class Documents(models.Model):
 class Promotion(models.Model):
     created = models.DateTimeField(auto_now=True)
     changed = models.DateTimeField(auto_now_add=True)
+    time_paied = models.DateTimeField()
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()    
     content_object = GenericForeignKey('content_type', 'object_id')
 
-"""THis Notification model"""
-class Notification(models.Model):
-    text = models.CharField(max_length=400, **NULLABLE)
-    profile = models.ForeignKey('users.Profile', on_delete=models.CASCADE, related_name='notification', **NULLABLE)
-    key_to_recepient = models.CharField(max_length=50, verbose_name='Enter id or email of the user', **NULLABLE)
 
 """This is changed by model Advertisement, must be deleted after testing"""
 # class Card(models.Model):

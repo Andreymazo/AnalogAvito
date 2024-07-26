@@ -3,6 +3,7 @@ from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
+from ad.models import Car, Promotion
 from config.constants import (
     MAX_LEN_CODE,
     MAX_LEN_EMAIL,
@@ -10,7 +11,11 @@ from config.constants import (
     MAX_LEN_NAME_PROFILE,
 )
 from users.managers import CustomUserManager
-
+from django.contrib.contenttypes.fields import GenericRelation
+from django.contrib.gis.db.models import PointField
+from django.contrib.auth.signals import user_logged_in, user_logged_out, user_login_failed
+from django.dispatch import receiver
+from django.contrib.contenttypes.models import ContentType
 
 NULLABLE = {'blank': True, 'null': True}
 
@@ -24,23 +29,12 @@ phone_validator = RegexValidator(
 class CustomUser(AbstractUser):
     """Кастомная модель пользователя."""
     username = None
-    info = models.TextField(
-        _("Информация"),
-        **NULLABLE,
-        help_text=_("Введите дополнительную информацию")
-    )
-    email = models.EmailField(
-        _("Почта"),
-        max_length=MAX_LEN_EMAIL,
-        unique=True,
-        help_text=_("Введите email, не более 254 символов"),
-    )
+    info = models.TextField(_("Информация"), **NULLABLE, help_text=_("Введите дополнительную информацию"))
+    email = models.EmailField(_("Почта"), max_length=MAX_LEN_EMAIL, unique=True, help_text=_("Введите email, не более 254 символов"),)
     is_banned = models.BooleanField(_("Бан"), default=False)
-    banned_at = models.DateTimeField(
-        _("Время начала бана"),
-        **NULLABLE
-    )
+    banned_at = models.DateTimeField(_("Время начала бана"), **NULLABLE)
     changed_at = models.DateTimeField(_("Время изменения"), auto_now_add=True)
+    promotion = GenericRelation("ad.Promotion", related_query_name='users')
 
     objects = CustomUserManager()
 
@@ -110,47 +104,56 @@ class CustomUser(AbstractUser):
         return str(self.email)
 
 
+receiver(user_logged_in)
+def create_notification_for_logged_in(sender, user, request, **kwargs):
+    print('user', user)
+    print('sender', sender)
+    print('type(user), user.id', type(user), user.id)
+    print('ContentType.objects.get_for_model(user)', ContentType.objects.get_for_model(user))
+    object = user
+    content_type=type(user)
+    object_id=object.id
+    car_quryset = Car.objects.prefetch_related('promotions') #  Car by Promotions 
+    promotions_user = Promotion.objects.prefetch_related('users')# Promotions by User
+    
+    print('car_quryset', car_quryset)
+    print('promotions_user', promotions_user)
+
+    # promotion_qeryset = Promotion.objects.prefetch_related('cars').all()#.filter(content_type=ContentType.objects.get_for_model(user), object_id=object.id)#Выберем промоушены зарегистрировавшегося юзера
+    # У Промоушена ключ на Профиль, у Профиля ключ на Юзера, Юзер входит, тут проверяется вся его подписка на подход к концу. CustomUser id = 32
+    # ContentType
+  
+  
+    content_object = ContentType.objects.get_for_model(user)#get_for_id(content_type).get_object_for_this_type(pk=object_id)
+    print('-----------------content_object', content_object)
+    # print('promotion_qeryset', len(promotion_qeryset), type(promotion_qeryset))
+    for i in promotions_user:
+        print('  content_object  ', i.content_object)
+        if (i.time_paied - timezone.now()).days < 1:
+            Notification.objects.create(text = f"less 1 day left for {i.content_object} promotion", key_to_recepient=object.email, user=CustomUser.objects.get(email="andreymazoo@mail.ru"))  #user от кого пришло, ставим суперюзера
+        
+user_logged_in.connect(create_notification_for_logged_in)
+
 class Profile(models.Model):
     """Модель профайла"""
-    user = models.OneToOneField(
-        CustomUser,
-        on_delete=models.CASCADE,related_name="profile",)
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE,related_name="profile",)
     phone_number = models.CharField(_("Номер телефона"), max_length=MAX_LEN_PHONE_NUMBER, unique=True, validators=[phone_validator])
     name = models.CharField(_("Имя пользователя"), max_length=MAX_LEN_NAME_PROFILE)
-    marker =  models.OneToOneField("map.Marker", on_delete=models.CASCADE,related_name="profile",)
+    location =  PointField()
+    
     def __str__(self):
         """Строковое представление объекта пользователя."""
         return str(self.user.email)
 
 class OneTimeCode(models.Model):
     """Модель одноразового кода."""
-    user = models.OneToOneField(
-        CustomUser,
-        on_delete=models.CASCADE,
-        related_name="onetimecodes",
-        verbose_name=_("Пользователь")
-    )
-    code = models.CharField(
-        _("Одноразовый код"),
-        max_length=MAX_LEN_CODE
-    )
-    count_attempts = models.PositiveSmallIntegerField(
-        _("Попытки"),
-        default=0
-    )
-    count_send_code = models.PositiveSmallIntegerField(
-        _("Количество повторных отправок кода"),
-        default=0
-    )
-    updated_at = models.DateTimeField(
-        _("Время обновления кода"),
-        auto_now=True
-    )
-    created_at = models.DateTimeField(
-        _("Время создания кода"),
-        auto_now_add=True
-    )
-
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name="onetimecodes", verbose_name=_("Пользователь"))
+    code = models.CharField(_("Одноразовый код"), max_length=MAX_LEN_CODE)
+    count_attempts = models.PositiveSmallIntegerField(_("Попытки"), default=0)
+    count_send_code = models.PositiveSmallIntegerField(_("Количество повторных отправок кода"), default=0)
+    updated_at = models.DateTimeField(_("Время обновления кода"), auto_now=True)
+    created_at = models.DateTimeField(_("Время создания кода"), auto_now_add=True)
+    
     class Meta:
         """Конфигурация модели одноразового кода."""
         ordering = ("id",)
@@ -160,3 +163,9 @@ class OneTimeCode(models.Model):
     def __str__(self):
         """Строковое представление одноразового кода."""
         return str(f"Код для {self.user.email}")
+
+"""THis Notification model"""
+class Notification(models.Model):
+    text = models.CharField(max_length=400, **NULLABLE)
+    user = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE, related_name='notification', **NULLABLE)
+    key_to_recepient = models.CharField(max_length=50, verbose_name='Enter id or email of the user', **NULLABLE)

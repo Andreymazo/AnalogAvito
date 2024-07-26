@@ -34,8 +34,12 @@ def ff(s):
     else:
         print("Invalid Email and Phone")
         return None
+def f():
+    print(BASE_DIR)
+
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
-        ff("+79219507388")
+        # ff("+79219507388")
+        f()
 

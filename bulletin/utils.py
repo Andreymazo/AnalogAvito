@@ -69,4 +69,4 @@ def check_email_phone(s):
         return (s, "phone")
     else:
         print("Invalid Email and Phone")
-        return None
+        return (None,None)

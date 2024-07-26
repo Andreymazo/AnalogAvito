@@ -1,6 +1,7 @@
 from django.db import IntegrityError
 from rest_framework import generics
-from ad.models import Category, Car, Like, Images, Notification
+from ad.models import Category, Car, Like, Images
+from users.models import Notification
 from ad.serializers import LikeSerializer, LikeSerializerCreate, NotificationSerializer
 from bulletin.serializers import CarSerializer, CategorySerializer, ImagesSerializer
 from rest_framework import status
@@ -249,8 +250,6 @@ def like_add(request):# is_liked=False, ContentType_id=16, obj_id=6):
                 like_instance = Like.objects.get(user=user_instance, content_type=content_type, object_id=object_id,is_liked=is_liked)
                 return Response([{"message" : "Лайки уже существуют"},serializer.data], status=status.HTTP_200_OK)
             except Like.DoesNotExist:
-                # obj.votes.create(user=request.user, vote=self.vote_type)
-                # result = True
                 print('22222222222222222222222222')
                 like_instance = Like.objects.create(user=user_instance, content_type=content_type, object_id=object_id,is_liked=is_liked)
                 like_instance.save()
@@ -326,9 +325,17 @@ def like_add(request):# is_liked=False, ContentType_id=16, obj_id=6):
 @extend_schema(
     tags=["Notifications by user"],
     request=NotificationSerializer,
+    responses={
+            status.HTTP_200_OK: OpenApiResponse(
+                description=(
+                    "Like from the user already exists"
+                ),
+                response=NotificationSerializer,
+            ),
+        },
 )
 @api_view(["GET"])
-def notifications_by_enter(request):# If requestuser authentificated and if there mssgs for request user 
+def notifications_by_enter(request):# If requestuser authentificated and if there mssgs for request user return numb of mssgs
     if not request.user.is_authenticated:
         # login_url = reverse_lazy('bulletin:sign_in_email')
         # return redirect(login_url)

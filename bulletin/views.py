@@ -40,36 +40,57 @@ from users.models import (
 )
 
   
-"""Тренировочный ендпоинт для альтернативной авторизации"""
+"""Testing endpoint for alternativa authorization"""
+@extend_schema(
+        tags=["Func for test auth"],
+        request=AlternativeAuthSerializer,
+        responses={
+            status.HTTP_200_OK: OpenApiResponse(
+                description=(
+                    "Authentication by email"
+                ),
+                response=AlternativeAuthSerializer,
+            ),
+            status.HTTP_200_OK: OpenApiResponse(
+                description=(
+                    "Authentication by phone"
+                ),
+                response=AlternativeAuthSerializer,
+            ),
+            status.HTTP_400_BAD_REQUEST: OpenApiResponse(
+                description=(
+                    "Invalid input"
+                ),
+                response=AlternativeAuthSerializer,
+            ),
+        },
+)
 @api_view(["POST"])
 def sign_in_alternative(request):
     if request.user.is_authenticated:
         logout(request)
-        print('Разлогинили ...........')
     serializer = AlternativeAuthSerializer(data=request.data)
     if request.method=="POST":
-        print('111111111111111111111s')
         if serializer.is_valid():
-            print('request.user.is_authenticated____', request.user.is_authenticated)
             user_input_value = serializer.validated_data['user_input_value']
             user_input_value=check_email_phone(user_input_value)
+
             if user_input_value[1]=="email":
                 user = CustomUser.objects.get(email=user_input_value[0])
                 login(request, user)
-                print('000_________request.user.is_authenticated____', request.user.is_authenticated)
+                return Response([serializer.data, {"messg": "Authentication by email"}], status=status.HTTP_200_OK)
             if user_input_value[1]=="phone":
                 user = Profile.objects.get(phone_number=user_input_value[0]).user
                 login(request, user)
-            # print('user_input_value', user_input_value)
-                print('request.user.is_authenticated____', request.user.is_authenticated)
-            return Response(serializer.data)
-        print('jjjjjjjjjjjjjj', serializer.data)
+                return Response([serializer.data, {"messg": "Authentication by phone"}], status=status.HTTP_200_OK)
+            else:
+                return Response([serializer.data, serializer.errors, {"messg":"Invalid input"}], status=status.HTTP_400_BAD_REQUEST)
         return Response([serializer.errors, {"messg":"Invalid input"}])
 
         
     
 class SignInView(APIView):
-    """Вход пользователя."""
+    """User enter"""
 
     @extend_schema(
         tags=["Вход/регистрация"],
@@ -137,13 +158,12 @@ class SignInView(APIView):
         },
     )
     def post(self, request):
-        # print('-------------------00---------------')
         if request.user.is_authenticated:
             return Response(
-                {"message": "Вы уже авторизированы."},
+                {"message": "You already authorized"},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        """Пробуем залогиниться по введенным данным"""
+        """Trying to log in by input data"""
         serializer = AlternativeAuthSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user_input_value = serializer.validated_data["user_input_value"]
@@ -157,6 +177,7 @@ class SignInView(APIView):
                 email= user_input_value[0]      
                 user = CustomUser.objects.get(email = email)
                 """Сразу логинить нельзя, чел просто не будут вводить код, а пойдет на другие ендпоинты"""
+                print('0000000000----------email', email)
                 # print('ddd00000_________request.user.is_authenticated____', request.user.is_authenticated)
                 # login(request, user=user)
                 # print('dddd11111_________request.user.is_authenticated____', request.user.is_authenticated)
@@ -170,7 +191,7 @@ class SignInView(APIView):
                 user = Profile.objects.get(phone_number=user_input_value[0]).user
                 email = user.email
                 """Сразу логинить нельзя, чел просто не будут вводить код, а пойдет на другие ендпоинты"""
-                # print('000_________request.user.is_authenticated____', request.user.is_authenticated)
+                print('000_________', email)
                 # login(request, user=user)
                 # print('001_________request.user.is_authenticated____', request.user.is_authenticated)
                 # return Response([serializer.data, {"message": "Авторизированы по телефону"}])
@@ -499,82 +520,83 @@ class SignUpView(APIView):
                 description="Успешный ввод персональных данных",
                 response=SignUpSerializer,
             ),
-            status.HTTP_400_BAD_REQUEST: OpenApiResponse(
-                description=(
-                    "Пользователь уже авторизован, неверная подпись cookie"
-                ),
-                response=inline_serializer(
-                    name="ValidationErrorInSignUp",
-                    fields={
-                        "name": serializers.ListField(
-                            child=serializers.CharField()
-                        ),
-                        "phone_number": serializers.ListField(
-                            child=serializers.CharField()
-                        )
-                    }
-                ),
-                examples=[
-                    OpenApiExample(
-                        "Пользователь уже авторизован",
-                        description=(
-                            "Пример ответа, если пользователь "
-                            "уже авторизирован"
-                        ),
-                        value={"message": "Вы уже авторизированы."},
-                    ),
-                    OpenApiExample(
-                        "Неверная подпись cookie",
-                        description=(
-                            "Пример ответа, если в cookie был изменен email "
-                            "пользователя"
-                        ),
-                        value={"message": "Неверная подпись cookie."},
-                    ),
-                ],
-            ),
-            status.HTTP_403_FORBIDDEN: OpenApiResponse(
-                description=("Пользователь забанен"),
-                response=inline_serializer(
-                    name="UserBannedInSignUp",
-                    fields={
-                        "message": serializers.CharField(),
-                        "ban_time": serializers.DateTimeField(),
-                    }
-                ),
-                examples=[
-                    OpenApiExample(
-                        "Пользователь забанен",
-                        description=(
-                            "Пример ответа, если пользователь забанен\n"
-                            "\nban_time - время снятия бана"
-                        ),
-                        value={
-                            "message": "Вы забанены на 24 часа.",
-                            "ban_time": "2024-06-20T16:00:10Z"
-                        },
-                    ),
-                ],
-            ),
-            status.HTTP_404_NOT_FOUND: OpenApiResponse(
-                description=("Не найден пользователь или cookie с email"),
-                response=inline_serializer(
-                    name="ObjectNotFoundInSignUp",
-                    fields={"message": serializers.ListField(
-                        child=serializers.CharField()
-                    )}
-                ),
-            ),
-        },
-        parameters=[
-            OpenApiParameter(
-                name="Email",
-                location=OpenApiParameter.COOKIE,
-                description="Email пользователя",
-                required=True,
-                type=str
-            ),
-        ],
+        #     status.HTTP_400_BAD_REQUEST: OpenApiResponse(
+        #         description=(
+        #             "Пользователь уже авторизован, неверная подпись cookie"
+        #         ),
+        #         response=inline_serializer(
+        #             name="ValidationErrorInSignUp",
+        #             fields={
+        #                 "name": serializers.ListField(
+        #                     child=serializers.CharField()
+        #                 ),
+        #                 "phone_number": serializers.ListField(
+        #                     child=serializers.CharField()
+        #                 )
+        #             }
+        #         ),
+        #         examples=[
+        #             OpenApiExample(
+        #                 "Пользователь уже авторизован",
+        #                 description=(
+        #                     "Пример ответа, если пользователь "
+        #                     "уже авторизирован"
+        #                 ),
+        #                 value={"message": "Вы уже авторизированы."},
+        #             ),
+        #             OpenApiExample(
+        #                 "Неверная подпись cookie",
+        #                 description=(
+        #                     "Пример ответа, если в cookie был изменен email "
+        #                     "пользователя"
+        #                 ),
+        #                 value={"message": "Неверная подпись cookie."},
+        #             ),
+        #         ],
+        #     ),
+        #     status.HTTP_403_FORBIDDEN: OpenApiResponse(
+        #         description=("Пользователь забанен"),
+        #         response=inline_serializer(
+        #             name="UserBannedInSignUp",
+        #             fields={
+        #                 "message": serializers.CharField(),
+        #                 "ban_time": serializers.DateTimeField(),
+        #             }
+        #         ),
+        #         examples=[
+        #             OpenApiExample(
+        #                 "Пользователь забанен",
+        #                 description=(
+        #                     "Пример ответа, если пользователь забанен\n"
+        #                     "\nban_time - время снятия бана"
+        #                 ),
+        #                 value={
+        #                     "message": "Вы забанены на 24 часа.",
+        #                     "ban_time": "2024-06-20T16:00:10Z"
+        #                 },
+        #             ),
+        #         ],
+        #     ),
+        #     status.HTTP_404_NOT_FOUND: OpenApiResponse(
+        #         description=("Не найден пользователь или cookie с email"),
+        #         response=inline_serializer(
+        #             name="ObjectNotFoundInSignUp",
+        #             fields={"message": serializers.ListField(
+        #                 child=serializers.CharField()
+        #             )}
+        #         ),
+        #     ),
+        }
+        # ,
+        # parameters=[
+        #     OpenApiParameter(
+        #         name="Email",
+        #         location=OpenApiParameter.COOKIE,
+        #         description="Email пользователя",
+        #         required=True,
+        #         type=str
+        #     ),
+        # ],
     )
     def post(self, request):
         if request.user.is_authenticated:
@@ -847,44 +869,44 @@ class NewCodeView(APIView):
         )
 
 """Здесь нет сериалайзера и сваггер ругается, нам вообще все эти апи здесь помоему не нужны"""
-# @extend_schema(
-#     tags=["Вход/регистрация"],
-#     description="Разлогиниться.",
-#     summary="Выйти",
-#     request=inline_serializer(
-#         name="LogOut",
-#         fields={}
-#     ),
-#     responses={
-#         status.HTTP_200_OK: OpenApiResponse(
-#             description="Пользователь разлогинен",
-#             # response=inline_serializer(
-#             #     name="Пользователь разлогинен",
-#             #     fields={"message": "Пользователь разлогинен."}
-#             # ),
-#         ),
-#         status.HTTP_400_BAD_REQUEST: OpenApiResponse(
-#             description=(
-#                 "Пользователь уже авторизован"
-#             ),
-#             response=inline_serializer(
-#                 name="InvalidRequest",
-#                 fields={"message": serializers.CharField()}
-#             ),
-#             examples=[
-#                 OpenApiExample(
-#                     "Пользователь уже авторизован",
-#                     description=(
-#                         "Пример ответа, если пользователь "
-#                         "уже авторизирован"
-#                     ),
-#                     value={"message": "Вы уже авторизированы."},
-#                 ),
-#             ],
-#         ),
-#     },
-# )
-# @api_view(["POST"])
+@extend_schema(
+    tags=["Вход/регистрация"],
+    description="Разлогиниться.",
+    summary="Выйти",
+    request=inline_serializer(
+        name="LogOut",
+        fields={}
+    ),
+    responses={
+        status.HTTP_200_OK: OpenApiResponse(
+            description="Пользователь разлогинен",
+            # response=inline_serializer(
+            #     name="Пользователь разлогинен",
+            #     fields={"message": "Пользователь разлогинен."}
+            # ),
+        ),
+        status.HTTP_400_BAD_REQUEST: OpenApiResponse(
+            description=(
+                "Пользователь уже авторизован"
+            ),
+            response=inline_serializer(
+                name="InvalidRequest",
+                fields={"message": serializers.CharField()}
+            ),
+            examples=[
+                OpenApiExample(
+                    "Пользователь уже авторизован",
+                    description=(
+                        "Пример ответа, если пользователь "
+                        "уже авторизирован"
+                    ),
+                    value={"message": "Вы уже авторизированы."},
+                ),
+            ],
+        ),
+    },
+)
+@api_view(["POST"])
 def log_out(request):
     print(request.user.is_authenticated)
     """Выход из учетной записи пользователя."""

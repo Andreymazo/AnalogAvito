@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from django.contrib.auth import login, logout
 from django.core.signing import BadSignature, Signer
+from django.urls import reverse
 from drf_spectacular.utils import (
     extend_schema,
     OpenApiExample,
@@ -9,7 +10,7 @@ from drf_spectacular.utils import (
     inline_serializer
 )
 from rest_framework import permissions, serializers, status, viewsets
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -169,7 +170,9 @@ class SignInView(APIView):
         user_input_value = serializer.validated_data["user_input_value"]
         user_input_value = check_email_phone(user_input_value)
         
-        if not user_input_value:# Сразу обезопасим себя от user_input_value=None
+        if not user_input_value[1]:# Сразу обезопасим себя от user_input_value=None
+            print('------------------------------')
+            # return redirect(reverse("bulletin:sign_in_email"))
             return Response([serializer.data, {"message":"Ввели неправильные данные"}], status=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION)
         is_created = False# This flag to pass to front data if user is a new-created or already was in base
         if user_input_value[1]=="email":
@@ -460,7 +463,7 @@ class ConfirmCodeView(APIView):
             try:
                 user.profile
                 print("loged_in_________1___")
-                login(request, user)
+                login(request, user, backend='config.backends.SettingsBackend')
                 print('request.user', request.user)
                 return Response(serializer.data, status=status.HTTP_200_OK)
                 

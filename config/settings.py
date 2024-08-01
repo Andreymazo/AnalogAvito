@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     "django.contrib.sites",
     "debug_toolbar",
     "rest_framework",
+    'generic_relations',
     'rest_framework_gis',
     "mptt",
     "ad.apps.AdConfig",
@@ -35,6 +36,8 @@ INSTALLED_APPS = [
     "drf_spectacular",
     'django_filters',
     "map",
+    "redis",
+    "django_celery_beat",
     
 ]
 
@@ -46,6 +49,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    # "config.middleware.AuthenticationMiddlewareJWT",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
@@ -75,7 +79,17 @@ SPECTACULAR_SETTINGS = {
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
     # OTHER SETTINGS,
-    "COMPONENT_SPLIT_REQUEST": True
+    "COMPONENT_SPLIT_REQUEST": True,
+    # "SERVE_AUTHENTICATION": None,
+
+    # Dictionary of general configuration to pass to the SwaggerUI({ ... })
+    # https://swagger.io/docs/open-source-tools/swagger-ui/usage/configuration/
+    # The settings are serialized with json.dumps(). If you need customized JS, use a
+    # string instead. The string must then contain valid JS and is passed unchanged.
+    # 'SWAGGER_UI_SETTINGS': {
+    #     'deepLinking': True,
+    # },
+    # 'SECURITY': [None,],
 }
 
 ROOT_URLCONF = "config.urls"
@@ -176,20 +190,26 @@ EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")
 
 
-# SESSION_COOKIE_DOMAIN = None
-# SESSION_COOKIE_SECURE = False
-# SESSION_COOKIE_AGE = 10  # 30 minutes. "1209600(2 weeks)" by default
-# SESSION_SAVE_EVERY_REQUEST = True  # "False" by default
+SESSION_COOKIE_DOMAIN = None
+SESSION_COOKIE_SECURE = False
+SESSION_COOKIE_AGE = 10  # 30 minutes. "1209600(2 weeks)" by default
+SESSION_SAVE_EVERY_REQUEST = True  # "False" by default
 SESSION_EXPIRE_SECONDS = 1800  # Expire after 30 minutes
 SESSION_EXPIRE_AFTER_LAST_ACTIVITY = True
 SESSION_TIMEOUT_REDIRECT = "bulletin:sign_in_email"  # Add your URL
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Invalid session
-
+DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880
+SESSION_EXPIRE_SECONDS = 30 * 60  # Expire after 30 minutes
+SESSION_EXPIRE_AFTER_LAST_ACTIVITY = True
+# SESSION_TIMEOUT_REDIRECT = "bulletin:log_in"  # Add your URL
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Invalid session
 ATTEMPTS = 3  # Максимальное количество попыток ввести код
 SITE_ID = 1
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
+    'config.backends.SettingsBackend'
+    
 
 ]
 REST_FRAMEWORK = {
@@ -202,13 +222,16 @@ REST_FRAMEWORK = {
     # ],
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.AllowAny",
+        # 'rest_framework.permissions.IsAuthenticated',
     ],
     "DEFAULT_AUTHENTICATION_CLASSES": [
         
         # "rest_framework.authentication.BasicAuthentication'",
         "rest_framework.authentication.SessionAuthentication",
         # "rest_framework.authentication.TokenAuthentication"
+        
         "rest_framework_simplejwt.authentication.JWTAuthentication",
+        # "config.middleware.AuthenticationMiddlewareJWT.AuthenticationMiddlewareJWT"
     ],
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     'DEFAULT_FILTER_BACKENDS':(
@@ -227,23 +250,29 @@ REST_FRAMEWORK = {
 # SERIALIZATION_MODULES = {
 #     "geojson": "django.contrib.gis.serializers.geojson",
 #  }
-SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
-    "ROTATE_REFRESH_TOKENS": True,
-    "BLACKLIST_AFTER_ROTATION": False,
-    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
-    "TOKEN_USER_CLASS": "rest_framework_simplejwt.models.TokenUser",
-    "AUTH_HEADER_TYPES": ("Bearer",),
-}
+# SIMPLE_JWT = {
+#     "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
+#     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+#     "ROTATE_REFRESH_TOKENS": True,
+#     "BLACKLIST_AFTER_ROTATION": False,
+#     "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
+#     "TOKEN_USER_CLASS": "rest_framework_simplejwt.models.TokenUser",
+#     "AUTH_HEADER_TYPES": ("Bearer",),
+# }
 
 
-DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880
-SESSION_EXPIRE_SECONDS = 30 * 60  # Expire after 30 minutes
-SESSION_EXPIRE_AFTER_LAST_ACTIVITY = True
-# SESSION_TIMEOUT_REDIRECT = "bulletin:log_in"  # Add your URL
-SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Invalid session
-
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+# CELERY_BROKER_URL = "redis://127.0.0.1:6379/1"
+# CELERY_TIMEZONE = "Europe/Moscow"
+# CELERY_TASK_TRACK_STARTED = True
+# CELERY_TASK_TIME_LIMIT = 30 * 60
+CELERY_RESULT_BACKEND = 'redis://localhost:6379'  
+CELERY_ACCEPT_CONTENT = ['application/json']  
+CELERY_TASK_SERIALIZER = 'json'  
+CELERY_RESULT_SERIALIZER = 'json'  
+CELERY_TIMEZONE = "Moscow/Europe"
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60
 
 LOG_PATH = '/var/log/my_service'
 # A sample logging configuration. The only tangible logging
@@ -264,7 +293,20 @@ LOGGING = {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
-        }
+        },
+        # 'applogfile': {
+        # 'level':'DEBUG',
+        # 'class':'logging.handlers.RotatingFileHandler',
+        # 'filename': os.path.join(BASE_DIR, 'Bulletin.log'),
+        # 'maxBytes': 1024*1024*15, # 15MB
+        # 'backupCount': 10,
+        # },
+        # 'applogfile': {
+        #     'level': 'DEBUG',
+        #     'class': 'logging.FileHandler',
+        #     'filename': 'debug.log',
+        # },
+
     },
     'loggers': {
         'django.request': {
@@ -272,5 +314,22 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
+        # 'django': {
+        #     'handlers': ['applogfile'],
+        #     'level': 'DEBUG',
+        #     'propagate': True,
+        # },
+        #  'config': {
+        #     'handlers': ['applogfile',],
+        #     'level': 'DEBUG',
+        # },
     }
 }
+from celery.schedules import crontab
+CELERYBEAT_SCHEDULE = {
+    'my_scheduled_job': {
+        'task': 'count_profile_view_send_email', # the same goes in the task name
+        'schedule': crontab(hour=7, minute=30, day_of_week=1),
+    },
+}
+

@@ -98,7 +98,7 @@ class Like(models.Model):
     #     return self.likes.count()  
 class Car(Advertisement):
     category = TreeForeignKey('ad.Category', on_delete=models.CASCADE, related_name='advertisement')
-    profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, **NULLABLE)
+    profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, related_name='cars', **NULLABLE)
     by_mileage = models.CharField(_("Differ by mileage"), choices=BY_MILEAGE)
     brand = models.CharField(_("brand"), max_length=100)
     model = models.CharField(_("model"), max_length=100)
@@ -175,13 +175,12 @@ class Images(models.Model):
     title = models.CharField(_("Photoe's title"), max_length=150, **NULLABLE)
     image = models.ImageField(_("Photo"),  upload_to="images")#storage= OverwriteStorage()
     profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, related_name="images", **NULLABLE)
-    # car = models.ForeignKey("ad.Car", related_name="images", on_delete=models.CASCADE, **NULLABLE)
-    # card = models.ForeignKey("ad.Card", on_delete=models.CASCADE, related_name="images")# Удалили, вместо нее Advertisement
     created = models.DateTimeField(auto_now=True)
     changed = models.DateTimeField(auto_now_add=True)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
+
 
 """This model - profile's documents"""
 class Documents(models.Model):
@@ -200,6 +199,16 @@ class Promotion(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()    
     content_object = GenericForeignKey('content_type', 'object_id')
+
+
+"""This model views related by FK to ad.IP by content_type model to ad models"""
+class Views(models.Model):
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()    
+    content_object = GenericForeignKey('content_type', 'object_id')
+    profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, related_name="view", **NULLABLE)
+    created = models.DateTimeField(auto_now_add=True)
+    
 
 
 """This is changed by model Advertisement, must be deleted after testing"""

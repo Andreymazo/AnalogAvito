@@ -25,9 +25,6 @@ def create_notification_for_logged_in(sender, user, request, **kwargs):
 
 user_logged_in.connect(create_notification_for_logged_in)
 
-from django.contrib.auth.signals  import user_logged_in, user_logged_out, user_login_failed
-
-from django.dispatch import receiver 
 import logging
 
 user_logger = logging.getLogger("user")

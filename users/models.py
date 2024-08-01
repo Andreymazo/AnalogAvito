@@ -16,6 +16,7 @@ from django.contrib.gis.db.models import PointField
 from django.contrib.auth.signals import user_logged_in, user_logged_out, user_login_failed
 from django.dispatch import receiver
 from django.contrib.contenttypes.models import ContentType
+from rest_framework.response import Response
 
 NULLABLE = {'blank': True, 'null': True}
 
@@ -25,7 +26,7 @@ phone_validator = RegexValidator(
     "The phone number provided is invalid"
 )
 
-
+"""If moer flexable auth model needed comment CustomUser (makemigrations) and uncomment the code below (makemigrations)"""
 class CustomUser(AbstractUser):
     """Кастомная модель пользователя."""
     username = None
@@ -113,8 +114,11 @@ def create_notification_for_logged_in(sender, user, request, **kwargs):
     object = user
     content_type=type(user)
     object_id=object.id
-    car_quryset = Car.objects.prefetch_related('promotions') #  Car by Promotions 
-    promotions_user = Promotion.objects.prefetch_related('users')# Promotions by User
+    car_quryset = Car.objects.prefetch_related('promotions') #  Car by Promotions
+    try:
+        promotions_user = Promotion.objects.prefetch_related('users')# Promotions by User
+    except Promotion.DoesNotExist:
+        return Response({"message":"Teres no promotion for the user"})
     
     print('car_quryset', car_quryset)
     print('promotions_user', promotions_user)
@@ -130,7 +134,7 @@ def create_notification_for_logged_in(sender, user, request, **kwargs):
     for i in promotions_user:
         print('  content_object  ', i.content_object)
         if (i.time_paied - timezone.now()).days < 1:
-            Notification.objects.create(text = f"less 1 day left for {i.content_object} promotion", key_to_recepient=object.email, user=CustomUser.objects.get(email="andreymazoo@mail.ru"))  #user от кого пришло, ставим суперюзера
+            Notification.objects.create(text = f"less 1 day left for {i.content_object} promotion", key_to_recepient=object.email, user=CustomUser.objects.get(email="andreymazo@mail.ru"))  #user от кого пришло, ставим суперюзера
         
 user_logged_in.connect(create_notification_for_logged_in)
 
@@ -140,6 +144,7 @@ class Profile(models.Model):
     phone_number = models.CharField(_("Номер телефона"), max_length=MAX_LEN_PHONE_NUMBER, unique=True, validators=[phone_validator])
     name = models.CharField(_("Имя пользователя"), max_length=MAX_LEN_NAME_PROFILE)
     location =  PointField()
+    # views = GenericRelation("ad.Views", related_query_name='profile')
     
     def __str__(self):
         """Строковое представление объекта пользователя."""

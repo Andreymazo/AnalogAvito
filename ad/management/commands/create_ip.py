@@ -36,20 +36,16 @@ def ff():
     user_id = token.payload['user_id']
     user = CustomUser.objects.get(id=user_id)
     print(user)
-   
- # # ip_queryset = IP.objects.all()
-    # # advert_list = [("ad1", "ad_disr_1", profile_queryset.get(id=5)), ("ad2","ad_disr_2", profile_queryset.get(id=6)), ("ad3","ad_disr_3", profile_queryset.get(id=6))]
-    # ip_list = ["123", "234", "456"]
-    # # for i in advert_list:
-    # #     # print(i[0])
-    # #     Advertisement.objects.create(title=i[0], description=i[1], profile=i[2])
-    # # print(Advertisement.objects.all().values_list('profile_id'))
-    # advertizement_queryset = Advertisement.objects.all()
-    # print(Advertisement.objects.all())
-    # print(BASE_DIR)
-    # for i, j, ii in zip(ip_list, profile_queryset, advertizement_queryset):
-    #     IP.objects.create(ip=i, profile=j, advertisement=ii)
+
+def f():
+    profile_queryset=Profile.objects.all()
+    ip_queryset = IP.objects.all()
+    advert_list = [("ad1", "ad_disr_1", profile_queryset.get(id=1)), ("ad2","ad_disr_2", profile_queryset.get(id=2))]#, ("ad3","ad_disr_3", profile_queryset.get(id=6))]
+    ip_list = ["123", "234"]#, "456"]
+    for i, j in zip(ip_list, profile_queryset):#, advertizement_queryset):
+        IP.objects.create(ip=i, profile=j)#, advertisement=ii)
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
-        ff()
+        # ff()
+        f()

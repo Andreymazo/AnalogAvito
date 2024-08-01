@@ -1,7 +1,8 @@
 from rest_framework import serializers
 
-from ad.models import Like
-from users.models import Notification
+from ad.models import IP, Car, Like
+from bulletin.serializers import CarSerializer, ProfileSerializer
+from users.models import Notification, Profile
 
 
 
@@ -21,4 +22,9 @@ class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
         fields = "__all__"
-     
+
+class IpSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=IP
+        fields = ("profile",)
+ 

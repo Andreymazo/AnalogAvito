@@ -1,6 +1,6 @@
 from django.db import IntegrityError
 from rest_framework import generics
-from ad.models import Category, Car, Like, Images
+from ad.models import Category, Car, Like, Images, Views
 from users.models import Notification
 from ad.serializers import LikeSerializer, LikeSerializerCreate, NotificationSerializer
 from bulletin.serializers import CarSerializer, CategorySerializer, ImagesSerializer
@@ -23,7 +23,7 @@ from collections import OrderedDict
 from rest_framework import serializers
 from users.models import CustomUser, Profile
 from rest_framework.decorators import api_view
-from django.shortcuts import redirect
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.contrib.contenttypes.models import ContentType
 from rest_framework.parsers import MultiPartParser
@@ -38,6 +38,9 @@ class CategoryList(generics.ListAPIView):#ListCreateAPIView
     filter_fields = ( 
         '-created', 
     )
+    def get(self, request, *args, **kwargs):
+        print('hhhhhhhhhhhhhhh category list', self.request.user)
+        return super().get(request, *args, **kwargs)
 
 
 @extend_schema(
@@ -68,14 +71,20 @@ class CarList(generics.ListCreateAPIView):
     filter_fields = ( 
         '-created', 
     )
+    def list(self, request, *args, **kwargs):
+        print('ggggggggggggggggg', request.user, self.request.user)
+        return super().list(request, *args, **kwargs)
     """This func was necessary if serializer.data after serializer.save() called, since we commented serializer.save() in perform_create no need this"""
-    # def change_image_to_string(self, obj):
-    #     if type(obj) == InMemoryUploadedFile:
-    #         return f"images/{obj}"
-    #     if type(obj) == TemporaryUploadedFile:
-    #         return f"images/{obj}"
-    #     else:
-    #         return obj
+    """Костыль конечно, но пока не знаю как пройти ошибку """
+    def change_image_to_string(self, obj):
+        if type(obj) == InMemoryUploadedFile:
+            return f"images/{obj}"
+        if type(obj) == TemporaryUploadedFile:
+            return f"images/{obj}"
+        if type(obj) == Profile:
+            return str(obj)
+        else:
+            return obj
 
     def create(self, request, *args, **kwargs):#, ContentType_id=16, obj_id=6
         serializer = self.get_serializer(data=request.data)
@@ -84,48 +93,87 @@ class CarList(generics.ListCreateAPIView):
         # content_type = ContentType.objects.get_for_id(ContentType_id)
         # obj = content_type.get_object_for_this_type(pk=obj_id)
         # print('77777777777777777777777777', content_type, obj)
-        # s = OrderedDict([(k, self.change_image_to_string(v)) for k,v  in serializer.validated_data.items()])
-        car_instance, created = Car.objects.get_or_create(
-                by_mileage=serializer.validated_data.get('by_mileage', None),
-                year=serializer.validated_data.get('year', None), 
-                brand=serializer.validated_data.get('brand',None), 
-                model=serializer.validated_data.get('model', None), 
-                mileage=serializer.validated_data.get('mileage', None),
-                price=serializer.validated_data.get('price',None), 
-                category_id=Category.objects.get(name='Транспорт',).id,
-                profile = Profile.objects.get(user=request.user)
-                )#category_id=validated_data.get('category_id', None).id # Can choose
+        s = OrderedDict([(k, self.change_image_to_string(v)) for k,v  in serializer.validated_data.items()])
+        self.perform_create(serializer)
+        headers = self.get_success_headers(s)
+        return Response([s, {"message": "Uploaded"}], status=status.HTTP_201_CREATED, headers=headers)
+        # car_instance, created = Car.objects.get_or_create(
+        #         by_mileage=serializer.validated_data.get('by_mileage', None),
+        #         year=serializer.validated_data.get('year', None), 
+        #         brand=serializer.validated_data.get('brand',None), 
+        #         model=serializer.validated_data.get('model', None), 
+        #         mileage=serializer.validated_data.get('mileage', None),
+        #         price=serializer.validated_data.get('price',None), 
+        #         category_id=Category.objects.get(name='Транспорт',).id,
+        #         profile = Profile.objects.get(user=request.user)
+        #         )#category_id=validated_data.get('category_id', None).id # Can choose
                 
-        try:
-            #Photoes anyway will be loaded even the same
-            image_instance, created = Images.objects.get_or_create(
-                    content_type = ContentType.objects.get_for_model(type(car_instance)),object_id = car_instance.id,
-                    title=serializer.validated_data.get('title'),image = serializer.validated_data.get('image'),
-                    )
-            # return Response( [serializer.data, {"message": "This photo already uploaded"}], status=status.HTTP_206_PARTIAL_CONTENT)
-        except Images.MultipleObjectsReturned:
-            image = Images.objects.filter(content_type = ContentType.objects.get_for_model(type(car_instance)),
-                    object_id = car_instance.id,title=serializer.validated_data.get('title'),).order_by('id').first()  
+        # try:
+        #     #Photoes anyway will be loaded even the same
+        #     image_instance, created = Images.objects.get_or_create(
+        #             content_type = ContentType.objects.get_for_model(type(car_instance)),object_id = car_instance.id,
+        #             title=serializer.validated_data.get('title'),image = serializer.validated_data.get('image'),
+        #             )
+        #     # return Response( [serializer.data, {"message": "This photo already uploaded"}], status=status.HTTP_206_PARTIAL_CONTENT)
+        # except Images.MultipleObjectsReturned:
+        #     image = Images.objects.filter(content_type = ContentType.objects.get_for_model(type(car_instance)),
+        #             object_id = car_instance.id,title=serializer.validated_data.get('title'),).order_by('id').first()  
             
 
 
-        # try:
-        #     print('type image', type(serializer.validated_data.get('image')))
-        #     obj = Images.objects.get(content_type = ContentType.objects.get_for_model(type(car_instance)),object_id = car_instance.id,
-        #             title=serializer.validated_data.get('title'),image = serializer.validated_data.get('image'),)
-        #     print('444444444444444444444', obj)
-        #     return Response( [serializer.data, {"message": "This photo already uploaded"}], status=status.HTTP_206_PARTIAL_CONTENT)
-        # except Images.DoesNotExist:
-        #     obj = Images.objects.create(content_type = ContentType.objects.get_for_model(type(car_instance)),object_id = car_instance.id,
-        #                         title=serializer.validated_data.get('title'),image = serializer.validated_data.get('image'),)
-        #     return Response( [serializer.data, {"message": "Uploaded"}], status=status.HTTP_201_CREATED)
-
+    #     # try:
+    #     #     print('type image', type(serializer.validated_data.get('image')))
+    #     #     obj = Images.objects.get(content_type = ContentType.objects.get_for_model(type(car_instance)),object_id = car_instance.id,
+    #     #             title=serializer.validated_data.get('title'),image = serializer.validated_data.get('image'),)
+    #     #     print('444444444444444444444', obj)
+    #     #     return Response( [serializer.data, {"message": "This photo already uploaded"}], status=status.HTTP_206_PARTIAL_CONTENT)
+    #     # except Images.DoesNotExist:
+    #     #     obj = Images.objects.create(content_type = ContentType.objects.get_for_model(type(car_instance)),object_id = car_instance.id,
+    #     #                         title=serializer.validated_data.get('title'),image = serializer.validated_data.get('image'),)
+    #     #     return Response( [serializer.data, {"message": "Uploaded"}], status=status.HTTP_201_CREATED)
 
         # self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response([serializer.data, {"message": "Uploaded"}], status=status.HTTP_201_CREATED, headers=headers)
+        # headers = self.get_success_headers(s)
+        # return Response([s, {"message": "Uploaded"}], status=status.HTTP_201_CREATED, headers=headers)
     
-    
+
+class CarDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Car.objects.all()
+    serializer_class = CarSerializer
+
+        ##Под капотом три метода ниже, если что-то надо их меняем:
+# class ItemDetail(APIView):
+
+    def get(self, request, pk, format=None):
+        #Add new model instance Views get_or_creation
+
+        item = get_object_or_404(Car.objects.all(), pk=pk)
+        serializer = CarSerializer(item)
+        try:
+            profile = request.user.profile
+        except AttributeError:
+            print('---------------------', request.user, '4444444444', self.request.user)
+            return Response([serializer.data, {"message": "Anonymoususer, Views dont counted"}], status=status.HTTP_200_OK)
+        except Profile.DoesNotExist:
+            return Response({"message": "Увас нет Профиля, перенаправляем на регистрацию"}, status=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION)
+        view_instance = Views.objects.get_or_create(profile = profile, content_type=ContentType.objects.get_for_model(item), object_id=item.id)    
+        
+
+        return Response(serializer.data)
+
+#     def put(self, request, pk, format=None):
+#         item = get_object_or_404(Item.objects.all(), pk=pk)
+#         serializer = ItemSerializer(item, data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#     def delete(self, request, pk, format=None):
+#         item = get_object_or_404(Item.objects.all(), pk=pk)
+#         item.delete()
+#         return Response(status=status.HTTP_204_NO_CONTENT)
+
 class UploadViewSet(ModelViewSet):
     queryset = Images.objects.all()
     serializer_class = ImagesSerializer

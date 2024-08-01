@@ -104,9 +104,19 @@ class OneTimeCodeSerializer(serializers.ModelSerializer):
 #             "info"
 #         )
 
-class ProfileSerializer():
+class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
+        model = Profile
         fields = "__all__"
+
+
+class ProfileSerializerCarUpdate(serializers.ModelSerializer):
+    Profile._meta.get_field('user')._unique = False
+    class Meta:
+        model = Profile
+        # fields = "__all__"
+        fields = ("user",)
+        
 
 class CategorySerializer(serializers.ModelSerializer):
     """Сериализатор для категории."""
@@ -161,33 +171,59 @@ class ImagesSerializer(serializers.ModelSerializer):
 
     # def get_content_object(self, obj):
     #     return 
-class CarSerializer(serializers.ModelSerializer):#, ):AdvertisementSerializer,
-        
+from django.contrib.contenttypes.models import ContentType
+# from django.contrib.auth import get_user_model
+class CarSerializer(serializers.ModelSerializer):
         image = serializers.ImageField( write_only=True )
         title = serializers.CharField(write_only=True)
     
         class Meta:
             model = Car
-            fields = ("by_mileage", "category_id", 'brand', "year", "model", "mileage", "price", "image", "title")
+            fields = ("by_mileage", "category_id", 'brand', "year", "model", "mileage", "price", "image", "title", "profile")
 
-        # def create(self, validated_data):
-        #     car_instance, created = Car.objects.get_or_create(
-        #         by_mileage=validated_data.get('by_mileage', None),
-        #         year=validated_data.get('year', None), 
-        #         brand=validated_data.get('brand',None), 
-        #         model=validated_data.get('model', None), 
-        #         mileage=validated_data.get('mileage', None),
-        #         price=validated_data.get('price',None), 
-        #         category_id=Category.objects.get(name='Транспорт',).id,
-        #         marker_id = Marker.objects.get()
-        #         )#category_id=validated_data.get('category_id', None).id # В закомменченном выбираем из категорий
-                
+        def create(self, validated_data):
+            # user=get_user_model()
+            car_instance, created = Car.objects.get_or_create(
+                by_mileage=validated_data.get('by_mileage', None),
+                year=validated_data.get('year', None), 
+                brand=validated_data.get('brand',None), 
+                model=validated_data.get('model', None), 
+                mileage=validated_data.get('mileage', None),
+                price=validated_data.get('price',None), 
+                category_id=Category.objects.get(name='Транспорт',).id,
+                profile = Profile.objects.get(user=self.context['request'].user.profile),
+                )
            
-        #     image_instance, created = Images.objects.get_or_create(
-        #         car=car_instance,
-        #         # title = title_of_image_value,#validated_data.get('title_of_image'),# validated_data.get('title'),
-        #         title=validated_data.get('title'),
-        #         image = validated_data.get('image'),#validated_data.get('image'),# validated_data.get('image'), 
-        #         # profile = image_value.get('profile'),# validated_data.get('profile'), 
-        #     )        
-        #     return car_instance, image_instance
+            image_instance, created = Images.objects.get_or_create(
+                content_type = ContentType.objects.get_for_model(car_instance),
+                object_id = car_instance.id,
+                title=validated_data.get('title'),
+                image = validated_data.get('image'),#validated_data.get('image'),# validated_data.get('image'), 
+                profile =validated_data.get('profile'), 
+            )        
+            return car_instance, image_instance
+        
+        def update(self, instance, validated_data):
+            return super().update(instance, validated_data)
+     #     car_instance, created = Car.objects.get_or_create(
+    #             by_mileage=serializer.validated_data.get('by_mileage', None),
+    #             year=serializer.validated_data.get('year', None), 
+    #             brand=serializer.validated_data.get('brand',None), 
+    #             model=serializer.validated_data.get('model', None), 
+    #             mileage=serializer.validated_data.get('mileage', None),
+    #             price=serializer.validated_data.get('price',None), 
+    #             category_id=Category.objects.get(name='Транспорт',).id,
+    #             profile = Profile.objects.get(user=request.user)
+    #             )#category_id=validated_data.get('category_id', None).id # Can choose
+                
+    #     try:
+    #         #Photoes anyway will be loaded even the same
+    #         image_instance, created = Images.objects.get_or_create(
+    #                 content_type = ContentType.objects.get_for_model(type(car_instance)),object_id = car_instance.id,
+    #                 title=serializer.validated_data.get('title'),image = serializer.validated_data.get('image'),
+    #                 )
+    #         # return Response( [serializer.data, {"message": "This photo already uploaded"}], status=status.HTTP_206_PARTIAL_CONTENT)
+    #     except Images.MultipleObjectsReturned:
+    #         image = Images.objects.filter(content_type = ContentType.objects.get_for_model(type(car_instance)),
+    #                 object_id = car_instance.id,title=serializer.validated_data.get('title'),).order_by('id').first()  
+   

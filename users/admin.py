@@ -3,11 +3,11 @@ from users.models import CustomUser, OneTimeCode
 from modeltranslation.admin import TranslationAdmin
 
 
-@register(CustomUser)
-class CustomUserAdmin(TranslationAdmin):
-    list_display_links = ("id",)
-    list_display = ("id", "first_name", "last_name", "email")
-    search_fields = ("username", "first_name", "last_name", "email")
+# @register(CustomUser)
+# class CustomUserAdmin(TranslationAdmin):
+#     list_display_links = ("id",)
+#     list_display = ("id", "first_name", "last_name", "email")
+#     search_fields = ("username", "first_name", "last_name", "email")
 
 
 @register(OneTimeCode)

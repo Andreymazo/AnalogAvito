@@ -9,6 +9,7 @@ from config.constants import (
     MAX_LEN_EMAIL,
     MAX_LEN_PHONE_NUMBER,
     MAX_LEN_NAME_PROFILE,
+    MAX_LEN_USERNAME,
 )
 from users.managers import CustomUserManager
 from django.contrib.contenttypes.fields import GenericRelation
@@ -29,7 +30,8 @@ phone_validator = RegexValidator(
 """If moer flexable auth model needed comment CustomUser (makemigrations) and uncomment the code below (makemigrations)"""
 class CustomUser(AbstractUser):
     """Кастомная модель пользователя."""
-    username = None
+    # username = None
+    username = models.CharField(_("username"), max_length=MAX_LEN_USERNAME, **NULLABLE)
     info = models.TextField(_("Информация"), **NULLABLE, help_text=_("Введите дополнительную информацию"))
     email = models.EmailField(_("Почта"), max_length=MAX_LEN_EMAIL, unique=True, help_text=_("Введите email, не более 254 символов"),)
     is_banned = models.BooleanField(_("Бан"), default=False)
@@ -40,8 +42,8 @@ class CustomUser(AbstractUser):
     objects = CustomUserManager()
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = []
-
+    # REQUIRED_FIELDS = []
+    REQUIRED_FIELDS = ["username"]
 
 # class CustomUser(AbstractBaseUser):  # , PermissionsMixin):
 #     email = models.EmailField(max_length=100, unique=True)
@@ -136,7 +138,7 @@ def create_notification_for_logged_in(sender, user, request, **kwargs):
         if (i.time_paied - timezone.now()).days < 1:
             Notification.objects.create(text = f"less 1 day left for {i.content_object} promotion", key_to_recepient=object.email, user=CustomUser.objects.get(email="andreymazo@mail.ru"))  #user от кого пришло, ставим суперюзера
         
-user_logged_in.connect(create_notification_for_logged_in)
+# user_logged_in.connect(create_notification_for_logged_in)
 
 class Profile(models.Model):
     """Модель профайла"""

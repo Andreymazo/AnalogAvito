@@ -2,7 +2,7 @@ from django.db import IntegrityError
 from rest_framework import generics
 from ad.models import Category, Car, Like, Images, Views
 from users.models import Notification
-from ad.serializers import LikeSerializer, LikeSerializerCreate, NotificationSerializer
+from ad.serializers import CarCreateSerializer, LikeSerializer, LikeSerializerCreate, NotificationSerializer
 from bulletin.serializers import CarSerializer, CategorySerializer, ImagesSerializer
 from rest_framework import status
 from rest_framework.response import Response
@@ -26,12 +26,14 @@ from rest_framework.decorators import api_view
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.contrib.contenttypes.models import ContentType
-from rest_framework.parsers import MultiPartParser
+from rest_framework.parsers import MultiPartParser, FormParser
 from map.models import Marker
 from django.db import transaction
 from django.contrib import messages
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 
 class CategoryList(generics.ListAPIView):#ListCreateAPIView
+    permission_classes=[IsAuthenticatedOrReadOnly]
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     name = "Category list"
@@ -42,7 +44,7 @@ class CategoryList(generics.ListAPIView):#ListCreateAPIView
         print('hhhhhhhhhhhhhhh category list', self.request.user)
         return super().get(request, *args, **kwargs)
 
-
+from django.core.cache import cache
 @extend_schema(
     # parameters=[
     #     CarSerializer,  # serializer fields are converted to parameters  
@@ -62,8 +64,8 @@ class CategoryList(generics.ListAPIView):#ListCreateAPIView
             ),}
             
 )
-
 class CarList(generics.ListCreateAPIView):
+    permission_classes=[IsAuthenticatedOrReadOnly]
     queryset = Car.objects.all()
     parser_classes = [MultiPartParser]
     serializer_class = CarSerializer
@@ -73,6 +75,10 @@ class CarList(generics.ListCreateAPIView):
     )
     def list(self, request, *args, **kwargs):
         print('ggggggggggggggggg', request.user, self.request.user)
+        # print('cache================', cache._connections.__dict__)
+        # print("req session ===============", request.session["user_id"])
+        # print(cache.get('access_token'))
+        # print(cache.get('refresh_token'))
         return super().list(request, *args, **kwargs)
     """This func was necessary if serializer.data after serializer.save() called, since we commented serializer.save() in perform_create no need this"""
     """Костыль конечно, но пока не знаю как пройти ошибку """
@@ -96,6 +102,7 @@ class CarList(generics.ListCreateAPIView):
         s = OrderedDict([(k, self.change_image_to_string(v)) for k,v  in serializer.validated_data.items()])
         self.perform_create(serializer)
         headers = self.get_success_headers(s)
+        print('headers----------------', headers)
         return Response([s, {"message": "Uploaded"}], status=status.HTTP_201_CREATED, headers=headers)
         # car_instance, created = Car.objects.get_or_create(
         #         by_mileage=serializer.validated_data.get('by_mileage', None),
@@ -136,6 +143,13 @@ class CarList(generics.ListCreateAPIView):
         # headers = self.get_success_headers(s)
         # return Response([s, {"message": "Uploaded"}], status=status.HTTP_201_CREATED, headers=headers)
     
+class CarCreate(generics.CreateAPIView):
+    permission_classes=[IsAuthenticatedOrReadOnly]
+    parser_classes=[MultiPartParser, FormParser]
+    serializer_class = CarCreateSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
 class CarDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
     queryset = Car.objects.all()
@@ -395,43 +409,3 @@ def notifications_by_enter(request):# If requestuser authentificated and if ther
     if not notifications:
         return Response([serializer.data, {"message":f"Дорогой {request.user.email}у вас нет сообщений"}], status=status.HTTP_200_OK)
     return Response([serializer.data, {"message":f'Дорогой {request.user.email}, у вас {num_mssgs} сообщений'}], status=status.HTTP_200_OK)
-
-  
-
-# def mssg_room(request):
-#     proverka_na_vhode(request)#est li mssgs for request.user 
-
-#     print('request.user, request.user.id', request.user.email, request.user.id)
-#     f = open('worktimeprivate/templates/worktimeprivate/mssg_room.html', 'w')
-#     f.write(' {% block content %}\n <div>\n <h1>Your mssgs: </h1>\n')
-#     f.close()
-#     for index,i in enumerate(NotificationMssg.objects.all()):
-#         if i.key_to_recepient == request.user.email or str(i.key_to_recepient) == str(request.user.id):
-#             j = 0
-#             if  i.counteragent:
-#                 j = i.counteragent
-#             if i.employee:
-#                 j = i.employee
-#             if i.employer:
-#                 j = i.employer
-#             print('index+1', index+1, j)
-#             f = open('worktimeprivate/templates/worktimeprivate/mssg_room.html', 'a')
-#             f.write(f'<p>message N {index+1}:  <a class="nav-link active" aria-current="page" href="{{% url \"worktimeprivate:mssg_detail\" {i.pk}%}}">{i.text[0:5]}...</a>\n from: {j}\n, <a class="nav-link active" aria-current="page" href="{{% url \"worktimeprivate:mssg_>
-#             f.close()
-#     f = open('worktimeprivate/templates/worktimeprivate/mssg_room.html', 'a')
-#     f.write('<a class="nav-link active" aria-current="page" href="{% url \'worktimeprivate:mssg_create\' %}"> Create message with proper recipient</a>\n <a class="nav-link active" aria-current="page" href="{% url \'worktimeprivate:employee_employer_lists\' %}"> Back bttn>
-#     f.close() 
-#     return render(request, 'worktimeprivate/templates/worktimeprivate/mssg_room.html')
-
-
-# def message_room(request):
-#     proverka_na_vhode(request)#Est li soobshenia dlia request usera
-    
-#     context = {}
-#     notification_mssg_queryset = NotificationMssg.objects.all().filter(key_to_recepient=request.user.email)| \
-#         NotificationMssg.objects.all().filter(key_to_recepient=request.user.id)  
-#     context = {'notification_mssg_queryset':notification_mssg_queryset,
-#                'request_user_email': request.user.email,
-#                }
-#     # https://developer.mozilla.org/ru/docs/Web/API/Document/querySelector
-#     return render(request, 'worktimeprivate/templates/worktimeprivate/message_room.html', context)

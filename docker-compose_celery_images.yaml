@@ -5,10 +5,10 @@ services:
 
   web:
     container_name: web
-    # image: andreymazo/bulletin_board_backend_web:1.0
-    build:     
-      context: .
-      dockerfile: Dockerfile
+    image: andreymazo/bulletin_board_backend_web:1.0
+    # build:     
+    #   context: .
+    #   dockerfile: Dockerfile
     env_file:
       .env.dev  
     tty: true
@@ -58,10 +58,10 @@ services:
    
   db:
     container_name: db
-    # image: andreymazo/bulletin_board_backend_db:1.0
-    build:
-      context: .
-      dockerfile: Dockerfile-db
+    image: andreymazo/bulletin_board_backend_db:1.0
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile-db
     restart: always
     environment:
       POSTGRES_USER: postgres
@@ -92,54 +92,3 @@ services:
   #     - 8000:8000
 volumes:
   database_volume:
-    
-
-    
-  #   networks:
-  #   some_network:
-  # networks:
-  #  some_network:
-
-
-  # docker-compose down --volumes && docker-compose up
-  # docker system prune -a
-  # https://www.gangofcoders.net/solution/could-not-translate-host-name-db-to-address-using-postgres-docker-compose-and/
-  
-#   version: '3'
-#  services:
-#   db:
-#      image: 'postgres'
-#      ports:
-#        - '5432'
-#      networks:
-#       some_network:
-#   core:
-#     build:
-#       context: .
-#       dockerfile: Dockerfile
-#     command: python3 manage.py runserver 0.0.0.0:8000
-#     ports:
-#       - '8000:8000'
-#     volumes:
-#       - .:/code
-#     depends_on:
-#       - db
-#     links:
-#       - db:db
-#     networks:
-#       some_network:
-#   networks:
-#    some_network:
-
-# docker container prune
-#  docker system prune -a
-#  docker system prune
-# docker volume prune
-# docker images -a
-# docker rmi Img <...>
-# docker stop $(docker ps -a -q)
-# docker rm $(docker ps -a -q)
-
-#Создаем у себя контейнер и имидж docker-compose up
-# Логинимся и создаем таг docker tag <image name> andreymazo/<image name>:<tag num> for ex:1.0 
-# Пушим docker push andreymazo/<image name>:<tag num>

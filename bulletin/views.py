@@ -1,3 +1,6 @@
+from django.core.cache import cache
+from django.http import HttpResponseRedirect
+# from config.backends import SettingsBackend    
 from datetime import datetime, timedelta, timezone
 from django.contrib.auth import login, logout
 from django.core.signing import BadSignature, Signer
@@ -33,6 +36,7 @@ from bulletin.utils import (
     check_ban,
     check_email_phone,
     create_or_update_code,
+    get_tokens_for_user,
 )
 from users.models import (
     CustomUser,
@@ -178,7 +182,7 @@ class SignInView(APIView):
         if user_input_value[1]=="email":
             try:
                 email= user_input_value[0]      
-                user = CustomUser.objects.get(email = email)
+                user = CustomUser.objects.select_related("onetimecodes").get(email=email)
                 """Сразу логинить нельзя, чел просто не будут вводить код, а пойдет на другие ендпоинты"""
                 print('0000000000----------email', email)
                 # print('ddd00000_________request.user.is_authenticated____', request.user.is_authenticated)
@@ -380,11 +384,7 @@ class ConfirmCodeView(APIView):
     )
     def post(self, request):
         if request.user.is_authenticated:
-            return Response(
-                {"message": "Вы уже авторизированы."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
+            return Response({"message": "Вы уже авторизированы."}, status=status.HTTP_400_BAD_REQUEST)
         # email = request.session.get("email")
         signer = Signer()
         try:
@@ -392,43 +392,24 @@ class ConfirmCodeView(APIView):
             if signed_value:
                 email = signer.unsign(signed_value)
             else:
-                return Response(
-                    {"message": "Cookie с email не найден."},
-                    status=status.HTTP_404_NOT_FOUND
-                )
+                return Response({"message": "Cookie с email не найден."}, status=status.HTTP_404_NOT_FOUND)
         except BadSignature:
-            return Response(
-                {"message": "Неверная подпись cookie."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({"message": "Неверная подпись cookie."}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             user = CustomUser.objects.select_related(
                 "onetimecodes"
             ).get(email=email)
         except CustomUser.DoesNotExist:
-            return Response(
-                {"message": "Пользователь не найден."},
-                status=status.HTTP_404_NOT_FOUND
-            )
-
+            return Response({"message": "Пользователь не найден."}, status=status.HTTP_404_NOT_FOUND)
         try:
             otc = user.onetimecodes
         except OneTimeCode.DoesNotExist:
-            return Response(
-                {"message": "Одноразовый код не найден."},
-                status=status.HTTP_404_NOT_FOUND
-            )
+            return Response({"message": "Одноразовый код не найден."}, status=status.HTTP_404_NOT_FOUND)
 
         ban_time = check_ban(user)
         if ban_time:
-            return Response(
-                {
-                    "message": "Вы забанены на 24 часа.",
-                    "ban_time": ban_time
-                },
-                status=status.HTTP_403_FORBIDDEN
-            )
+            return Response({"message": "Вы забанены на 24 часа.", "ban_time": ban_time}, status=status.HTTP_403_FORBIDDEN)
 
         serializer = OneTimeCodeSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -442,30 +423,36 @@ class ConfirmCodeView(APIView):
                 user.is_banned = True
                 user. banned_at = datetime.now(timezone.utc)
                 user.save()
-                return Response(
-                    {
-                        "message": ("Слишком много запросов на отправку кода. "
-                                    "Вы забанены на 24 часа."),
-                        "count_send_code": otc.count_send_code
-                    },
-                    status=status.HTTP_403_FORBIDDEN
-                )
+                return Response({"message": ("Слишком много запросов на отправку кода. ""Вы забанены на 24 часа."), "count_send_code": otc.count_send_code}, status=status.HTTP_403_FORBIDDEN)
             create_or_update_code(user)  # Повторная отправка кода
             otc.count_send_code += 1
             otc.save()
 
-            return Response(
-                {"message": "Время ожидания истекло."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
+            return Response({"message": "Время ожидания истекло."}, status=status.HTTP_400_BAD_REQUEST)
+        # from django.contrib.auth import authenticate
+        from config.backends import SettingsBackend
+        # from django.contrib.auth import authenticate
         if otc.code == email_code:
             try:
-                user.profile
+                print('user', user)
+                # user = SettingsBackend.authenticate(request, user)
+                # user = authenticate(request, email)
+                
+                user = SettingsBackend.authenticate(request, email=user.email)
+                print('user', user)
                 print("loged_in_________1___")
                 login(request, user, backend='config.backends.SettingsBackend')
                 print('request.user', request.user)
-                return Response(serializer.data, status=status.HTTP_200_OK)
+                # access_token = get_tokens_for_user(user)['access']
+                # refresh_token = get_tokens_for_user(user)['refresh']
+
+                # headers = {"Authorization:":access_token}
+                # import redis
+                # r = redis.Redis(host='127.0.0.1', port=6379, db=1)
+                # cache.set("access_token", access_token)
+                # cache.set("refresh_token", refresh_token)
+                # return HttpResponseRedirect(reverse('ad:car_list'))
+                return Response(serializer.data, status=status.HTTP_200_OK,)# headers=headers)
                 
             except Profile.DoesNotExist:
                 pass

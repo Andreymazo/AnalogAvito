@@ -103,7 +103,7 @@ class Car(Advertisement):
     brand = models.CharField(_("brand"), max_length=100)
     model = models.CharField(_("model"), max_length=100)
     price = models.CharField(_("price"), max_length=100)
-    year = models.PositiveSmallIntegerField(_('year'), default=current_year(), validators=[MinValueValidator(MIN_YEAR_AUTO_CREATED), 
+    year = models.IntegerField(_('year'), default=current_year(), validators=[MinValueValidator(MIN_YEAR_AUTO_CREATED), 
                                                                                     max_value_current_year])
     mileage = models.IntegerField()
     transmission = models.CharField(_("Differ by transmission"), choices=BY_TRANSMISSION, **NULLABLE)

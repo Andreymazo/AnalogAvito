@@ -9,8 +9,11 @@ services:
     # build:     
     #   context: .
     #   dockerfile: Dockerfile
+    
     env_file:
-      .env.dev  
+      .env.dev
+    environment:
+      - REDIS_HOST=redis  
     tty: true
     ports:
       - 8000:8000
@@ -25,7 +28,7 @@ services:
       redis:
         condition: service_started
     command: >
-      sh -c "python manage.py migrate --fake && python manage.py runserver 0.0.0.0:8000"  
+      sh -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"  
   celery:
     image: celery
     # environment:
@@ -43,7 +46,8 @@ services:
       redis:
         condition: service_started
   celery-beat:
-    build: .
+    image: andreymazo/bulletin_board_backend_celery-beat:1.0
+    # build: .
     # command: celery -A config beat -l info
     volumes:
       - .:/code
@@ -92,3 +96,4 @@ services:
   #     - 8000:8000
 volumes:
   database_volume:
+  # docker-compose -f docker-compose_celery.yaml up

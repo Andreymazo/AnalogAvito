@@ -7,10 +7,10 @@ from users.managers import CustomUserManager
 class Command(BaseCommand):
     def handle(self, *args, **options):
         # create_superuser = CustomUserManager.create_superuser
-        user = CustomUser.objects.create(username="admin", email = 'andreymazoo@mail.ru', password = 'qwert123asd', is_superuser=True, is_staff=True, is_active=True)
+        user , created = CustomUser.objects.update_or_create(username="admin", email = 'andreymazoo@mail.ru', password = 'qwert123asd', is_superuser=True, is_staff=True, is_active=True)
         # user.save()
         # user = CustomUser.objects.create_superuser(username="admin", email = 'andreymazoo@mail.ru', password="qwert123asd")
-        # user.set_password('qwert123asd')
+        user.set_password('qwert123asd')
         # user.username='admin'
         user.save()
         

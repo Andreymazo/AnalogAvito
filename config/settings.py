@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     "django_celery_beat",
     # 'rest_framework_simplejwt',
     'rest_framework.authtoken',
-    'corsheaders',
+    # 'corsheaders',
     
 ]
 CORS_ORIGIN_ALLOW_ALL = True
@@ -52,7 +52,7 @@ MIDDLEWARE = [
     "django_session_timeout.middleware.SessionTimeoutMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     
-    'corsheaders.middleware.CorsMiddleware',
+    # 'corsheaders.middleware.CorsMiddleware',
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -80,6 +80,11 @@ INTERNAL_IPS = [
 #         "debug_toolbar.middleware.DebugToolbarMiddleware",
 #         *MIDDLEWARE,
 #     ]
+# CSRF_TRUSTED_ORIGINS = [
+
+#     "http://127.0.0.1:8000/",
+
+# ]
 
 SPECTACULAR_SETTINGS = {
     "TITLE": "Bulletin board",
@@ -207,7 +212,7 @@ EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")
 
-
+"""next endpoint request.user becomes Anonymous If session settings below uncommented"""
 # SESSION_COOKIE_DOMAIN = None
 # SESSION_COOKIE_SECURE = False
 # SESSION_COOKIE_AGE = 10  # 30 minutes. "1209600(2 weeks)" by default
@@ -222,7 +227,7 @@ DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")
 # # SESSION_TIMEOUT_REDIRECT = "bulletin:log_in"  # Add your URL
 # SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Invalid session
 
-# SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
+SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 
 ATTEMPTS = 3  # Максимальное количество попыток ввести код
 SITE_ID = 1
@@ -235,15 +240,20 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 BACKEND_SESSION_KEY = "888"
+REDIS_HOST = os.environ.get('REDIS_HOST', '127.0.0.1')
+REDIS_PORT = os.environ.get('REDIS_PORT', '6379')
+
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://@127.0.0.1:6379/1",
+        "LOCATION": "redis://{}:{}".format(REDIS_HOST, REDIS_PORT),#"redis://@127.0.0.1:6379/1",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
     }
 }
+
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 
 LOGIN_REDIRECT_URL = '/'
 REST_FRAMEWORK = {
@@ -302,10 +312,11 @@ SIMPLE_JWT = {
 
 CELERY_BROKER_URL = 'redis://0.0.0.0:6379/0'
 # CELERY_BROKER_URL = "redis://127.0.0.1:6379/1"
+# CELERY_BROKER_URL="redis://redis:6379/0"
 # CELERY_TIMEZONE = "Europe/Moscow"
 # CELERY_TASK_TRACK_STARTED = True
 # CELERY_TASK_TIME_LIMIT = 30 * 60
-CELERY_RESULT_BACKEND = 'redis://0.0.0.0:6379'  
+CELERY_RESULT_BACKEND = 'redis://0.0.0.0:6379/0'  
 CELERY_ACCEPT_CONTENT = ['application/json']  
 CELERY_TASK_SERIALIZER = 'json'  
 CELERY_RESULT_SERIALIZER = 'json'  

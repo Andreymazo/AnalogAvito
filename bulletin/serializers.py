@@ -173,6 +173,11 @@ class ImagesSerializer(serializers.ModelSerializer):
     #     return 
 from django.contrib.contenttypes.models import ContentType
 # from django.contrib.auth import get_user_model
+class CarListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Car
+        fields = "__all__"
+
 class CarSerializer(serializers.ModelSerializer):
         image = serializers.ImageField( write_only=True )
         title = serializers.CharField(write_only=True)
@@ -191,7 +196,7 @@ class CarSerializer(serializers.ModelSerializer):
                 mileage=validated_data.get('mileage', None),
                 price=validated_data.get('price',None), 
                 category_id=Category.objects.get(name='Транспорт',).id,
-                profile = Profile.objects.get(user=self.context['request'].user.profile),
+                profile = Profile.objects.get(user=self.context['request'].user),
                 )
            
             image_instance, created = Images.objects.get_or_create(

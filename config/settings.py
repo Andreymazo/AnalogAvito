@@ -51,8 +51,6 @@ MIDDLEWARE = [
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django_session_timeout.middleware.SessionTimeoutMiddleware",
     "django.middleware.locale.LocaleMiddleware",
-    
-    # 'corsheaders.middleware.CorsMiddleware',
     "django.middleware.common.CommonMiddleware",
     # "django.middleware.csrf.CsrfViewMiddleware",
     "config.middleware.DisableCSRFmiddleware.DisableCSRFMiddleware",
@@ -61,9 +59,8 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
-    
 ]
-# CORS_ALLOWED_ORIGINS = ["http://localhost:8080"]
+
 CORS_ALLOW_CREDENTIALS = True
 INTERNAL_IPS = [
     # ...

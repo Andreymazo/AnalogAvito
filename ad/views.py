@@ -33,8 +33,12 @@ from django.contrib import messages
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated, AllowAny
 
 
-
-class CategoryList(generics.ListAPIView):#ListCreateAPIView
+@extend_schema(
+    tags=["Logic connected with advertisement"],
+    summary="Category list ",
+    request=CarCreateSerializer,
+)
+class CategoryList(generics.ListAPIView):
     permission_classes=[IsAuthenticatedOrReadOnly]
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
@@ -42,12 +46,10 @@ class CategoryList(generics.ListAPIView):#ListCreateAPIView
     filter_fields = ( 
         '-created', 
     )
-    def get(self, request, *args, **kwargs):
-        print('hhhhhhhhhhhhhhh category list', self.request.user)
-        return super().get(request, *args, **kwargs)
-
 
 @extend_schema(
+    tags=["Logic connected with advertisement"],
+    summary="Car list and car creation",
     # parameters=[
     #     CarSerializer,  # serializer fields are converted to parameters  
     #     ],
@@ -147,7 +149,10 @@ class CarList(generics.ListCreateAPIView):
     
     # def perform_create(self, serializer):
     #     serializer.save(user=self.request.user)
-    
+@extend_schema(
+    tags=["Logic connected with advertisement"],
+    summary="Car multyple image creation", 
+)
 class CarCreate(generics.CreateAPIView, generics.ListAPIView):
     queryset = Car.objects.all()
     permission_classes=[IsAuthenticatedOrReadOnly]
@@ -167,7 +172,10 @@ class CarCreate(generics.CreateAPIView, generics.ListAPIView):
     
     # def perform_create(self, serializer):
     #     serializer.save(user=self.request.user)
-
+@extend_schema(
+    tags=["Logic connected with advertisement"],
+    summary="Car detail, update, partial update, delete"
+)
 class CarDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
     queryset = Car.objects.all()
     serializer_class = CarSerializer
@@ -204,7 +212,10 @@ class CarDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
 #         item = get_object_or_404(Item.objects.all(), pk=pk)
 #         item.delete()
 #         return Response(status=status.HTTP_204_NO_CONTENT)
-
+@extend_schema(
+    tags=["Logic connected with advertisement"],
+    summary="Creating images as model instancies",
+)
 class UploadViewSet(ModelViewSet):
     queryset = Images.objects.all()
     serializer_class = ImagesSerializer
@@ -212,7 +223,9 @@ class UploadViewSet(ModelViewSet):
 
 """Func returns likes by obj (ad)"""
 @extend_schema(
-     
+        
+        tags=["Logic connected with advertisement"],  
+        summary="List of likes the advertisement concerned, returns likes by obj (ad)",
         description="Лайки объявления",
         request=LikeSerializer,
         responses={
@@ -223,19 +236,24 @@ class UploadViewSet(ModelViewSet):
         },
          
     )
-@api_view(["GET"])
-def like_list_obj(request, ContentType_id=16, obj_id=6):
-    content_type = ContentType.objects.get_for_id(ContentType_id)
-    obj = content_type.get_object_for_this_type(pk=obj_id)
+@api_view(["GET"])# Здесь лучше с фронта получать объект объявлений obj - объявление и сувать его в 
+#content_type = ContentType.objects.get_for_model(obj). 
+#Фронт не знает к какой модели какое число и потом номер инстанса надо брать. По obj фильтровать проще
+
+def like_list_obj(request, obj): #ContentType_id=16, obj_id=6):
+    # content_type = ContentType.objects.get_for_id(ContentType_id)
+    # obj = content_type.get_object_for_this_type(pk=obj_id)
+    content_type = ContentType.objects.get_for_model(obj)
     if request.method == "GET":
-        like_queryset_obj = Like.objects.all().filter(object_id=obj.id)
+        like_queryset_obj = Like.objects.all().filter(content_type=content_type).filter(object_id=obj.id)
         serializer= LikeSerializer(like_queryset_obj, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 """Function returns likes for requested user""" 
 @extend_schema(
-     
+        tags=["Logic connected with advertisement"],
+        summary="List of likes request user concerned",
         description="Лайки объявления",
         request=LikeSerializer,
         responses={
@@ -256,9 +274,12 @@ def like_list_user(request):
         serializer= LikeSerializer(like_queryset_user, many=True)
         return Response(serializer.data)
     
+
 """Function returns likes for user instance, for 1st by default""" 
 @extend_schema(
      
+        tags=["Logic connected with advertisement"],
+        summary="List of likes by custom user",
         description="Лайки объявления",
         request=LikeSerializer,
         responses={
@@ -282,8 +303,9 @@ def like_list_user(request, user_id=1):
 
 """Function add like from requested user"""
 @extend_schema(
-     
+        tags=["Logic connected with advertisement"],  
         description="Likes for the instance",
+        summary="Add like by request user",
         request=LikeSerializerCreate,
         responses={
             status.HTTP_201_CREATED: OpenApiResponse(
@@ -402,7 +424,8 @@ def like_add(request):# is_liked=False, ContentType_id=16, obj_id=6):
 ####################################
 """Func returns notifications requested user reffered"""
 @extend_schema(
-    tags=["Notifications by user"],
+    tags=["Logic connected with advertisement"],  
+    description=["Notifications by user"],
     request=NotificationSerializer,
     responses={
             status.HTTP_200_OK: OpenApiResponse(

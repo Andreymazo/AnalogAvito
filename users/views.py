@@ -483,7 +483,8 @@ class ConfirmCodeView(APIView):
         # from django.contrib.auth import authenticate
         if otc.code == email_code:
             try:
-                print('user', user)
+                user.profile
+                print('user', user.profile)
                 # user = SettingsBackend.authenticate(request, user)
                 # user = authenticate(request, email)
 
@@ -504,17 +505,17 @@ class ConfirmCodeView(APIView):
                 return Response(serializer.data, status=status.HTTP_200_OK, )  # headers=headers)
 
             except Profile.DoesNotExist:
-                pass
-            print("not_loged_in______go_to_sign_up ______")
-            otc.count_attempts = 0
-            otc.count_send_code = 0
-            otc.save()
+                
+                print("not_loged_in______go_to_sign_up ______")
+                otc.count_attempts = 0
+                otc.count_send_code = 0
+                otc.save()
 
-            serializer = SignInSerializer(user)
-            return Response(
-                serializer.data,
-                status=status.HTTP_307_TEMPORARY_REDIRECT  # Перенаправить на создание профиля
-            )
+                serializer = SignInSerializer(user)
+                return Response(
+                    serializer.data,
+                    status=status.HTTP_307_TEMPORARY_REDIRECT  # Перенаправить на создание профиля
+                )
 
         # otc.count_attempts = otc.count_attempts - 1
         otc.count_attempts += 1
@@ -686,7 +687,7 @@ class SignUpView(APIView):
         )
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        login(request, user)
+        login(request, user, backend='config.backends.SettingsBackend')
         return Response(
             serializer.data,
             status=status.HTTP_200_OK
@@ -719,7 +720,7 @@ class NewCodeView(APIView):
                         "повторными отправками одноразового кода"
                 ),
                 response=inline_serializer(
-                    name="InvalidRequest",
+                    name="InvalidRequestNewCode",
                     # fields={"message": "string"}
                     fields={
                         "message": serializers.CharField(),
@@ -932,7 +933,7 @@ class NewCodeView(APIView):
                     "Пользователь уже авторизован"
             ),
             response=inline_serializer(
-                name="InvalidRequest",
+                name="InvalidRequestLogout",
                 fields={"message": serializers.CharField()}
             ),
             examples=[

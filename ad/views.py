@@ -32,6 +32,8 @@ from django.db import transaction
 from django.contrib import messages
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated, AllowAny
 
+
+
 class CategoryList(generics.ListAPIView):#ListCreateAPIView
     permission_classes=[IsAuthenticatedOrReadOnly]
     queryset = Category.objects.all()
@@ -44,7 +46,7 @@ class CategoryList(generics.ListAPIView):#ListCreateAPIView
         print('hhhhhhhhhhhhhhh category list', self.request.user)
         return super().get(request, *args, **kwargs)
 
-from django.core.cache import cache
+
 @extend_schema(
     # parameters=[
     #     CarSerializer,  # serializer fields are converted to parameters  

@@ -1,5 +1,4 @@
-
-from datetime import time
+import time
 import requests
 import os
 from django.core.management import BaseCommand
@@ -15,12 +14,6 @@ from django.contrib.contenttypes.models import ContentType
  #note settings is an object , hence you cannot import its contents
 
 # settings.configure()
-
- #note LANGUAGES is a tuple of tuples
-
-
-
- #use lang_dict for your query.
 
 # def token_verify(token):
 #     return Token.objects.get(key=token).user
@@ -43,19 +36,22 @@ def ff(**kwargs):
     
     data_auth_url = {"login": "androowefaevf", "password":"qwert123asd"}
     response = requests.post(auth_url, data_auth_url)
-    print('step 1...', response.json())
+    print('step1 ...')
+    print(response.json())
     time.sleep(3)
     response = requests.post(get_token_url, data_auth_url)
     time.sleep(3)
     tokens = response.json()
     print('step 2....', tokens)
-    header = tokens['access']
+    # header = {"Authorisation":f"{tokens['refresh']}"}
+    header = {'Authorization': 'Bearer {}'.format(tokens['access'])}
     print('header =======   ', header)
     # data_registration_profile = {"login": "aneymazooowefaevf", "password":"qwert123asd","first_name": "Andrey","last_name": "Mazo","birthday": "1999-01-11T00:00:00Z","phone": "77777771112","email": "andreymazo123@andrey.com"}
     data_registration_profile = {"login": login, "password":password,"first_name": first_name,"last_name": last_name,"birthday": birthday,"phone": phone,"email": email}
-    response = requests.post(registration_profile_url, data_registration_profile, header=header)
-    response('step 3...', response.json(), response.status_code)
-    print('step 3...', response.json(), response.status_code)
+    response = requests.post(registration_profile_url, data_registration_profile, headers= header)
+    # print(response.json(), response.status_code)
+    print('step 3...')
+    print(response.json(), response.status_code)
 
     
     # response = requests.post(auth_url, data_registration_profile)
@@ -65,13 +61,13 @@ def ff(**kwargs):
 class Command(BaseCommand):
 
     def add_arguments(self, parser):
-        parser.add_argument('login', type=str, help='Указывает параметры пользователя')
-        parser.add_argument('password', type=str, help='Указывает параметры пользователя')
-        parser.add_argument('first_name', type=str, help='Указывает параметры пользователя')
-        parser.add_argument('last_name', type=str, help='Указывает параметры пользователя')
-        parser.add_argument('birthday', type=str, help='Указывает параметры пользователя')
-        parser.add_argument('phone', type=str, help='Указывает параметры пользователя')
-        parser.add_argument('email', type=str, help='Указывает параметры пользователя')
+        parser.add_argument('-login', type=str, help='Указывает параметры пользователя')
+        parser.add_argument('-password', type=str, help='Указывает параметры пользователя')
+        parser.add_argument('-first_name', type=str, help='Указывает параметры пользователя')
+        parser.add_argument('-last_name', type=str, help='Указывает параметры пользователя')
+        parser.add_argument('-birthday', type=str, help='Указывает параметры пользователя')
+        parser.add_argument('-phone', type=str, help='Указывает параметры пользователя')
+        parser.add_argument('-email', type=str, help='Указывает параметры пользователя')
     def handle(self, *args, **kwargs):
         ff(**kwargs)
 
@@ -115,13 +111,4 @@ class Command(BaseCommand):
 # {’token’: ‘проверяемый токен’}
 # Возврат 200 если годен
 
-# class Command(BaseCommand):
-    # help = 'Создает случайных пользователей'
-
-    # def add_arguments(self, parser):
-    #     parser.add_argument('total', type=int, help='Указывает сколько пользователей необходимо создать')
-
-    # def handle(self, *args, **kwargs):
-    #     total = kwargs['total']
-    #     for i in range(total):
-            # User.objects.create_user(username=get_random_string(7), email='', password='1234567890')
+# {'refresh': 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTcyMzMxNzU5MywiaWF0IjoxNzIzMjMxMTkzLCJqdGkiOiJkMDc1NjlmZmNiYTc0ZTcxYjczMGM0MWRhZTIwMDBhZCIsInVzZXJfaWQiOjgsImF1ZCI6WyJleGFtcGxlLmNvbSIsIkVkdWNhdGlvbiIsIlFXRSFAMTIzIl0sImlzcyI6ImRldi5lY2EucnUifQ.V04MVIR3fzBxPHWRwo9oTetHPXjC-u1grvV85hs2H_ctjXmoPZUaCXRxO2eOu4MkMICSDSxaEnQAjNs0do9RAycPSBZdTaggdqRFDVnyd2u1sZbUMOFAInmcbc2C9btJ01mPrf7xPumyIxDiQTN7jncMfsrRa7FV6tV8bwN0thYPi9nkorw9xPHIe_1XKjLVEJ_D4T19zCoF9_B40dYUMMrQqCxkRP7FM2ife6-YRBZt8SXVl_X3MXaqxgwgqbXy_WcWhZS5t4UCJ5onz7ewTRtQ4JAQ7naNWh2NPbjCuIuZRZ8CTanTFovF8tlD4waF2ZgsslDMZLM_3EvkYJwf-g', 'access': 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzIzMjMyMDkzLCJpYXQiOjE3MjMyMzExOTMsImp0aSI6ImMyOTcwODZiMjA2MjQ1MzE4ZDlkZmI2MGZhOGM1MDQxIiwidXNlcl9pZCI6OCwiYXVkIjpbImV4YW1wbGUuY29tIiwiRWR1Y2F0aW9uIiwiUVdFIUAxMjMiXSwiaXNzIjoiZGV2LmVjYS5ydSJ9.lM3C1y8xLEH1xxqUnhgtMIyMzOwO-tgN8nNh6utKm74vZ3acdZdlhIrx37Qzn8gKdaaEMmFAkPJhKQVlaNnB9QUc3Pn4K1fZ3zUKl1MmLo3r5ydwjHy5plVPmVhiw3tuYKEfK-7pLek8zveTJogN0IMUDZGyFXpag_b7oOyMcmzll5oUF32dXpo3EKaNwp-0AMB9NFMyRmoeJTDA6Pt3w0xqb5x9xO-Dw6IhJGPcluPXZTeYaA15eTQ-2pYZgMHH2gRekT_6YMEtNy11ek0NrxVEoEo3UgPlr0AjNG8vxn35A0KzxlKHc5pF_OrmURC7HNkiqvI_aWrZNS6rM0xjVA'}

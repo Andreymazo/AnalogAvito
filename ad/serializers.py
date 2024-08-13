@@ -40,7 +40,9 @@ class CarCreateSerializer(serializers.ModelSerializer):
     )
     class Meta:
         model = Car
-        fields = ["year", "images", "uploaded_images", "mileage"]
+        fields = ["category", "profile", "by_mileage", "brand", "model", "price", "year", "mileage", "transmission",\
+                  "by_wheel_drive", "engine_capacity", "engine_power", "fuel_consumption", "type", "colour", "fuel",\
+                      "images", "uploaded_images",]# ["year", "images", "uploaded_images", "mileage"] ["__all__"]
 
     def create(self, validated_data):
         uploaded_images = validated_data.pop("uploaded_images")

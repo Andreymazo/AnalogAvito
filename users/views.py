@@ -74,67 +74,16 @@ from config.constants import (
     COUNT_ATTEMPTS,
     COUNT_SEND_CODE
 )
-from bulletin.utils import (
+from users.utils import (
     check_ban,
     check_email_phone,
     create_or_update_code,
-    get_tokens_for_user,
 )
 from users.models import (
     CustomUser,
     OneTimeCode,
     Profile
 )
-
-"""Testing endpoint for alternative authorization"""
-
-
-@extend_schema(
-    tags=["Func for test auth"],
-    request=AlternativeAuthSerializer,
-    responses={
-        status.HTTP_200_OK: OpenApiResponse(
-            description=(
-                    "Authentication by email"
-            ),
-            response=AlternativeAuthSerializer,
-        ),
-        status.HTTP_200_OK: OpenApiResponse(
-            description=(
-                    "Authentication by phone"
-            ),
-            response=AlternativeAuthSerializer,
-        ),
-        status.HTTP_400_BAD_REQUEST: OpenApiResponse(
-            description=(
-                    "Invalid input"
-            ),
-            response=AlternativeAuthSerializer,
-        ),
-    },
-)
-@api_view(["POST"])
-def sign_in_alternative(request):
-    if request.user.is_authenticated:
-        logout(request)
-    serializer = AlternativeAuthSerializer(data=request.data)
-    if request.method == "POST":
-        if serializer.is_valid():
-            user_input_value = serializer.validated_data['user_input_value']
-            user_input_value = check_email_phone(user_input_value)
-
-            if user_input_value[1] == "email":
-                user = CustomUser.objects.get(email=user_input_value[0])
-                login(request, user)
-                return Response([serializer.data, {"message": "Authentication by email"}], status=status.HTTP_200_OK)
-            if user_input_value[1] == "phone":
-                user = Profile.objects.get(phone_number=user_input_value[0]).user
-                login(request, user)
-                return Response([serializer.data, {"message": "Authentication by phone"}], status=status.HTTP_200_OK)
-            else:
-                return Response([serializer.data, serializer.errors, {"message": "Invalid input"}],
-                                status=status.HTTP_400_BAD_REQUEST)
-        return Response([serializer.errors, {"message": "Invalid input"}])
 
 
 class SignInView(APIView):
@@ -505,7 +454,7 @@ class ConfirmCodeView(APIView):
                 return Response(serializer.data, status=status.HTTP_200_OK, )  # headers=headers)
 
             except Profile.DoesNotExist:
-                
+
                 print("not_loged_in______go_to_sign_up ______")
                 otc.count_attempts = 0
                 otc.count_send_code = 0

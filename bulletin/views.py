@@ -5,22 +5,23 @@ from drf_spectacular.utils import (
     OpenApiExample,
     OpenApiParameter,
     OpenApiResponse,
-    inline_serializer
+    inline_serializer, extend_schema_view
 )
 from rest_framework import viewsets
 from ad.models import Category
 from bulletin.serializers import (
     CategorySerializer,
-   
+
 )
 
-from bulletin.utils import (
-    check_ban,
-    check_email_phone,
-    create_or_update_code,
-    get_tokens_for_user,
-)
 
+@extend_schema(
+    tags=["Категории/Categories"],
+)
+@extend_schema_view(
+    list=extend_schema(summary="Список всех категорий"),
+    retrieve=extend_schema(summary="Получение информации о категории")
+)
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     """Вьюсет для категорий."""
     http_method_names = ("get",)

@@ -15,6 +15,7 @@ from drf_spectacular.utils import (
     OpenApiExample,
     OpenApiParameter,
     OpenApiResponse,
+    OpenApiTypes,
     inline_serializer, extend_schema_view
 )
 from django.core.files.uploadedfile import TemporaryUploadedFile, InMemoryUploadedFile
@@ -49,20 +50,9 @@ class CategoryList(generics.ListAPIView):
 
 
 @extend_schema(
-    tags=["Logic connected with advertisement"],
-    summary="Car list and car creation",
-    # parameters=[
-    #     CarSerializer,  # serializer fields are converted to parameters  
-    #     ],
+    tags=["Автомобили/Cars"],
+    summary=" Car list and car creation",
     request=CarCreateSerializer,
-    # request=inline_serializer(
-    #     name="InlineFormSerializer",
-    #     fields={
-    #         "str_field": serializers.CharField(),
-    #         "int_field": serializers.IntegerField(),
-    #         "file_field": serializers.FileField(),
-    #     },
-    # ),
     responses={status.HTTP_201_CREATED: OpenApiResponse(
         description="Объявление автомобиль создано",
         response=CarSerializer,
@@ -151,9 +141,15 @@ class CarList(generics.ListCreateAPIView):
 
 
 @extend_schema(
-    tags=["Logic connected with advertisement"],
-    summary="Car multyple image creation",
+    tags=["Автомобили/Cars"],
+    summary="Создание объявления авто несколько фото подгружаются / Car multyple image creation",
+    responses={
+            201: OpenApiResponse(response=CarCreateSerializer,
+                                 description='Created. New car in response'),
+            400: OpenApiResponse(description='Bad request (something invalid)'),
+        },
 )
+
 class CarCreate(generics.CreateAPIView, generics.ListAPIView):
     queryset = Car.objects.all()
     permission_classes = [IsAuthenticatedOrReadOnly]
@@ -268,8 +264,8 @@ class UploadViewSet(ModelViewSet):
 
 @extend_schema(
 
-    tags=["Logic connected with advertisement"],
-    summary="List of likes the advertisement concerned, returns likes by obj (ad)",
+    tags=["Лайки / Likes"],
+    summary="Лайки объявления / List of likes the advertisement concerned, returns likes by obj (ad)",
     description="Лайки объявления",
     request=LikeSerializer,
     responses={
@@ -298,8 +294,8 @@ def like_list_obj(request, obj):  # ContentType_id=16, obj_id=6):
 
 
 @extend_schema(
-    tags=["Logic connected with advertisement"],
-    summary="List of likes request user concerned",
+    tags=["Лайки / Likes "],
+    summary="Лайки пользователя / List of likes request user concerned",
     description="Лайки объявления",
     request=LikeSerializer,
     responses={
@@ -326,8 +322,8 @@ def like_list_user(request):
 
 @extend_schema(
 
-    tags=["Logic connected with advertisement"],
-    summary="List of likes by custom user",
+    tags=["Лайки / Likes"],
+    summary="Лайки кастомного пользователя / List of likes by custom user",
     description="Лайки объявления",
     request=LikeSerializer,
     responses={
@@ -353,33 +349,21 @@ def like_list_user(request, user_id=1):
 
 
 @extend_schema(
-    tags=["Logic connected with advertisement"],
-    description="Likes for the instance",
+    tags=["Лайки / Likes"],
+    description="Добавление лайков пользователем / Likes for the instance",
     summary="Add like by request user",
+    parameters=[
+        OpenApiParameter("content_type", OpenApiTypes.INT, location=OpenApiParameter.QUERY, required=True,),
+        OpenApiParameter("object_id", OpenApiTypes.INT, location=OpenApiParameter.QUERY, required=True,),
+        OpenApiParameter("is_liked", OpenApiTypes.BOOL, location=OpenApiParameter.QUERY, required=True,)
+        ],
     request=LikeSerializerCreate,
     responses={
-        status.HTTP_201_CREATED: OpenApiResponse(
-            description="Added like",
-            response=LikeSerializerCreate,
-        ),
-        status.HTTP_200_OK: OpenApiResponse(
-            description=(
-                    "Like from the user already exists"
-            ),
-            response=LikeSerializerCreate,
-        ),
-        status.HTTP_400_BAD_REQUEST: OpenApiResponse(
-            description=(
-                    "Invalid data"
-            ),
-            response=inline_serializer(
-                name="ValidationErrorInConfirmCode",
-                fields={"email": serializers.ListField(
-                    child=serializers.CharField()
-                )}
-            ),
-        )
-    },
+            201: OpenApiResponse(response=LikeSerializerCreate,
+                                 description='Created. New like in response'),
+            200: OpenApiResponse(description=("Like from the user already exists")),
+            400: OpenApiResponse(description='Bad request (something invalid)'),
+        },
 )
 @api_view(['POST'])
 def like_add(request):  # is_liked=False, ContentType_id=16, obj_id=6):
@@ -479,7 +463,8 @@ def like_add(request):  # is_liked=False, ContentType_id=16, obj_id=6):
 
 
 @extend_schema(
-    tags=["Logic connected with advertisement"],
+    tags=["Уведомления / Notifications"],
+    summary=["Уведомляем при входе пользователя о его новых сообщениях / Notification by user's enter notifies about new messages"],
     description=["Notifications by user"],
     request=NotificationSerializer,
     responses={

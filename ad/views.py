@@ -15,7 +15,7 @@ from drf_spectacular.utils import (
     OpenApiExample,
     OpenApiParameter,
     OpenApiResponse,
-    inline_serializer
+    inline_serializer, extend_schema_view
 )
 from django.core.files.uploadedfile import TemporaryUploadedFile, InMemoryUploadedFile
 from rest_framework.decorators import api_view
@@ -34,18 +34,19 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticate
 
 
 @extend_schema(
-    tags=["Logic connected with advertisement"],
-    summary="Category list ",
+    tags=["Категории/Categories"],
+    summary="Список всех категорий",
     request=CarCreateSerializer,
 )
 class CategoryList(generics.ListAPIView):
-    permission_classes=[IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     name = "Category list"
-    filter_fields = ( 
-        '-created', 
+    filter_fields = (
+        '-created',
     )
+
 
 @extend_schema(
     tags=["Logic connected with advertisement"],
@@ -63,15 +64,15 @@ class CategoryList(generics.ListAPIView):
     #     },
     # ),
     responses={status.HTTP_201_CREATED: OpenApiResponse(
-                description="Объявление автомобиль создано",
-                response=CarSerializer,
-            ),}
-            
+        description="Объявление автомобиль создано",
+        response=CarSerializer,
+    ), }
+
 )
 class CarList(generics.ListCreateAPIView):
     queryset = Car.objects.all()
-    permission_classes=[IsAuthenticatedOrReadOnly]
-    parser_classes=[MultiPartParser, FormParser]
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    parser_classes = [MultiPartParser, FormParser]
     serializer_class = CarCreateSerializer
     # name = "Car list"
     # filter_fields = ( 
@@ -118,7 +119,7 @@ class CarList(generics.ListCreateAPIView):
     #     #         category_id=Category.objects.get(name='Транспорт',).id,
     #     #         profile = Profile.objects.get(user=request.user)
     #     #         )#category_id=validated_data.get('category_id', None).id # Can choose
-                
+
     #     # try:
     #     #     #Photoes anyway will be loaded even the same
     #     #     image_instance, created = Images.objects.get_or_create(
@@ -129,8 +130,6 @@ class CarList(generics.ListCreateAPIView):
     #     # except Images.MultipleObjectsReturned:
     #     #     image = Images.objects.filter(content_type = ContentType.objects.get_for_model(type(car_instance)),
     #     #             object_id = car_instance.id,title=serializer.validated_data.get('title'),).order_by('id').first()  
-            
-
 
     # #     # try:
     # #     #     print('type image', type(serializer.validated_data.get('image')))
@@ -146,17 +145,19 @@ class CarList(generics.ListCreateAPIView):
     #     # self.perform_create(serializer)
     #     # headers = self.get_success_headers(s)
     #     # return Response([s, {"message": "Uploaded"}], status=status.HTTP_201_CREATED, headers=headers)
-    
+
     # def perform_create(self, serializer):
     #     serializer.save(user=self.request.user)
+
+
 @extend_schema(
     tags=["Logic connected with advertisement"],
-    summary="Car multyple image creation", 
+    summary="Car multyple image creation",
 )
 class CarCreate(generics.CreateAPIView, generics.ListAPIView):
     queryset = Car.objects.all()
-    permission_classes=[IsAuthenticatedOrReadOnly]
-    parser_classes=[MultiPartParser, FormParser]
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    parser_classes = [MultiPartParser, FormParser]
     serializer_class = CarCreateSerializer
 
     # def get(self, request, *args, **kwargs):
@@ -164,27 +165,32 @@ class CarCreate(generics.CreateAPIView, generics.ListAPIView):
     #     serializer = CarCreateSerializer(Car.objects.all(), many=True)
     #     # print("serializer.data ==", serializer.data)
     #     return Response(serializer.data)
-    
+
     # def post(self, request, *args, **kwargs):
     #     serializer = CarCreateSerializer(request.data)
     #     print("serializer.data ==", serializer.data)
     #     return Response(serializer.data)
-    
+
     # def perform_create(self, serializer):
     #     serializer.save(user=self.request.user)
+
+
 @extend_schema(
-    tags=["Logic connected with advertisement"],
-    summary="Car detail, update, partial update, delete"
+    tags=["Автомобили/Cars"],
 )
 class CarDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
     queryset = Car.objects.all()
     serializer_class = CarSerializer
 
-        ##Под капотом три метода ниже, если что-то надо их меняем:
-# class ItemDetail(APIView):
+    ## Под капотом три метода ниже, если что-то надо их меняем:
+    # class ItemDetail(APIView):
 
+    @extend_schema(
+        methods=['GET'],
+        summary='Получение информации об автомобиле',
+    )
     def get(self, request, pk, format=None):
-        #Add new model instance Views get_or_creation
+        # Add new model instance Views get_or_creation
 
         item = get_object_or_404(Car.objects.all(), pk=pk)
         serializer = CarSerializer(item)
@@ -192,78 +198,118 @@ class CarDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
             profile = request.user.profile
         except AttributeError:
             print('---------------------', request.user, '4444444444', self.request.user)
-            return Response([serializer.data, {"message": "Anonymoususer, Views dont counted"}], status=status.HTTP_200_OK)
+            return Response([serializer.data, {"message": "Anonymoususer, Views dont counted"}],
+                            status=status.HTTP_200_OK)
         except Profile.DoesNotExist:
-            return Response({"message": "Увас нет Профиля, перенаправляем на регистрацию"}, status=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION)
-        view_instance = Views.objects.get_or_create(profile = profile, content_type=ContentType.objects.get_for_model(item), object_id=item.id)    
-        
+            return Response({"message": "У вас нет Профиля, перенаправляем на регистрацию"},
+                            status=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION)
+        view_instance = Views.objects.get_or_create(profile=profile,
+                                                    content_type=ContentType.objects.get_for_model(item),
+                                                    object_id=item.id)
 
         return Response(serializer.data)
 
-#     def put(self, request, pk, format=None):
-#         item = get_object_or_404(Item.objects.all(), pk=pk)
-#         serializer = ItemSerializer(item, data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    @extend_schema(
+        methods=['PUT'],
+        summary="Обновление данных об автомобиле",
+        description="Метод позволяет полностью обновить информацию об автомобиле. "
+                    "Тело запроса должно содержать полную информацию об автомобиле, "
+                    "включая все обязательные поля."
+    )
+    def put(self, request, *args, **kwargs):
+        return super().put(request, *args, **kwargs)  # Дла реализации доки
+
+    #     def put(self, request, pk, format=None):
+    #         item = get_object_or_404(Item.objects.all(), pk=pk)
+    #         serializer = ItemSerializer(item, data=request.data)
+    #         if serializer.is_valid():
+    #             serializer.save()
+    #             return Response(serializer.data)
+    #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    @extend_schema(
+        methods=['PATCH'],
+        summary="Частичное обновление информации об автомобиле",
+        description="Метод позволяет частично обновить информацию об автомобиле."
+    )
+    def patch(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)  # Дла реализации доки
+
+    @extend_schema(
+        methods=['DELETE'],
+        summary="Удаление объекта"
+    )
+    def delete(self, request, *args, **kwargs):
+        super().delete(request, *args, **kwargs)  # Дла реализации доки
+
 
 #     def delete(self, request, pk, format=None):
 #         item = get_object_or_404(Item.objects.all(), pk=pk)
 #         item.delete()
 #         return Response(status=status.HTTP_204_NO_CONTENT)
+
 @extend_schema(
-    tags=["Logic connected with advertisement"],
-    summary="Creating images as model instancies",
+    tags=["Изображения/Images"],
+)
+@extend_schema_view(
+    list=extend_schema(summary="Получение списка всех изображений"),
+    create=extend_schema(summary="Загрузка нового изображения пользователем"),
+    retrieve=extend_schema(summary="Получение информации о изображении"),
+    update=extend_schema(summary="Обновление изображения"),
+    partial_update=extend_schema(summary="Обновление изображения"),
+    destroy=extend_schema(summary="Удаление изображения")
 )
 class UploadViewSet(ModelViewSet):
     queryset = Images.objects.all()
     serializer_class = ImagesSerializer
-    
+
 
 """Func returns likes by obj (ad)"""
-@extend_schema(
-        
-        tags=["Logic connected with advertisement"],  
-        summary="List of likes the advertisement concerned, returns likes by obj (ad)",
-        description="Лайки объявления",
-        request=LikeSerializer,
-        responses={
-            status.HTTP_200_OK: OpenApiResponse(
-                description="Likes by advertisement",
-                response=LikeSerializer,
-            ),
-        },
-         
-    )
-@api_view(["GET"])# Здесь лучше с фронта получать объект объявлений obj - объявление и сувать его в 
-#content_type = ContentType.objects.get_for_model(obj). 
-#Фронт не знает к какой модели какое число и потом номер инстанса надо брать. По obj фильтровать проще
 
-def like_list_obj(request, obj): #ContentType_id=16, obj_id=6):
+
+@extend_schema(
+
+    tags=["Logic connected with advertisement"],
+    summary="List of likes the advertisement concerned, returns likes by obj (ad)",
+    description="Лайки объявления",
+    request=LikeSerializer,
+    responses={
+        status.HTTP_200_OK: OpenApiResponse(
+            description="Likes by advertisement",
+            response=LikeSerializer,
+        ),
+    },
+
+)
+@api_view(["GET"])  # Здесь лучше с фронта получать объект объявлений obj - объявление и сувать его в
+# content_type = ContentType.objects.get_for_model(obj).
+# Фронт не знает к какой модели какое число и потом номер инстанса надо брать. По obj фильтровать проще
+
+def like_list_obj(request, obj):  # ContentType_id=16, obj_id=6):
     # content_type = ContentType.objects.get_for_id(ContentType_id)
     # obj = content_type.get_object_for_this_type(pk=obj_id)
     content_type = ContentType.objects.get_for_model(obj)
     if request.method == "GET":
         like_queryset_obj = Like.objects.all().filter(content_type=content_type).filter(object_id=obj.id)
-        serializer= LikeSerializer(like_queryset_obj, many=True)
+        serializer = LikeSerializer(like_queryset_obj, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-"""Function returns likes for requested user""" 
+"""Function returns likes for requested user"""
+
+
 @extend_schema(
-        tags=["Logic connected with advertisement"],
-        summary="List of likes request user concerned",
-        description="Лайки объявления",
-        request=LikeSerializer,
-        responses={
-            status.HTTP_200_OK: OpenApiResponse(
-                description="Вывод лайков по пользователю-залогиненному",
-                response=LikeSerializer,
-            ),
-        },
-         
-    )
+    tags=["Logic connected with advertisement"],
+    summary="List of likes request user concerned",
+    description="Лайки объявления",
+    request=LikeSerializer,
+    responses={
+        status.HTTP_200_OK: OpenApiResponse(
+            description="Вывод лайков по пользователю-залогиненному",
+            response=LikeSerializer,
+        ),
+    },
+
+)
 @api_view(["GET"])
 def like_list_user(request):
     if request.user.is_anonymous:
@@ -271,25 +317,27 @@ def like_list_user(request):
     user_instance = request.user
     if request.method == "GET":
         like_queryset_user = Like.objects.all().filter(user_id=user_instance.id)
-        serializer= LikeSerializer(like_queryset_user, many=True)
+        serializer = LikeSerializer(like_queryset_user, many=True)
         return Response(serializer.data)
-    
 
-"""Function returns likes for user instance, for 1st by default""" 
+
+"""Function returns likes for user instance, for 1st by default"""
+
+
 @extend_schema(
-     
-        tags=["Logic connected with advertisement"],
-        summary="List of likes by custom user",
-        description="Лайки объявления",
-        request=LikeSerializer,
-        responses={
-            status.HTTP_200_OK: OpenApiResponse(
-                description="Вывод лайков по пользователю",
-                response=LikeSerializer,
-            ),
-        },
-         
-    )
+
+    tags=["Logic connected with advertisement"],
+    summary="List of likes by custom user",
+    description="Лайки объявления",
+    request=LikeSerializer,
+    responses={
+        status.HTTP_200_OK: OpenApiResponse(
+            description="Вывод лайков по пользователю",
+            response=LikeSerializer,
+        ),
+    },
+
+)
 @api_view(["GET"])
 def like_list_user(request, user_id=1):
     if request.user.is_anonymous:
@@ -297,42 +345,44 @@ def like_list_user(request, user_id=1):
     user_instance = CustomUser.objects.get(id=user_id)
     if request.method == "GET":
         like_queryset_user = Like.objects.all().filter(user_id=user_instance.id)
-        serializer= LikeSerializer(like_queryset_user, many=True)
+        serializer = LikeSerializer(like_queryset_user, many=True)
         return Response(serializer.data)
-    
+
 
 """Function add like from requested user"""
+
+
 @extend_schema(
-        tags=["Logic connected with advertisement"],  
-        description="Likes for the instance",
-        summary="Add like by request user",
-        request=LikeSerializerCreate,
-        responses={
-            status.HTTP_201_CREATED: OpenApiResponse(
-                description="Added like",
-                response=LikeSerializerCreate,
-            ),
-            status.HTTP_200_OK: OpenApiResponse(
-                description=(
+    tags=["Logic connected with advertisement"],
+    description="Likes for the instance",
+    summary="Add like by request user",
+    request=LikeSerializerCreate,
+    responses={
+        status.HTTP_201_CREATED: OpenApiResponse(
+            description="Added like",
+            response=LikeSerializerCreate,
+        ),
+        status.HTTP_200_OK: OpenApiResponse(
+            description=(
                     "Like from the user already exists"
-                ),
-                response=LikeSerializerCreate,
             ),
-            status.HTTP_400_BAD_REQUEST: OpenApiResponse(
-                description=(
+            response=LikeSerializerCreate,
+        ),
+        status.HTTP_400_BAD_REQUEST: OpenApiResponse(
+            description=(
                     "Invalid data"
-                ),
-                response=inline_serializer(
-                    name="ValidationErrorInConfirmCode",
-                    fields={"email": serializers.ListField(
-                        child=serializers.CharField()
-                    )}
-                ),
-            )
-        }, 
-    )
+            ),
+            response=inline_serializer(
+                name="ValidationErrorInConfirmCode",
+                fields={"email": serializers.ListField(
+                    child=serializers.CharField()
+                )}
+            ),
+        )
+    },
+)
 @api_view(['POST'])
-def like_add(request):# is_liked=False, ContentType_id=16, obj_id=6):
+def like_add(request):  # is_liked=False, ContentType_id=16, obj_id=6):
     print('request.user', request.user)
     if request.user.is_anonymous:
         return redirect(reverse("bulletin:sign_in_email"))
@@ -348,15 +398,18 @@ def like_add(request):# is_liked=False, ContentType_id=16, obj_id=6):
             is_liked = serializer.validated_data.get('is_liked')
             try:
                 print('1111111111111111111111111')
-                like_instance = Like.objects.get(user=user_instance, content_type=content_type, object_id=object_id,is_liked=is_liked)
-                return Response([{"message" : "Лайки уже существуют"},serializer.data], status=status.HTTP_200_OK)
+                like_instance = Like.objects.get(user=user_instance, content_type=content_type, object_id=object_id,
+                                                 is_liked=is_liked)
+                return Response([{"message": "Лайки уже существуют"}, serializer.data], status=status.HTTP_200_OK)
             except Like.DoesNotExist:
                 print('22222222222222222222222222')
-                like_instance = Like.objects.create(user=user_instance, content_type=content_type, object_id=object_id,is_liked=is_liked)
+                like_instance = Like.objects.create(user=user_instance, content_type=content_type, object_id=object_id,
+                                                    is_liked=is_liked)
                 like_instance.save()
-            # serializer.save()
+                # serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 """Function for test likes: In: user and car_object (form for this, must be commented if migrations needed), all must be deleted after testing,
   Out: like added from user to car object"""
@@ -386,14 +439,14 @@ def like_add(request):# is_liked=False, ContentType_id=16, obj_id=6):
 #     car_queryset = Car.objects.all()
 #     obj=car_queryset.get(id=5)#Для проверки вставим 1 объявление авто
 #     print('user_instance', user_instance)
-    
+
 #     form = LikeForm()
 #     if request.method == 'GET':
 #         like_queryset = Like.objects.all().filter(object_id=obj.id)
 #         serializer = LikeSerializer(like_queryset, many=True) 
 #         # return JsonResponse(serializer.data, safe=False) 
 #         print('serializer.data', type(serializer.data), serializer.data)
-        
+
 #         print('like_queryset', like_queryset)
 #         print('data_for_template ================', serializer.data)
 #         total_likes = obj.likes.count()
@@ -403,9 +456,9 @@ def like_add(request):# is_liked=False, ContentType_id=16, obj_id=6):
 #         return Response({"form": form, "data": request.data, "like_queryset":serializer.data, "tottal_likes_user": tottal_likes_user, "card_instance":obj, "total_likes":total_likes}, template_name="ad/templates/ad/template_for_like.html", status=status.HTTP_200_OK)
 #     form = LikeForm(request.POST)
 #     if request.method == 'POST':
-        
+
 #         if form.is_valid():
-           
+
 #             print('------------1---------------')
 #             form_value = form.cleaned_data.get("choose_car")
 #             obj = car_queryset.get(id=form_value)
@@ -423,29 +476,36 @@ def like_add(request):# is_liked=False, ContentType_id=16, obj_id=6):
 
 ####################################
 """Func returns notifications requested user reffered"""
+
+
 @extend_schema(
-    tags=["Logic connected with advertisement"],  
+    tags=["Logic connected with advertisement"],
     description=["Notifications by user"],
     request=NotificationSerializer,
     responses={
-            status.HTTP_200_OK: OpenApiResponse(
-                description=(
+        status.HTTP_200_OK: OpenApiResponse(
+            description=(
                     "Like from the user already exists"
-                ),
-                response=NotificationSerializer,
             ),
-        },
+            response=NotificationSerializer,
+        ),
+    },
 )
 @api_view(["GET"])
-def notifications_by_enter(request):# If requestuser authentificated and if there mssgs for request user return numb of mssgs
+def notifications_by_enter(
+        request):  # If requestuser authentificated and if there mssgs for request user return numb of mssgs
     if not request.user.is_authenticated:
         # login_url = reverse_lazy('bulletin:sign_in_email')
         # return redirect(login_url)
-        return Response({"message": "Вы неавторизированы. Перенаправляем на авторизацию"},status=status.HTTP_400_BAD_REQUEST)
+        return Response({"message": "Вы неавторизированы. Перенаправляем на авторизацию"},
+                        status=status.HTTP_400_BAD_REQUEST)
     serializer = NotificationSerializer(data=request.data)
-    notifications = Notification.objects.all().filter(key_to_recepient=request.user.email) | Notification.objects.all().filter(key_to_recepient=request.user.id)
-    num_mssgs=notifications.count()
-    
+    notifications = Notification.objects.all().filter(
+        key_to_recepient=request.user.email) | Notification.objects.all().filter(key_to_recepient=request.user.id)
+    num_mssgs = notifications.count()
+
     if not notifications:
-        return Response([serializer.data, {"message":f"Дорогой {request.user.email}у вас нет сообщений"}], status=status.HTTP_200_OK)
-    return Response([serializer.data, {"message":f'Дорогой {request.user.email}, у вас {num_mssgs} сообщений'}], status=status.HTTP_200_OK)
+        return Response([serializer.data, {"message": f"Дорогой {request.user.email}у вас нет сообщений"}],
+                        status=status.HTTP_200_OK)
+    return Response([serializer.data, {"message": f'Дорогой {request.user.email}, у вас {num_mssgs} сообщений'}],
+                    status=status.HTTP_200_OK)

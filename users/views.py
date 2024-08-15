@@ -463,7 +463,7 @@ class ConfirmCodeView(APIView):
                 serializer = SignInSerializer(user)
                 return Response(
                     serializer.data,
-                    status=status.HTTP_307_TEMPORARY_REDIRECT  # Перенаправить на создание профиля
+                    status=status.HTTP_201_CREATED # Перенаправить на создание профиля
                 )
 
         # otc.count_attempts = otc.count_attempts - 1

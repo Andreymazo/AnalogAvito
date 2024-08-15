@@ -1,10 +1,9 @@
 from django.urls import path
 from ad.apps import AdConfig
 from ad.views import (
-    CarCreate,
     CarDetailGeneric,
     CarList,
-    CategoryList, 
+    CategoryViewSet, 
     UploadViewSet,
     like_add,
     # like_list_create,
@@ -14,24 +13,23 @@ from ad.views import (
 
 )
 from django.urls import include, path
-
-from rest_framework.routers import SimpleRouter
+from rest_framework.routers import SimpleRouter, DefaultRouter
 from ad.views import UploadViewSet
-
 
 router = SimpleRouter()
 router.register(r'upload', UploadViewSet, basename='upload')
 
+router = DefaultRouter()
+router.register("categories", CategoryViewSet)
 
 app_name = AdConfig.name
 
 urlpatterns = [
    path('', include(router.urls)), 
-   path("category_list/", CategoryList.as_view(), name="ad_list"),
+   # path("category_list/", CategoryList.as_view(), name="ad_list"),
    path("car_list/", CarList.as_view(), name="car_list"),
-   
-   path("car_create/", CarCreate.as_view(), name="car_create"),
-#    path("like_list_create/", like_list_create, name="like_list_create"), point for test
+   #path("car_create/", CarCreate.as_view(), name="car_create"),
+   #path("like_list_create/", like_list_create, name="like_list_create"), point for test
    path("like_list_obj/", like_list_obj, name="like_list_obj"),
    path("like_list_user/", like_list_user, name="like_list_user"),
    path("like_add/", like_add, name="like_add"),

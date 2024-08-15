@@ -34,24 +34,56 @@ from django.contrib import messages
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated, AllowAny
 
 
+# @extend_schema(
+#     tags=["Категории/Categories"],
+#     summary="Список всех категорий",
+#     request=CategorySerializer,
+# )
+# class CategoryList(generics.ListAPIView):
+#     permission_classes = [IsAuthenticatedOrReadOnly]
+#     queryset = Category.objects.all()
+#     serializer_class = CategorySerializer
+#     name = "Category list"
+#     filter_fields = (
+#         '-created',
+#     )
+
+from django.core.signing import BadSignature, Signer
+from django.urls import reverse
+from drf_spectacular.utils import (
+    extend_schema,
+    OpenApiExample,
+    OpenApiParameter,
+    OpenApiResponse,
+    inline_serializer, extend_schema_view
+)
+from rest_framework import viewsets
+from ad.models import Category
+from bulletin.serializers import (
+    CategorySerializer,
+
+)
+
+
 @extend_schema(
     tags=["Категории/Categories"],
-    summary="Список всех категорий",
-    request=CarCreateSerializer,
+    request=CategorySerializer,
+    parameters=[OpenApiParameter('limit', exclude=True), OpenApiParameter('offset', exclude=True), OpenApiParameter('ordering', exclude=True),]
 )
-class CategoryList(generics.ListAPIView):
-    permission_classes = [IsAuthenticatedOrReadOnly]
-    queryset = Category.objects.all()
+@extend_schema_view(
+    list=extend_schema(summary="Список всех категорий"),
+    retrieve=extend_schema(summary="Получение информации о категории")
+)
+class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
+    """Вьюсет для категорий."""
+    http_method_names = ("get",)
+    queryset = Category.objects.prefetch_related("children").all()
     serializer_class = CategorySerializer
-    name = "Category list"
-    filter_fields = (
-        '-created',
-    )
 
 
 @extend_schema(
     tags=["Автомобили/Cars"],
-    summary=" Car list and car creation",
+    # summary=" Car list and car creation",
     request=CarCreateSerializer,
     responses={status.HTTP_201_CREATED: OpenApiResponse(
         description="Объявление автомобиль создано",
@@ -59,6 +91,7 @@ class CategoryList(generics.ListAPIView):
     ), }
 
 )
+
 class CarList(generics.ListCreateAPIView):
     queryset = Car.objects.all()
     permission_classes = [IsAuthenticatedOrReadOnly]
@@ -68,6 +101,16 @@ class CarList(generics.ListCreateAPIView):
     # filter_fields = ( 
     #     '-created', 
     # )
+    @extend_schema(
+    summary="Список автомобилей / Car list",
+    )
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+    @extend_schema(
+    summary="Список автомобилей / Car list",
+    )
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
     # def list(self, request, *args, **kwargs):
     #     print('ggggggggggggggggg', request.user, self.request.user)
     #     # print('cache================', cache._connections.__dict__)
@@ -86,6 +129,7 @@ class CarList(generics.ListCreateAPIView):
     #         return str(obj)
     #     else:
     #         return obj
+    
 
     # def create(self, request, *args, **kwargs):#, ContentType_id=16, obj_id=6
     #     serializer = self.get_serializer(data=request.data)
@@ -142,33 +186,46 @@ class CarList(generics.ListCreateAPIView):
 
 @extend_schema(
     tags=["Автомобили/Cars"],
-    summary="Создание объявления авто несколько фото подгружаются / Car multyple image creation",
-    responses={
-            201: OpenApiResponse(response=CarCreateSerializer,
-                                 description='Created. New car in response'),
-            400: OpenApiResponse(description='Bad request (something invalid)'),
-        },
+    # summary="Создание объявления авто несколько фото подгружаются / Car multyple image creation",
+    # responses={
+    #         201: OpenApiResponse(response=CarCreateSerializer,
+    #                              description='Created. New car in response'),
+    #         400: OpenApiResponse(description='Bad request (something invalid)'),
+    #     },
+    # parameters=[OpenApiParameter('limit', exclude=True), OpenApiParameter('offset', exclude=True), OpenApiParameter('ordering', exclude=True),]
 )
 
-class CarCreate(generics.CreateAPIView, generics.ListAPIView):
-    queryset = Car.objects.all()
-    permission_classes = [IsAuthenticatedOrReadOnly]
-    parser_classes = [MultiPartParser, FormParser]
-    serializer_class = CarCreateSerializer
 
-    # def get(self, request, *args, **kwargs):
-    #     print('request.user', request.user)
-    #     serializer = CarCreateSerializer(Car.objects.all(), many=True)
-    #     # print("serializer.data ==", serializer.data)
-    #     return Response(serializer.data)
+# class CarCreate(generics.CreateAPIView, generics.ListAPIView):
+#     queryset = Car.objects.all()
+#     permission_classes = [IsAuthenticatedOrReadOnly]
+#     parser_classes = [MultiPartParser, FormParser]
+#     serializer_class = CarCreateSerializer
 
-    # def post(self, request, *args, **kwargs):
-    #     serializer = CarCreateSerializer(request.data)
-    #     print("serializer.data ==", serializer.data)
-    #     return Response(serializer.data)
+#     @extend_schema(
+#     summary="Список всех автомобилей",
+#     )
+#     def get(self, request, *args, **kwargs):
+#         serializer = CarCreateSerializer(Car.objects.all(), many=True)
+#         return Response([serializer.data, {"message": "Список объявлений автомобилей / List of cars"}])
 
-    # def perform_create(self, serializer):
-    #     serializer.save(user=self.request.user)
+#     @extend_schema(
+#     tags=["Автомобили/Cars"],
+#     summary="Создание объявления авто несколько фото подгружаются / Car multyple image creation",
+#     responses={
+#             201: OpenApiResponse(response=CarCreateSerializer,
+#                                  description='Created. New car in response'),
+#             400: OpenApiResponse(description='Bad request (something invalid)'),
+#         },
+#     parameters=[OpenApiParameter('limit', exclude=True), OpenApiParameter('offset', exclude=True), OpenApiParameter('ordering', exclude=True),]
+#     )
+#     def post(self, request, *args, **kwargs):
+#         serializer = CarCreateSerializer(request.data)
+#         print("serializer.data ==", serializer.data)
+#         return Response(serializer.data)
+    
+#     # def perform_create(self, serializer):
+#     #     serializer.save(user=self.request.user)
 
 
 @extend_schema(
@@ -274,7 +331,6 @@ class UploadViewSet(ModelViewSet):
             response=LikeSerializer,
         ),
     },
-
 )
 @api_view(["GET"])  # Здесь лучше с фронта получать объект объявлений obj - объявление и сувать его в
 # content_type = ContentType.objects.get_for_model(obj).
@@ -347,6 +403,10 @@ def like_list_user(request, user_id=1):
 
 """Function add like from requested user"""
 
+from django.contrib.contenttypes.models import ContentType
+
+def get_model_fm_category():
+    pass
 
 @extend_schema(
     tags=["Лайки / Likes"],
@@ -369,7 +429,7 @@ def like_list_user(request, user_id=1):
 def like_add(request):  # is_liked=False, ContentType_id=16, obj_id=6):
     print('request.user', request.user)
     if request.user.is_anonymous:
-        return redirect(reverse("bulletin:sign_in_email"))
+        return redirect(reverse("users:sign_in_email"))
     # content_type = ContentType.objects.get_for_id(ContentType_id)
     # obj = content_type.get_object_for_this_type(pk=obj_id)
     user_instance = request.user
@@ -381,7 +441,7 @@ def like_add(request):  # is_liked=False, ContentType_id=16, obj_id=6):
             object_id = serializer.validated_data.get('object_id')
             is_liked = serializer.validated_data.get('is_liked')
             try:
-                print('1111111111111111111111111')
+                print('11111111111111')
                 like_instance = Like.objects.get(user=user_instance, content_type=content_type, object_id=object_id,
                                                  is_liked=is_liked)
                 return Response([{"message": "Лайки уже существуют"}, serializer.data], status=status.HTTP_200_OK)

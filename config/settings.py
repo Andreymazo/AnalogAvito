@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     # 'corsheaders',
     
 ]
-CORS_ORIGIN_ALLOW_ALL = True
+
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -61,7 +61,12 @@ MIDDLEWARE = [
     "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
-CORS_ALLOW_CREDENTIALS = True
+# CORS_ALLOW_CREDENTIALS = True
+# CORS_ALLOWED_ORIGINS = [
+#     'http://localhost:8000',
+# ]
+CORS_ORIGIN_ALLOW_ALL = True
+
 INTERNAL_IPS = [
     # ...
     "127.0.0.1",

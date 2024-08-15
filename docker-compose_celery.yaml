@@ -168,7 +168,7 @@ volumes:
 
 # docker tag 30a52449db6d andreymazo/bulletin_board_backend_celery-beat:1.0
 # docker push andreymazo/bulletin_board_backend_celery-beat:1.0 
-
+# Очистка от всех контейнеров, имиджей и вольюмов:
 # docker-compose down --volumes
 # docker volume prune
 # docker rm $(docker ps -a -q)
@@ -176,6 +176,7 @@ volumes:
 # docker rmi -f $(docker images -aq)
 # docker volume rm $(docker volume ls -q --filter dangling=true)
 
+# Проверка (должны быть пустые строки)
 # docker images -a
 # docker ps -a
 # docker volume ls

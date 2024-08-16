@@ -1,21 +1,21 @@
-from django.urls import include, path
-from rest_framework import routers
+# from django.urls import include, path
+# from rest_framework import routers
 
-from bulletin.apps import BulletinConfig
-from bulletin.views import (
-    CategoryViewSet,
-)
+# from bulletin.apps import BulletinConfig
+# from bulletin.views import (
+#     CategoryViewSet,
+# )
 
-app_name = BulletinConfig.name
+# app_name = BulletinConfig.name
 
-router = routers.DefaultRouter()
-router.register("categories", CategoryViewSet)
+# router = routers.DefaultRouter()
+# router.register("categories", CategoryViewSet)
 
-url_v1 = [
-    path("", include(router.urls)),
-]
+# url_v1 = [
+#     path("", include(router.urls)),
+# ]
 
 
-urlpatterns = [
-    path("v1/", include(url_v1)),
-]
+# urlpatterns = [
+#     path("v1/", include(url_v1)),
+# ]

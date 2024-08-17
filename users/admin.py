@@ -1,5 +1,6 @@
+from django.contrib import admin
 from django.contrib.admin import ModelAdmin, register
-from users.models import CustomUser, OneTimeCode
+from users.models import CustomUser, OneTimeCode, Profile, Notification
 from modeltranslation.admin import TranslationAdmin
 
 
@@ -16,4 +17,18 @@ class OneTimeCodeAdmin(ModelAdmin):
     list_display = ("id", "user", "created_at")
     search_fields = ("user",)
 
+@admin.register(CustomUser)
+class CustomUserAdmin(ModelAdmin):
+    list_display = ('id', 'email',)
+    list_display_links = ('id', 'email',)
 
+@admin.register(Profile)
+class ProfileAdmin(ModelAdmin):
+    list_display = ('id', 'user',)
+    list_display_links = ('id', 'user',)
+
+
+@admin.register(Notification)
+class NotificationAdmin(ModelAdmin):
+    list_display = ('id', 'user',)
+    list_display_links = ('id', 'user',)

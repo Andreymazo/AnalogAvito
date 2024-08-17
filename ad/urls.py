@@ -3,7 +3,8 @@ from ad.apps import AdConfig
 from ad.views import (
     CarDetailGeneric,
     CarList,
-    CategoryViewSet, 
+    CategoryViewSet,
+    RetrieveCategoryView, 
     UploadViewSet,
     like_add,
     # like_list_create,
@@ -28,6 +29,7 @@ urlpatterns = [
    path('', include(router.urls)), 
    # path("category_list/", CategoryList.as_view(), name="ad_list"),
    path("car_list/", CarList.as_view(), name="car_list"),
+   path("get_model_fm_category/", RetrieveCategoryView.as_view(), name="get_model_fm_category"),
    #path("car_create/", CarCreate.as_view(), name="car_create"),
    #path("like_list_create/", like_list_create, name="like_list_create"), point for test
    path("like_list_obj/", like_list_obj, name="like_list_obj"),

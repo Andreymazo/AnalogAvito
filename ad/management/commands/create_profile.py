@@ -12,8 +12,8 @@ def ff():
     pnt2 =Point(23, 55)
     pnt3 = Point(25, 56)
     point_list = [pnt2, pnt3]
-    for i, ii, iii, iiii in zip(user_list, name_list, phone_number_list, point_list):
-        Profile.objects.create(user=i, name=ii, phone_number=iii, location=iiii)
+    for i, ii, iii in zip(user_list, name_list, phone_number_list):
+        Profile.objects.create(user=i, name=ii, phone_number=iii)
   
 class Command(BaseCommand):
 

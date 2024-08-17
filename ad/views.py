@@ -402,6 +402,59 @@ def like_list_user(request, user_id=1):
 
 
 """Function add like from requested user"""
+# class GetCategorySerializer(serializers.Serializer):
+#     queryset = Category.objects.all()
+#     choices = [(f"{i}", i) for i in queryset]
+#     choose_category = serializers.ChoiceField(choices=choices)
+# category = CategorySerializer(Category.objects.all, many=True)
+
+@extend_schema(
+methods=['GET', 'POST'],
+request=CategorySerializer,
+responses={
+status.HTTP_200_OK: OpenApiResponse(
+description="В",
+response=CategorySerializer,
+),
+},
+examples=[{OpenApiExample(
+"Example",
+value={
+"name":"Category Example",
+"category":"category_id",
+},
+request_only=True
+)
+
+}],
+# components=[{
+# 'schemas':{'Category':{
+# 'type':'string',
+# 'enum':[i for i in Category.objects.all()],
+# 'description': 'Category ID',
+# }}
+# }],
+)
+@api_view(["GET", "POST"])
+def get_model_fm_category(request):
+    serializer=CategorySerializer(data=Category.objects.all(), many=True)#data=request.data)
+    if request.method == 'GET':
+        categories = Category.objects.all()
+        serializer = CategorySerializer(categories, many=True)
+        return Response(serializer.data)
+
+    elif request.method == 'POST':
+        serializer = GetCategorySerializer(data=request.data)
+        if serializer.is_valid():
+            category = Category.objects.get(name=serializer.validated_data['choose_category'])
+            print(category)
+            print(type(category.advertisement.all().first()))
+            ctype = ContentType.objects.get_for_model(model=type(category.advertisement.all().first()))
+            print(ctype.id)
+# serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 from django.contrib.contenttypes.models import ContentType
 

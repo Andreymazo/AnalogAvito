@@ -18,6 +18,7 @@ from django.contrib.auth.signals import user_logged_in, user_logged_out, user_lo
 from django.dispatch import receiver
 from django.contrib.contenttypes.models import ContentType
 from rest_framework.response import Response
+from ad.models import Images
 
 NULLABLE = {'blank': True, 'null': True}
 
@@ -145,6 +146,8 @@ class Profile(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE,related_name="profile",)
     phone_number = models.CharField(_("Номер телефона"), max_length=MAX_LEN_PHONE_NUMBER, unique=True, validators=[phone_validator])
     name = models.CharField(_("Имя пользователя"), max_length=MAX_LEN_NAME_PROFILE)
+    images = GenericRelation("ad.Images",  related_query_name='profile')#object_id_field='profile_id',
+
     # location =  PointField()
     # views = GenericRelation("ad.Views", related_query_name='profile')
     

@@ -1,5 +1,6 @@
 from django.db import IntegrityError
 from rest_framework import generics
+from ad.filters import CategoryFilter
 from ad.models import Category, Car, Like, Images, Views
 from users.models import Notification
 from ad.serializers import CarCreateSerializer, LikeSerializer, LikeSerializerCreate, NotificationSerializer
@@ -400,66 +401,202 @@ def like_list_user(request, user_id=1):
         serializer = LikeSerializer(like_queryset_user, many=True)
         return Response(serializer.data)
 
+class MultipleFieldLookupMixin:
+    """
+    Apply this mixin to any view or viewset to get multiple field filtering
+    based on a `lookup_fields` attribute, instead of the default single field filtering.
+    """
+    # def get_object(self):
+    #     print('iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii')
+    #     queryset = self.get_queryset()             # Get the base queryset
+    #     queryset = self.filter_queryset(queryset)  # Apply any filter backends
+    #     filter = {}
+    #     for field in self.lookup_fields:
+    #         if self.kwargs.get(field): # Ignore empty fields.
+    #             filter[field] = self.kwargs[field]
+    #     obj = get_object_or_404(queryset, **filter)  # Lookup the object
+    #     self.check_object_permissions(self.request, obj)
+    #     return obj
 
-"""Function add like from requested user"""
+
+# from rest_framework import filters
+# import django_filters
+
+from django_filters import filters
+# class CategoryFilter(filters.FilterSet):
+#     """
+#         Filter of crop name
+#     """
+#     name = filters.ModelMultipleChoiceFilter
+#     # name = filters.CharFilter(field_name='name', lookup_expr='contains')
+
+#     class Meta:
+#         model = Crop
+#         fields = ['name']
+
+from rest_framework import pagination, filters
+from rest_framework.exceptions import APIException
+class StandardSetPagination(pagination.PageNumberPagination):
+       page_size = 3
+class RetrieveCategoryView(generics.ListAPIView, generics.RetrieveAPIView):
+   
+    # filter_backends = (filters.DjangoFilterBackend,)
+    # filterset_fields = ('name')
+    permission_classes = (IsAuthenticated,)
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    pagination_class = StandardSetPagination
+    filterset_class = CategoryFilter
+    def get_queryset(self):
+        return super().get_queryset()
+    def get(self, request, *args, **kwargs):# This is for retrieve
+        ctype_id=""
+        queryset = self.filter_queryset(self.get_queryset())
+        print('queryset', queryset.first())
+        serializer = CategorySerializer(queryset, many=True)
+        try:
+            self_model=type(queryset.first())
+            # print(type(queryset.first().advertisement.all().first()))
+            ctype = ContentType.objects.get_for_model(model=type(queryset.first().advertisement.all().first()))
+            print('Number by contenttype', ctype.id)
+            ctype_id=ctype.id
+        except:
+            self_model.DoesNotExist
+        return Response([serializer.data, {"Number by contenttype (blank if None)":f"{ctype_id}"}, {"message": "Selected Category and number by ContentType advertisement concerned"}], status=status.HTTP_200_OK)
+    def get_object(self):#This is for retrieveupdate
+        queryset = self.filter_queryset(self.get_queryset())
+        print('queryset', queryset)
+        obj = queryset.get(pk=self.request.data['parent'])
+        # print('self ======= ====== ======', self.request.data['parent'])
+        print('obj', obj)
+        return obj
+    # filter_backends = [filters.DjangoFilterBackend]
+    # filterset_class = CategoryFilter  # Use the custom filter class
+
+    # def get_queryset(self):
+    #     user = self.request.user 
+    #     req_serializer = CategorySerializer(data=self.request.GET.dict())
+    #     if req_serializer.is_valid():  
+    #         # if 'page_size' in self.request.GET:
+    #         #     self.pagination_class = PaginationSetup.custom_standard_pagination(page_size=self.request.GET['page_size'])
+    #         if 'crop_type_id' in self.request.GET:
+    #             return Category.objects.filter(crop_type=self.request.GET['crop_type_id'], country=self.request.GET['country_id'])
+
+    #         return Category.objects.filter(
+    #             category=self.request.GET['category_id']
+    #         ) 
+    #     raise APIException(req_serializer.errors)
+
+# class RetrieveCategoryView(generics.ListAPIView, generics.RetrieveUpdateAPIView,filters.SearchFilter):# MultipleFieldLookupMixin,  ):
+#     queryset = Category.objects.all()
+#     serializer_class = CategorySerializer
+    
+#     # filter_backends = [filters.SearchFilter]
+#     # search_fields = ['name',]
+#     lookup_fields = ['id']
+#     # ordering_fields = ['name', ]
+
+#     def list(self, request, *args, **kwargs):
+#         queryset = self.get_queryset()
+#         serializer = CategorySerializer(queryset, many=True)
+#         return Response(serializer.data)
+#         # return super().list(request, *args, **kwargs)
+
+#     def get_queryset(self):
+#         # return super().get_queryset()
+#         queryset = Category.objects.all()
+#         category = self.request.query_params.get('name')
+#         if category is not None:
+#             queryset = queryset.filter(category__name=category)
+#         print('1111111111111111111')
+#         return queryset
+    
+#     def get_object(self):
+#         print('iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii')
+#         queryset = self.get_queryset()             # Get the base queryset
+#         queryset = self.filter_queryset(queryset)  # Apply any filter backends
+#         filter = {}
+#         for field in self.lookup_fields:
+#             print('field', field)
+#             if self.kwargs.get(field): # Ignore empty fields.
+#                 filter[field] = self.kwargs[field]
+#         print('filter', filter, TypeError(filter))
+#         obj = get_object_or_404(queryset, **filter)  # Lookup the object
+#         self.check_object_permissions(self.request, obj)
+#         return obj
+    # def get_object(self):
+    #     queryset = self.get_queryset()
+    #     filter = {}
+    #     for field in self.multiple_lookup_fields:
+    #         filter[field] = self.kwargs[field]
+
+    #     obj = get_object_or_404(queryset, **filter)
+    #     self.check_object_permissions(self.request, obj)
+    #     print('000000000000000000000000000000000000000000000')
+    #     return obj
+  
+    #     # print('6666666666666666666666666', self.get_object())
+    #     # return ContentType.objects.get_for_model()
+    # def get_search_fields(self, view, request):
+    #     if request.query_params.get('name_only'):
+    #         return ['name']
+    #     return super(RetrieveCategoryView, self).get_search_fields(view, request)
+        # return super().get_search_fields(view, request)
+
+# """Function add like from requested user"""
 # class GetCategorySerializer(serializers.Serializer):
 #     queryset = Category.objects.all()
 #     choices = [(f"{i}", i) for i in queryset]
 #     choose_category = serializers.ChoiceField(choices=choices)
 # category = CategorySerializer(Category.objects.all, many=True)
 
-@extend_schema(
-methods=['GET', 'POST'],
-request=CategorySerializer,
-responses={
-status.HTTP_200_OK: OpenApiResponse(
-description="В",
-response=CategorySerializer,
-),
-},
-examples=[{OpenApiExample(
-"Example",
-value={
-"name":"Category Example",
-"category":"category_id",
-},
-request_only=True
-)
+# @extend_schema(
+# methods=['GET', 'POST'],
+# request=CategorySerializer,
+# responses={
+# status.HTTP_200_OK: OpenApiResponse(
+# description="В",
+# response=CategorySerializer,
+# ),
+# },
+# examples=[{OpenApiExample(
+# "Example",
+# value={
+# "name":"Category Example",
+# "category":"category_id",
+# },
+# request_only=True
+# )
 
-}],
-# components=[{
-# 'schemas':{'Category':{
-# 'type':'string',
-# 'enum':[i for i in Category.objects.all()],
-# 'description': 'Category ID',
-# }}
 # }],
-)
-@api_view(["GET", "POST"])
-def get_model_fm_category(request):
-    serializer=CategorySerializer(data=Category.objects.all(), many=True)#data=request.data)
-    if request.method == 'GET':
-        categories = Category.objects.all()
-        serializer = CategorySerializer(categories, many=True)
-        return Response(serializer.data)
+# # components=[{
+# # 'schemas':{'Category':{
+# # 'type':'string',
+# # 'enum':[i for i in Category.objects.all()],
+# # 'description': 'Category ID',
+# # }}
+# # }],
+# )
+# @api_view(["GET", "POST"])
+# def get_model_fm_category(request):
+#     serializer=CategorySerializer(data=Category.objects.all(), many=True)#data=request.data)
+#     if request.method == 'GET':
+#         categories = Category.objects.all()
+#         serializer = CategorySerializer(categories, many=True)
+#         return Response(serializer.data)
 
-    elif request.method == 'POST':
-        serializer = GetCategorySerializer(data=request.data)
-        if serializer.is_valid():
-            category = Category.objects.get(name=serializer.validated_data['choose_category'])
-            print(category)
-            print(type(category.advertisement.all().first()))
-            ctype = ContentType.objects.get_for_model(model=type(category.advertisement.all().first()))
-            print(ctype.id)
-# serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     elif request.method == 'POST':
+#         serializer = GetCategorySerializer(data=request.data)
+#         if serializer.is_valid():
+#             category = Category.objects.get(name=serializer.validated_data['choose_category'])
+#             print(category)
+#             print(type(category.advertisement.all().first()))
+#             ctype = ContentType.objects.get_for_model(model=type(category.advertisement.all().first()))
+#             print(ctype.id)
+# # serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-from django.contrib.contenttypes.models import ContentType
-
-def get_model_fm_category():
-    pass
 
 @extend_schema(
     tags=["Лайки / Likes"],

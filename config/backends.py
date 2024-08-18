@@ -85,7 +85,7 @@ class SettingsBackend:
         """
         
         User = get_user_model()
-        print('user_id================', user_id, 'self===============', self)
+        print('user_id================', user_id)
         try:
             print('User.objects.get(pk=id_)', User.objects.get(pk=user_id))
             user = User.objects.get(pk=user_id)

@@ -4,7 +4,8 @@ from ad.views import (
     CarDetailGeneric,
     CarList,
     CategoryViewSet,
-    RetrieveCategoryView, 
+    GetModelFmCategoryView,
+    GetObjFmModelView, 
     UploadViewSet,
     like_add,
     # like_list_create,
@@ -29,7 +30,10 @@ urlpatterns = [
    path('', include(router.urls)), 
    # path("category_list/", CategoryList.as_view(), name="ad_list"),
    path("car_list/", CarList.as_view(), name="car_list"),
-   path("get_model_fm_category/", RetrieveCategoryView.as_view(), name="get_model_fm_category"),
+   path("get_model_fm_category/", GetModelFmCategoryView.as_view(), name="get_model_fm_category"),
+#    path("get_object_fm_model/", get_object_fm_model, name="get_object_fm_model"),
+   path("get_object_fm_model/", GetObjFmModelView.as_view(), name="get_object_fm_model"),
+   
    #path("car_create/", CarCreate.as_view(), name="car_create"),
    #path("like_list_create/", like_list_create, name="like_list_create"), point for test
    path("like_list_obj/", like_list_obj, name="like_list_obj"),

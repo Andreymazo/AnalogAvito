@@ -4,7 +4,7 @@ from rest_framework import serializers
 from django.contrib.contenttypes.models import ContentType
 from ad.models import IP, Car, Category, Images, Like
 from bulletin.serializers import CarSerializer, ImagesSerializer, ProfileSerializer
-from users.models import Notification, Profile
+from users.models import CustomUser, Notification, Profile
 
 
 
@@ -13,12 +13,16 @@ class LikeSerializer(serializers.ModelSerializer):
         model = Like
         fields = "__all__"
 
+# class ContentTypeSerializer():
+#     class Meta:
+#         model = ContentType
+#         fields = "__all__"
 
 class LikeSerializerCreate(serializers.ModelSerializer):
+    
     class Meta:
         model = Like
-        exclude = ["user", "content_type", "object_id", "is_liked"]
-
+        fields = [ "is_liked", ]
 
 class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
@@ -40,7 +44,7 @@ class CarCreateSerializer(serializers.ModelSerializer):
     )
     class Meta:
         model = Car
-        fields = ["category", "profile", "by_mileage", "brand", "model", "price", "year", "mileage", "transmission",\
+        fields = ["by_mileage", "brand", "model", "price", "year", "mileage", "transmission",\
                   "by_wheel_drive", "engine_capacity", "engine_power", "fuel_consumption", "type", "colour", "fuel",\
                       "images", "uploaded_images",]# ["year", "images", "uploaded_images", "mileage"] ["__all__"]
 
@@ -48,10 +52,41 @@ class CarCreateSerializer(serializers.ModelSerializer):
         uploaded_images = validated_data.pop("uploaded_images")
         print('validated_data=======', validated_data)
         
-        car = Car.objects.create(category_id=Category.objects.get(name='Транспорт',).id,**validated_data)
-
+        car , _ = Car.objects.get_or_create(profile = self.context['request'].user.profile, category_id=Category.objects.get(name='Транспорт',).id,**validated_data)
+        
         for image in uploaded_images:
-            images = Images.objects.create(profile=Profile.objects.get(user=self.context['request'].user), image=image, content_type=ContentType.objects.get_for_model(type(car)), object_id=car.id)
+            images = Images( image=image, content_type=ContentType.objects.get_for_model(type(car)), object_id=car.id)
             images.save()
         return car
- 
+     
+
+class CarNameSerializer(serializers.ModelSerializer):
+    # id = serializers.CharField()
+    class Meta:
+        model = Car
+        fields = ["id",]
+
+# class GetObjectSerializer(serializers.Serializer):
+#     liked_instance = serializers.Serializer.to_representation
+    
+#     def to_representation(self, instance):
+#         serializer_list = [CarNameSerializer,]
+#         content_type = self.context.get("content_type")
+#         print('content_type in GetObjectSerializer' , content_type)
+#         for i in serializer_list:
+#             if ContentType.objects.get_for_id(content_type) == ContentType.objects.get_for_model(i.Meta.model):
+#                 return i
+#                 return [j for j in serializer_list if ContentType.objects.get_for_id(content_type) == ContentType.objects.get_for_model(i.Meta.model)]
+#             else:
+#                 return None
+#     def get_liked_instance(self, obj):
+#         serializer_list = [CarNameSerializer,]
+#         content_type = self.context.get("content_type")
+#         print('content_type in serializer' , content_type)
+#         for i in serializer_list:
+#             if ContentType.objects.get_for_id(content_type) == ContentType.objects.get_for_model(i.Meta.model):
+#                 return [j for j in serializer_list if ContentType.objects.get_for_id(content_type) == ContentType.objects.get_for_model(i.Meta.model)]
+#         else:
+#             return None
+class DefaultSerializer(serializers.Serializer):
+    id = serializers.CharField(required=False)

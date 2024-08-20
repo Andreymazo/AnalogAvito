@@ -1,9 +1,17 @@
+
+import django_filters
+from django.apps import apps
+from rest_framework import pagination, filters
+from rest_framework.exceptions import APIException
+from django.core.cache import cache
+from django.utils.datastructures import MultiValueDictKeyError
 from django.db import IntegrityError
 from rest_framework import generics
-from ad.filters import CategoryFilter
+from ad.filters import CarFilter, CategoryFilter, CustomFilterSet
 from ad.models import Category, Car, Like, Images, Views
+from config.backends import CustomFilterQueryset, MyFilterBackend
 from users.models import Notification
-from ad.serializers import CarCreateSerializer, LikeSerializer, LikeSerializerCreate, NotificationSerializer
+from ad.serializers import CarCreateSerializer, CarNameSerializer, DefaultSerializer, LikeSerializer, LikeSerializerCreate, NotificationSerializer
 from bulletin.serializers import CarListSerializer, CarSerializer, CategorySerializer, ImagesSerializer
 from rest_framework import status
 from rest_framework.response import Response
@@ -82,7 +90,7 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = CategorySerializer
 
 
-@extend_schema(
+@extend_schema_view(
     tags=["Автомобили/Cars"],
     # summary=" Car list and car creation",
     request=CarCreateSerializer,
@@ -107,11 +115,14 @@ class CarList(generics.ListCreateAPIView):
     )
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
+    
+    
     @extend_schema(
-    summary="Список автомобилей / Car list",
+    summary="Создание автомобиля / Car list create",
+    # parameters=[OpenApiParameter(name='category', description='Category Id', type=int)],
     )
-    def get(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
     # def list(self, request, *args, **kwargs):
     #     print('ggggggggggggggggg', request.user, self.request.user)
     #     # print('cache================', cache._connections.__dict__)
@@ -401,7 +412,7 @@ def like_list_user(request, user_id=1):
         serializer = LikeSerializer(like_queryset_user, many=True)
         return Response(serializer.data)
 
-class MultipleFieldLookupMixin:
+# class MultipleFieldLookupMixin:
     """
     Apply this mixin to any view or viewset to get multiple field filtering
     based on a `lookup_fields` attribute, instead of the default single field filtering.
@@ -434,21 +445,24 @@ from django_filters import filters
 #         model = Crop
 #         fields = ['name']
 
-from rest_framework import pagination, filters
-from rest_framework.exceptions import APIException
+
 class StandardSetPagination(pagination.PageNumberPagination):
        page_size = 3
-class RetrieveCategoryView(generics.ListAPIView, generics.RetrieveAPIView):
+@extend_schema(
+    tags=["Категории/Categories"],
+    summary=["По категориям получаем модель объявлений"],
+    request=CategorySerializer,
+    # parameters=[OpenApiParameter('limit', exclude=True), OpenApiParameter('offset', exclude=True), \
+    #             OpenApiParameter('ordering', exclude=True), OpenApiParameter('page', exclude=True),]
+)
+class GetModelFmCategoryView(generics.ListAPIView, generics.RetrieveAPIView):
    
-    # filter_backends = (filters.DjangoFilterBackend,)
-    # filterset_fields = ('name')
     permission_classes = (IsAuthenticated,)
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     pagination_class = StandardSetPagination
     filterset_class = CategoryFilter
-    def get_queryset(self):
-        return super().get_queryset()
+    
     def get(self, request, *args, **kwargs):# This is for retrieve
         ctype_id=""
         queryset = self.filter_queryset(self.get_queryset())
@@ -462,7 +476,12 @@ class RetrieveCategoryView(generics.ListAPIView, generics.RetrieveAPIView):
             ctype_id=ctype.id
         except:
             self_model.DoesNotExist
-        return Response([serializer.data, {"Number by contenttype (blank if None)":f"{ctype_id}"}, {"message": "Selected Category and number by ContentType advertisement concerned"}], status=status.HTTP_200_OK)
+        try:
+            cache.set("content_type", ctype.id, 60)
+        except UnboundLocalError as e:
+            print(e)
+        return Response([serializer.data, {"Number by contenttype (blank if None)":f"{ctype_id}"}, \
+                         {"message": "Selected Category and number by ContentType advertisement concerned"}], status=status.HTTP_200_OK)
     def get_object(self):#This is for retrieveupdate
         queryset = self.filter_queryset(self.get_queryset())
         print('queryset', queryset)
@@ -470,6 +489,253 @@ class RetrieveCategoryView(generics.ListAPIView, generics.RetrieveAPIView):
         # print('self ======= ====== ======', self.request.data['parent'])
         print('obj', obj)
         return obj
+         
+def ChooseFilterSet():
+    filters_list = [CarFilter,]
+    content_type = cache.get("content_type")
+    print('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++content_type', content_type)
+    for i in filters_list:
+        try:
+            if ContentType.objects.get_for_id(content_type) == ContentType.objects.get_for_model(i.Meta.model):
+                filterset = i
+                print('filterset' , filterset)
+                return  filterset
+        except ContentType.DoesNotExist:
+            return None
+        
+class GetObjFmModelView(generics.ListAPIView, generics.RetrieveAPIView):
+    filterset_class = ChooseFilterSet()
+
+    def get_queryset(self):
+        print('000000000000000000000000000000000queryset')
+        try:
+            content_type = cache.get('content_type')#self.context.get("content_type")
+            print('content_type in GetObjFmModelView.get_queryset' , content_type)
+        except AttributeError as e:
+            print(e)
+        except TypeError as e:
+            print(e)
+        try:
+            model_name=ContentType.objects.get_for_id(content_type).model
+        
+            print('model_name', (model_name[0].upper() + model_name[1:]))
+            model_name = model_name[0].upper() + model_name[1:]
+            MyModel = apps.get_model(app_label='ad', model_name=model_name)
+            print('type My Model',  MyModel)
+            # model_class = apps.get_registered_model(app_label="ad", model_name=ContentType.objects.get_for_id(content_type).model)
+            queryset = MyModel.objects.all()
+            print('queryset', queryset)
+            return queryset
+        except UnboundLocalError as e:
+            print(e)
+        except TypeError as e:
+            print(e)
+        return queryset
+    
+        
+    def get_serializer_class(self):
+        serializer = DefaultSerializer
+        serializer_list = [CarNameSerializer,]
+        
+        try:
+            content_type = cache.get('content_type')#self.context.get("content_type")
+            print('content_type in GetObjectSerializer.get_serializer_class' , content_type)
+            for i in serializer_list:
+                print(ContentType.objects.get_for_model(i.Meta.model))
+                print(ContentType.objects.get_for_id(content_type))
+                if ContentType.objects.get_for_id(content_type) == ContentType.objects.get_for_model(i.Meta.model):
+                    serializer = i
+                    return serializer
+                    return [j for j in serializer_list if ContentType.objects.get_for_id(content_type) == ContentType.objects.get_for_model(i.Meta.model)]
+                else:
+                    return serializer
+        except AttributeError as e:
+            print(e)
+        except UnboundLocalError as e:
+            print(e)
+        except TypeError as e:
+            print(e)
+       
+        return serializer
+
+
+    def get(self, request):
+        
+        obj_id = ""
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer=self.get_serializer_class()
+        print('iiiiiiiiiiiiiii ==== serializer', serializer)
+        serializer = serializer(queryset, many=True)
+        content_type = cache.get('content_type')
+        print('serialiser', serializer)
+        obj_id = serializer.data[0]['id']
+        cache.set_many({"obj_id": obj_id, "content_type":content_type}, 60)
+        print(' ============ serializer.data', serializer.data)
+        return Response([serializer.data, {"content_type":content_type, "obj_id":obj_id, "message":"Got content_type and obj_id and pass it in cache at endpoin: like_add "}], status=status.HTTP_200_OK)
+      
+    
+    serializer_class = (CarNameSerializer,)
+    queryset = get_queryset
+    pagination_class = StandardSetPagination
+    filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
+    lookup_field=['id']
+
+
+
+"""Func has content_type on enter in cache from GetModelFmCategoryView, request.user choose objct with LikeSerializerCreate, Like adds"""
+@extend_schema(
+    tags=["Лайки / Likes"],
+    description="Добавление лайков пользователем / Likes for the instance",
+    summary="Add like by request user",
+    # parameters=[
+        # OpenApiParameter("content_type", OpenApiTypes.INT, location=OpenApiParameter.QUERY, required=True,),
+    #     OpenApiParameter("object_id", OpenApiTypes.INT, location=OpenApiParameter.QUERY, required=True,),
+    #     OpenApiParameter("is_liked", OpenApiTypes.BOOL, location=OpenApiParameter.QUERY, required=True,)
+        # ],
+    request=LikeSerializerCreate,
+    responses={
+            201: OpenApiResponse(response=LikeSerializerCreate,
+                                 description='Created. New like in response'),
+            200: OpenApiResponse(description=("Like from the user already exists")),
+            400: OpenApiResponse(description='Bad request (something invalid)'),
+        },
+)
+@api_view(['POST'])
+def like_add(request, is_liked=False):#, ContentType_id=8, obj_id=2, **kwargs): 
+    print('request.user', request.user)
+    if request.user.is_anonymous:
+        return redirect(reverse("users:sign_in_email"))
+    dict_of_cache = cache.get_many(["content_type", "obj_id"])
+    content_type = dict_of_cache['content_type']
+    obj_id = dict_of_cache['obj_id']
+    print('content_type, obj_id', content_type, obj_id)
+
+    user_instance = request.user
+    if request.method == "POST":
+        serializer = LikeSerializerCreate(data=request.data)
+        if serializer.is_valid():
+
+            print('serializer.data', serializer.data)
+            is_liked = serializer.validated_data.get('is_liked')
+            
+            try:
+                print('11111111111111')
+                like_instance = Like.objects.get(user=user_instance, content_type=ContentType.objects.get_for_id(content_type), object_id=obj_id, is_liked=is_liked)
+                like_instance.save()
+                # return Response(serializer.data)
+                # like_instance = Like.objects.get(user=user_instance, content_type=content_type, object_id=object_id,
+                #                                  is_liked=is_liked)
+                # return Response([{"message": "Лайки уже существуют"}, serializer.data], status=status.HTTP_200_OK)
+            except Like.DoesNotExist:
+                print('22222222222222222222222222')
+                like_instance = Like.objects.create(user=user_instance, content_type=ContentType.objects.get_for_id(content_type), object_id=obj_id,
+                                                    is_liked=is_liked)
+                # like_instance = Like(user=user_instance, content_object=like_instance, is_liked=is_liked)
+                like_instance.save()
+                # serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+"""Function for test likes: In: user and car_object (form for this, must be commented if migrations needed), all must be deleted after testing,
+  Out: like added from user to car object"""
+
+# from django.views.decorators.csrf import csrf_exempt 
+# from rest_framework.decorators import api_view, renderer_classes
+# from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer
+# from django.http import HttpResponse, JsonResponse 
+# from django import forms
+# from django.shortcuts import redirect
+# from django.urls import reverse
+# from rest_framework.parsers import JSONParser
+# from django.contrib.contenttypes.models import ContentType
+
+# class LikeForm(forms.Form):
+#     queryset = Car.objects.all()
+#     choices = [(f"{i}", i) for i in queryset]
+#     choose_car = forms.ChoiceField(choices=choices)
+
+# # @csrf_exempt
+# @api_view(['GET', 'POST'])
+# @renderer_classes((TemplateHTMLRenderer, JSONRenderer))
+# def like_list_create(request):
+#     if request.user.is_anonymous:
+#         return redirect(reverse("bulletin:sign_in_email"))
+#     user_instance = request.user
+#     car_queryset = Car.objects.all()
+#     obj=car_queryset.get(id=5)#Для проверки вставим 1 объявление авто
+#     print('user_instance', user_instance)
+
+#     form = LikeForm()
+#     if request.method == 'GET':
+#         like_queryset = Like.objects.all().filter(object_id=obj.id)
+#         serializer = LikeSerializer(like_queryset, many=True) 
+#         # return JsonResponse(serializer.data, safe=False) 
+#         print('serializer.data', type(serializer.data), serializer.data)
+
+#         print('like_queryset', like_queryset)
+#         print('data_for_template ================', serializer.data)
+#         total_likes = obj.likes.count()
+#         tottal_likes_user = Like.objects.filter(user_id = request.user.id).count()
+#         print('==========total_likes===========', total_likes)
+#         print('==========total_likes_usr===========', tottal_likes_user)
+#         return Response({"form": form, "data": request.data, "like_queryset":serializer.data, "tottal_likes_user": tottal_likes_user, "card_instance":obj, "total_likes":total_likes}, template_name="ad/templates/ad/template_for_like.html", status=status.HTTP_200_OK)
+#     form = LikeForm(request.POST)
+#     if request.method == 'POST':
+
+#         if form.is_valid():
+
+#             print('------------1---------------')
+#             form_value = form.cleaned_data.get("choose_car")
+#             obj = car_queryset.get(id=form_value)
+#             print("form_value", form_value)
+#             context = {"form_value":form_value}
+#         # Response(data, status=None, template_name=None, headers=None, content_type=None)
+#             print('user_instance====================', user_instance, "-----------form_value", form_value)#user_instance==================== andreymazo3@mail.ru -----------form_value Card object (2)
+#             Like.objects.get_or_create(user=user_instance, content_type=ContentType.objects.get_for_model(obj), object_id=obj.id,is_liked=False)
+#             print(f"like added to car object {obj} from {user_instance} _______________________")
+#             return Response(context, template_name="ad/templates/ad/template_for_like.html", status=status.HTTP_201_CREATED)
+#         else:
+#             print(form.errors.as_data())
+#             return Response(template_name="ad/templates/ad/template_for_like.html", status=status.HTTP_204_NO_CONTENT)
+#   kill -9 $(lsof -t -i:8080)
+
+####################################
+"""Func returns notifications requested user reffered"""
+
+
+@extend_schema(
+    tags=["Уведомления / Notifications"],
+    summary=["Уведомляем при входе пользователя о его новых сообщениях / Notification by user's enter notifies about new messages"],
+    description=["Notifications by user"],
+    request=NotificationSerializer,
+    responses={
+        status.HTTP_200_OK: OpenApiResponse(
+            description=(
+                    "Like from the user already exists"
+            ),
+            response=NotificationSerializer,
+        ),
+    },
+)
+@api_view(["GET"])
+def notifications_by_enter(
+        request):  # If requestuser authentificated and if there mssgs for request user return numb of mssgs
+    if not request.user.is_authenticated:
+        # login_url = reverse_lazy('bulletin:sign_in_email')
+        # return redirect(login_url)
+        return Response({"message": "Вы неавторизированы. Перенаправляем на авторизацию"},
+                        status=status.HTTP_400_BAD_REQUEST)
+    serializer = NotificationSerializer(data=request.data)
+    notifications = Notification.objects.all().filter(
+        key_to_recepient=request.user.email) | Notification.objects.all().filter(key_to_recepient=request.user.id)
+    num_mssgs = notifications.count()
+
+    if not notifications:
+        return Response([serializer.data, {"message": f"Дорогой {request.user.email}у вас нет сообщений"}],
+                        status=status.HTTP_200_OK)
+    return Response([serializer.data, {"message": f'Дорогой {request.user.email}, у вас {num_mssgs} сообщений'}],
+                    status=status.HTTP_200_OK)
     # filter_backends = [filters.DjangoFilterBackend]
     # filterset_class = CategoryFilter  # Use the custom filter class
 
@@ -597,150 +863,3 @@ class RetrieveCategoryView(generics.ListAPIView, generics.RetrieveAPIView):
 #             return Response(serializer.data, status=status.HTTP_201_CREATED)
 #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-@extend_schema(
-    tags=["Лайки / Likes"],
-    description="Добавление лайков пользователем / Likes for the instance",
-    summary="Add like by request user",
-    parameters=[
-        OpenApiParameter("content_type", OpenApiTypes.INT, location=OpenApiParameter.QUERY, required=True,),
-        OpenApiParameter("object_id", OpenApiTypes.INT, location=OpenApiParameter.QUERY, required=True,),
-        OpenApiParameter("is_liked", OpenApiTypes.BOOL, location=OpenApiParameter.QUERY, required=True,)
-        ],
-    request=LikeSerializerCreate,
-    responses={
-            201: OpenApiResponse(response=LikeSerializerCreate,
-                                 description='Created. New like in response'),
-            200: OpenApiResponse(description=("Like from the user already exists")),
-            400: OpenApiResponse(description='Bad request (something invalid)'),
-        },
-)
-@api_view(['POST'])
-def like_add(request):  # is_liked=False, ContentType_id=16, obj_id=6):
-    print('request.user', request.user)
-    if request.user.is_anonymous:
-        return redirect(reverse("users:sign_in_email"))
-    # content_type = ContentType.objects.get_for_id(ContentType_id)
-    # obj = content_type.get_object_for_this_type(pk=obj_id)
-    user_instance = request.user
-    if request.method == "POST":
-        serializer = LikeSerializerCreate(data=request.data)
-        if serializer.is_valid():
-            print('serializer.data', serializer.data)
-            content_type = serializer.validated_data.get("content_type")
-            object_id = serializer.validated_data.get('object_id')
-            is_liked = serializer.validated_data.get('is_liked')
-            try:
-                print('11111111111111')
-                like_instance = Like.objects.get(user=user_instance, content_type=content_type, object_id=object_id,
-                                                 is_liked=is_liked)
-                return Response([{"message": "Лайки уже существуют"}, serializer.data], status=status.HTTP_200_OK)
-            except Like.DoesNotExist:
-                print('22222222222222222222222222')
-                like_instance = Like.objects.create(user=user_instance, content_type=content_type, object_id=object_id,
-                                                    is_liked=is_liked)
-                like_instance.save()
-                # serializer.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-"""Function for test likes: In: user and car_object (form for this, must be commented if migrations needed), all must be deleted after testing,
-  Out: like added from user to car object"""
-
-# from django.views.decorators.csrf import csrf_exempt 
-# from rest_framework.decorators import api_view, renderer_classes
-# from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer
-# from django.http import HttpResponse, JsonResponse 
-# from django import forms
-# from django.shortcuts import redirect
-# from django.urls import reverse
-# from rest_framework.parsers import JSONParser
-# from django.contrib.contenttypes.models import ContentType
-
-# class LikeForm(forms.Form):
-#     queryset = Car.objects.all()
-#     choices = [(f"{i}", i) for i in queryset]
-#     choose_car = forms.ChoiceField(choices=choices)
-
-# # @csrf_exempt
-# @api_view(['GET', 'POST'])
-# @renderer_classes((TemplateHTMLRenderer, JSONRenderer))
-# def like_list_create(request):
-#     if request.user.is_anonymous:
-#         return redirect(reverse("bulletin:sign_in_email"))
-#     user_instance = request.user
-#     car_queryset = Car.objects.all()
-#     obj=car_queryset.get(id=5)#Для проверки вставим 1 объявление авто
-#     print('user_instance', user_instance)
-
-#     form = LikeForm()
-#     if request.method == 'GET':
-#         like_queryset = Like.objects.all().filter(object_id=obj.id)
-#         serializer = LikeSerializer(like_queryset, many=True) 
-#         # return JsonResponse(serializer.data, safe=False) 
-#         print('serializer.data', type(serializer.data), serializer.data)
-
-#         print('like_queryset', like_queryset)
-#         print('data_for_template ================', serializer.data)
-#         total_likes = obj.likes.count()
-#         tottal_likes_user = Like.objects.filter(user_id = request.user.id).count()
-#         print('==========total_likes===========', total_likes)
-#         print('==========total_likes_usr===========', tottal_likes_user)
-#         return Response({"form": form, "data": request.data, "like_queryset":serializer.data, "tottal_likes_user": tottal_likes_user, "card_instance":obj, "total_likes":total_likes}, template_name="ad/templates/ad/template_for_like.html", status=status.HTTP_200_OK)
-#     form = LikeForm(request.POST)
-#     if request.method == 'POST':
-
-#         if form.is_valid():
-
-#             print('------------1---------------')
-#             form_value = form.cleaned_data.get("choose_car")
-#             obj = car_queryset.get(id=form_value)
-#             print("form_value", form_value)
-#             context = {"form_value":form_value}
-#         # Response(data, status=None, template_name=None, headers=None, content_type=None)
-#             print('user_instance====================', user_instance, "-----------form_value", form_value)#user_instance==================== andreymazo3@mail.ru -----------form_value Card object (2)
-#             Like.objects.get_or_create(user=user_instance, content_type=ContentType.objects.get_for_model(obj), object_id=obj.id,is_liked=False)
-#             print(f"like added to car object {obj} from {user_instance} _______________________")
-#             return Response(context, template_name="ad/templates/ad/template_for_like.html", status=status.HTTP_201_CREATED)
-#         else:
-#             print(form.errors.as_data())
-#             return Response(template_name="ad/templates/ad/template_for_like.html", status=status.HTTP_204_NO_CONTENT)
-#   kill -9 $(lsof -t -i:8080)
-
-####################################
-"""Func returns notifications requested user reffered"""
-
-
-@extend_schema(
-    tags=["Уведомления / Notifications"],
-    summary=["Уведомляем при входе пользователя о его новых сообщениях / Notification by user's enter notifies about new messages"],
-    description=["Notifications by user"],
-    request=NotificationSerializer,
-    responses={
-        status.HTTP_200_OK: OpenApiResponse(
-            description=(
-                    "Like from the user already exists"
-            ),
-            response=NotificationSerializer,
-        ),
-    },
-)
-@api_view(["GET"])
-def notifications_by_enter(
-        request):  # If requestuser authentificated and if there mssgs for request user return numb of mssgs
-    if not request.user.is_authenticated:
-        # login_url = reverse_lazy('bulletin:sign_in_email')
-        # return redirect(login_url)
-        return Response({"message": "Вы неавторизированы. Перенаправляем на авторизацию"},
-                        status=status.HTTP_400_BAD_REQUEST)
-    serializer = NotificationSerializer(data=request.data)
-    notifications = Notification.objects.all().filter(
-        key_to_recepient=request.user.email) | Notification.objects.all().filter(key_to_recepient=request.user.id)
-    num_mssgs = notifications.count()
-
-    if not notifications:
-        return Response([serializer.data, {"message": f"Дорогой {request.user.email}у вас нет сообщений"}],
-                        status=status.HTTP_200_OK)
-    return Response([serializer.data, {"message": f'Дорогой {request.user.email}, у вас {num_mssgs} сообщений'}],
-                    status=status.HTTP_200_OK)

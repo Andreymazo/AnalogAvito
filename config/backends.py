@@ -40,7 +40,9 @@
 ###############################################
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth import get_user_model
+import rest_framework.filters
 
+from ad.filters import CarFilter
 from config.settings import BACKEND_SESSION_KEY
 from django.db.utils import load_backend
 class SettingsBackend:
@@ -129,3 +131,30 @@ class SettingsBackend:
 #             return User.objects.get(pk=id_) # <-- tried to get by email here
 #         except User.DoesNotExist:
 #             return None
+
+from django_filters import rest_framework as filters
+from django.core.cache import cache
+from django.contrib.contenttypes.models import ContentType
+
+class MyFilterBackend(filters.DjangoFilterBackend):#filters.BaseFilterBackend
+    def get_filterset(self, request, queryset, view):
+        filters_list = [CarFilter,]
+        content_type = cache.get("content_type")
+        for i in filters_list:
+            if ContentType.objects.get_for_id(content_type) == ContentType.objects.get_for_model(i.Meta.model):
+                filterset = i
+                print('filterset' , filterset)
+                return  filterset
+        return super().get_filterset(request, queryset, view)
+   
+
+import rest_framework
+# Custom Filter Backend
+class CustomFilterQueryset(rest_framework.filters.BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        print('request.query_params.', request.query_params)
+        custom_param = request.query_params.get('custom_param', None)
+        if custom_param:
+            # Perform your custom filtering logic here
+            queryset = queryset.filter(custom_attribute=custom_param)
+        return queryset

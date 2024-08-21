@@ -90,3 +90,16 @@ class CarNameSerializer(serializers.ModelSerializer):
 #             return None
 class DefaultSerializer(serializers.Serializer):
     id = serializers.CharField(required=False)
+
+
+class CategoryFilterSerializer(serializers.ModelSerializer):
+    """Сериализатор для получения и фильтрации категории."""
+
+    class Meta:
+        model = Category
+        fields = ("id", "name", "parent", "level")
+
+    def get_fields(self):
+        fields = super(CategoryFilterSerializer, self).get_fields()
+        fields["children"] = CategoryFilterSerializer(many=True, required=False)
+        return fields

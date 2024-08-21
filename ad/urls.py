@@ -1,3 +1,5 @@
+from unicodedata import category
+
 from django.urls import path
 from ad.apps import AdConfig
 from ad.views import (
@@ -5,13 +7,13 @@ from ad.views import (
     CarList,
     CategoryViewSet,
     GetModelFmCategoryView,
-    GetObjFmModelView, 
+    GetObjFmModelView,
     UploadViewSet,
     like_add,
     # like_list_create,
     like_list_obj,
     like_list_user,
-    notifications_by_enter,
+    notifications_by_enter, CategoriesFilter,
 
 )
 from django.urls import include, path
@@ -41,6 +43,9 @@ urlpatterns = [
    path("like_add/", like_add, name="like_add"),
    path("notifications_by_enter/", notifications_by_enter, name="notifications_by_enter"),
    path("car_detail_generic/<int:pk>", CarDetailGeneric.as_view(), name="car_detail_generic"),
+
+    # Category_filter_test
+    path('categories_filter/', CategoriesFilter.as_view(), name='categories_filter'),
    
 ]
 

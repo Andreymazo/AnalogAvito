@@ -13,7 +13,8 @@ from ad.models import Category, Car, Like, Images, Views
 from ad.pagination import CategoryListPagination
 from config.backends import CustomFilterQueryset, MyFilterBackend
 from users.models import Notification
-from ad.serializers import CarCreateSerializer, CarNameSerializer, DefaultSerializer, LikeSerializer, LikeSerializerCreate, NotificationSerializer
+from ad.serializers import CarCreateSerializer, CarNameSerializer, DefaultSerializer, LikeSerializer, \
+    LikeSerializerCreate, NotificationSerializer, CategoryFilterSerializer
 from bulletin.serializers import CarListSerializer, CarSerializer, CategorySerializer, ImagesSerializer
 from rest_framework import status
 from rest_framework.response import Response
@@ -88,8 +89,20 @@ from bulletin.serializers import (
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     """Вьюсет для категорий."""
     http_method_names = ("get",)
-    queryset = Category.objects.filter(level=0)
+    queryset = Category.objects.prefetch_related('children').all()
     serializer_class = CategorySerializer
+
+@extend_schema(
+    tags=["Категории/Categories"],
+    summary="Список всех категорий/Фильтрация категорий",
+    )
+
+class CategoriesFilter(generics.ListAPIView):
+    """Эндпоинт для проверки работы фильтрации категорий."""
+
+    # Получаем queryset только для нулевого уровня, потомки будут получены в сериализаторе
+    queryset = Category.objects.filter(level=0)
+    serializer_class = CategoryFilterSerializer
     pagination_class = CategoryListPagination
     filter_backends = [DjangoFilterBackend]
     filterset_class = CategoryFilterByName
@@ -121,8 +134,8 @@ class CarList(generics.ListCreateAPIView):
     )
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
-    
-    
+
+
     @extend_schema(
     summary="Создание автомобиля / Car list create",
     # parameters=[OpenApiParameter(name='category', description='Category Id', type=int)],
@@ -147,7 +160,7 @@ class CarList(generics.ListCreateAPIView):
     #         return str(obj)
     #     else:
     #         return obj
-    
+
 
     # def create(self, request, *args, **kwargs):#, ContentType_id=16, obj_id=6
     #     serializer = self.get_serializer(data=request.data)
@@ -241,7 +254,7 @@ class CarList(generics.ListCreateAPIView):
 #         serializer = CarCreateSerializer(request.data)
 #         print("serializer.data ==", serializer.data)
 #         return Response(serializer.data)
-    
+
 #     # def perform_create(self, serializer):
 #     #     serializer.save(user=self.request.user)
 
@@ -462,13 +475,13 @@ class StandardSetPagination(pagination.PageNumberPagination):
     #             OpenApiParameter('ordering', exclude=True), OpenApiParameter('page', exclude=True),]
 )
 class GetModelFmCategoryView(generics.ListAPIView, generics.RetrieveAPIView):
-   
+
     permission_classes = (IsAuthenticated,)
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     pagination_class = StandardSetPagination
     filterset_class = CategoryFilter
-    
+
     def get(self, request, *args, **kwargs):# This is for retrieve
         ctype_id=""
         queryset = self.filter_queryset(self.get_queryset())
@@ -495,7 +508,7 @@ class GetModelFmCategoryView(generics.ListAPIView, generics.RetrieveAPIView):
         # print('self ======= ====== ======', self.request.data['parent'])
         print('obj', obj)
         return obj
-         
+
 def ChooseFilterSet():
     filters_list = [CarFilter,]
     content_type = cache.get("content_type")
@@ -508,7 +521,7 @@ def ChooseFilterSet():
                 return  filterset
         except ContentType.DoesNotExist:
             return None
-        
+
 class GetObjFmModelView(generics.ListAPIView, generics.RetrieveAPIView):
     filterset_class = ChooseFilterSet()
 
@@ -523,7 +536,7 @@ class GetObjFmModelView(generics.ListAPIView, generics.RetrieveAPIView):
             print(e)
         try:
             model_name=ContentType.objects.get_for_id(content_type).model
-        
+
             print('model_name', (model_name[0].upper() + model_name[1:]))
             model_name = model_name[0].upper() + model_name[1:]
             MyModel = apps.get_model(app_label='ad', model_name=model_name)
@@ -537,12 +550,12 @@ class GetObjFmModelView(generics.ListAPIView, generics.RetrieveAPIView):
         except TypeError as e:
             print(e)
         return queryset
-    
-        
+
+
     def get_serializer_class(self):
         serializer = DefaultSerializer
         serializer_list = [CarNameSerializer,]
-        
+
         try:
             content_type = cache.get('content_type')#self.context.get("content_type")
             print('content_type in GetObjectSerializer.get_serializer_class' , content_type)
@@ -561,12 +574,12 @@ class GetObjFmModelView(generics.ListAPIView, generics.RetrieveAPIView):
             print(e)
         except TypeError as e:
             print(e)
-       
+
         return serializer
 
 
     def get(self, request):
-        
+
         obj_id = ""
         queryset = self.filter_queryset(self.get_queryset())
         serializer=self.get_serializer_class()
@@ -578,8 +591,8 @@ class GetObjFmModelView(generics.ListAPIView, generics.RetrieveAPIView):
         cache.set_many({"obj_id": obj_id, "content_type":content_type}, 60)
         print(' ============ serializer.data', serializer.data)
         return Response([serializer.data, {"content_type":content_type, "obj_id":obj_id, "message":"Got content_type and obj_id and pass it in cache at endpoin: like_add "}], status=status.HTTP_200_OK)
-      
-    
+
+
     serializer_class = (CarNameSerializer,)
     queryset = get_queryset
     pagination_class = StandardSetPagination
@@ -607,7 +620,7 @@ class GetObjFmModelView(generics.ListAPIView, generics.RetrieveAPIView):
         },
 )
 @api_view(['POST'])
-def like_add(request, is_liked=False):#, ContentType_id=8, obj_id=2, **kwargs): 
+def like_add(request, is_liked=False):#, ContentType_id=8, obj_id=2, **kwargs):
     print('request.user', request.user)
     if request.user.is_anonymous:
         return redirect(reverse("users:sign_in_email"))
@@ -623,7 +636,7 @@ def like_add(request, is_liked=False):#, ContentType_id=8, obj_id=2, **kwargs):
 
             print('serializer.data', serializer.data)
             is_liked = serializer.validated_data.get('is_liked')
-            
+
             try:
                 print('11111111111111')
                 like_instance = Like.objects.get(user=user_instance, content_type=ContentType.objects.get_for_id(content_type), object_id=obj_id, is_liked=is_liked)
@@ -762,7 +775,7 @@ def notifications_by_enter(
 # class RetrieveCategoryView(generics.ListAPIView, generics.RetrieveUpdateAPIView,filters.SearchFilter):# MultipleFieldLookupMixin,  ):
 #     queryset = Category.objects.all()
 #     serializer_class = CategorySerializer
-    
+
 #     # filter_backends = [filters.SearchFilter]
 #     # search_fields = ['name',]
 #     lookup_fields = ['id']
@@ -782,7 +795,7 @@ def notifications_by_enter(
 #             queryset = queryset.filter(category__name=category)
 #         print('1111111111111111111')
 #         return queryset
-    
+
 #     def get_object(self):
 #         print('iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii')
 #         queryset = self.get_queryset()             # Get the base queryset
@@ -806,7 +819,7 @@ def notifications_by_enter(
     #     self.check_object_permissions(self.request, obj)
     #     print('000000000000000000000000000000000000000000000')
     #     return obj
-  
+
     #     # print('6666666666666666666666666', self.get_object())
     #     # return ContentType.objects.get_for_model()
     # def get_search_fields(self, view, request):

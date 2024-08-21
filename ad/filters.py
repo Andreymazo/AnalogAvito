@@ -1,3 +1,5 @@
+from distutils.command.install import value
+
 import django_filters
 from django_filters import OrderingFilter
 from ad.models import Advertisement, Car, Category
@@ -63,4 +65,20 @@ class CustomFilterSet(django_filters.FilterSet):
 #         print('default filter .... ')
 #         return CarFilter
 # CustomFilterSet.get_model_fm_kwargs()
+
+
+class CategoryFilterByName(django_filters.FilterSet):
+    """Фильтр для поиска категории по названию"""
+
+    name = django_filters.CharFilter(method='filter_by_name', label='Категория')
+
+    class Meta:
+        model = Category
+        fields = ['name',]
+
+    def filter_by_name(self, queryset, name, value):
+        """Метод расширения QuerySet для поиска категорий как в parent, так и в children"""
+
+        extend_queryset = Category.objects.prefetch_related('children').filter(name__icontains=value)
+        return extend_queryset
 

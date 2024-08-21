@@ -1,14 +1,16 @@
 
 import django_filters
 from django.apps import apps
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import pagination, filters
 from rest_framework.exceptions import APIException
 from django.core.cache import cache
 from django.utils.datastructures import MultiValueDictKeyError
 from django.db import IntegrityError
 from rest_framework import generics
-from ad.filters import CarFilter, CategoryFilter, CustomFilterSet
+from ad.filters import CarFilter, CategoryFilter, CustomFilterSet, CategoryFilterByName
 from ad.models import Category, Car, Like, Images, Views
+from ad.pagination import CategoryListPagination
 from config.backends import CustomFilterQueryset, MyFilterBackend
 from users.models import Notification
 from ad.serializers import CarCreateSerializer, CarNameSerializer, DefaultSerializer, LikeSerializer, LikeSerializerCreate, NotificationSerializer
@@ -86,8 +88,12 @@ from bulletin.serializers import (
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     """Вьюсет для категорий."""
     http_method_names = ("get",)
-    queryset = Category.objects.prefetch_related("children").all()
+    queryset = Category.objects.filter(level=0)
     serializer_class = CategorySerializer
+    pagination_class = CategoryListPagination
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = CategoryFilterByName
+
 
 
 @extend_schema_view(

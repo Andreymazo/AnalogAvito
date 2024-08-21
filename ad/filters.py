@@ -1,5 +1,3 @@
-from distutils.command.install import value
-
 import django_filters
 from django_filters import OrderingFilter
 from ad.models import Advertisement, Car, Category

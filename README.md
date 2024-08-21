@@ -13,14 +13,15 @@ __2. Запуск базы postgresql под именем postgres__
         create database bulletin;\c bulletin
 - выход из postgresql ctr+c
 
-__3. Запускаем миграции__
+__3. Устанавливаем зависимости__
+##
+        pip install -r requirements.txt
+
+__4. Запускаем миграции__
 ##
         python manage.py makemigrations
 ##
         python manage.py migrate
-__4. Зависимости__
-##
-        pip install -r requirements.txt
 
 __5. Запуск проекта__
 ##

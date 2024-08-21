@@ -508,20 +508,30 @@ class GetModelFmCategoryView(generics.ListAPIView, generics.RetrieveAPIView):
         # print('self ======= ====== ======', self.request.data['parent'])
         print('obj', obj)
         return obj
+<<<<<<< Updated upstream
 
+=======
+from django.db.utils import ProgrammingError
+>>>>>>> Stashed changes
 def ChooseFilterSet():
     filters_list = [CarFilter,]
-    content_type = cache.get("content_type")
-    print('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++content_type', content_type)
+    
     for i in filters_list:
         try:
+            content_type = cache.get("content_type")
             if ContentType.objects.get_for_id(content_type) == ContentType.objects.get_for_model(i.Meta.model):
                 filterset = i
                 print('filterset' , filterset)
                 return  filterset
         except ContentType.DoesNotExist:
             return None
+<<<<<<< Updated upstream
 
+=======
+        except ProgrammingError as e:
+            print(e)
+        
+>>>>>>> Stashed changes
 class GetObjFmModelView(generics.ListAPIView, generics.RetrieveAPIView):
     filterset_class = ChooseFilterSet()
 

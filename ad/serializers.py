@@ -44,7 +44,7 @@ class CarCreateSerializer(serializers.ModelSerializer):
     )
     class Meta:
         model = Car
-        fields = ["by_mileage", "brand", "model", "price", "year", "mileage", "transmission",\
+        fields = ["id", "by_mileage", "brand", "model", "price", "year", "mileage", "transmission",\
                   "by_wheel_drive", "engine_capacity", "engine_power", "fuel_consumption", "type", "colour", "fuel",\
                       "images", "uploaded_images",]# ["year", "images", "uploaded_images", "mileage"] ["__all__"]
 

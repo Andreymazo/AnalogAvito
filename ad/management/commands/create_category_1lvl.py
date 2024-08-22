@@ -4,7 +4,7 @@ from users.models import Profile
 
  
 def ff():
-    category_list = ["Транспорт", "Услуги", "Личные вещи", "Электроника"]
+    category_list = ["Купить", "Продать", "Сдать", "Снять", "Услуги"]
     for i in category_list:
         get_category = Category.objects.get_or_create(name=i)
   

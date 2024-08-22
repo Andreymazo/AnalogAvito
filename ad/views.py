@@ -109,7 +109,7 @@ class CategoriesFilter(generics.ListAPIView):
 
 
 
-@extend_schema_view(
+@extend_schema(
     tags=["Автомобили/Cars"],
     # summary=" Car list and car creation",
     request=CarCreateSerializer,
@@ -125,10 +125,8 @@ class CarList(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
     parser_classes = [MultiPartParser, FormParser]
     serializer_class = CarCreateSerializer
-    # name = "Car list"
-    # filter_fields = ( 
-    #     '-created', 
-    # )
+  
+
     @extend_schema(
     summary="Список автомобилей / Car list",
     )
@@ -142,77 +140,6 @@ class CarList(generics.ListCreateAPIView):
     )
     def post(self, request, *args, **kwargs):
         return super().post(request, *args, **kwargs)
-    # def list(self, request, *args, **kwargs):
-    #     print('ggggggggggggggggg', request.user, self.request.user)
-    #     # print('cache================', cache._connections.__dict__)
-    #     # print("req session ===============", request.session["user_id"])
-    #     # print(cache.get('access_token'))
-    #     # print(cache.get('refresh_token'))
-    #     return super().list(request, *args, **kwargs)
-    # """This func was necessary if serializer.data after serializer.save() called, since we commented serializer.save() in perform_create no need this"""
-    # """Костыль конечно, но пока не знаю как пройти ошибку, вроде при тестировании в сваггере ее нет, была в браузере и при 1 фото сериализаторе"""
-    # def change_image_to_string(self, obj):
-    #     if type(obj) == InMemoryUploadedFile:
-    #         return f"images/{obj}"
-    #     if type(obj) == TemporaryUploadedFile:
-    #         return f"images/{obj}"
-    #     if type(obj) == Profile:
-    #         return str(obj)
-    #     else:
-    #         return obj
-
-
-    # def create(self, request, *args, **kwargs):#, ContentType_id=16, obj_id=6
-    #     serializer = self.get_serializer(data=request.data)
-    #     serializer.is_valid(raise_exception=True)
-    #     # print('serializer.data', serializer.data)
-    #     # content_type = ContentType.objects.get_for_id(ContentType_id)
-    #     # obj = content_type.get_object_for_this_type(pk=obj_id)
-    #     # print('77777777777777777777777777', content_type, obj)
-    #     s = OrderedDict([(k, self.change_image_to_string(v)) for k,v  in serializer.validated_data.items()])
-    #     self.perform_create(serializer)
-    #     headers = self.get_success_headers(s)
-    #     print('headers----------------', headers)
-    #     return Response([s, {"message": "Uploaded"}], status=status.HTTP_201_CREATED, headers=headers)
-    #     # car_instance, created = Car.objects.get_or_create(
-    #     #         by_mileage=serializer.validated_data.get('by_mileage', None),
-    #     #         year=serializer.validated_data.get('year', None), 
-    #     #         brand=serializer.validated_data.get('brand',None), 
-    #     #         model=serializer.validated_data.get('model', None), 
-    #     #         mileage=serializer.validated_data.get('mileage', None),
-    #     #         price=serializer.validated_data.get('price',None), 
-    #     #         category_id=Category.objects.get(name='Транспорт',).id,
-    #     #         profile = Profile.objects.get(user=request.user)
-    #     #         )#category_id=validated_data.get('category_id', None).id # Can choose
-
-    #     # try:
-    #     #     #Photoes anyway will be loaded even the same
-    #     #     image_instance, created = Images.objects.get_or_create(
-    #     #             content_type = ContentType.objects.get_for_model(type(car_instance)),object_id = car_instance.id,
-    #     #             title=serializer.validated_data.get('title'),image = serializer.validated_data.get('image'),
-    #     #             )
-    #     #     # return Response( [serializer.data, {"message": "This photo already uploaded"}], status=status.HTTP_206_PARTIAL_CONTENT)
-    #     # except Images.MultipleObjectsReturned:
-    #     #     image = Images.objects.filter(content_type = ContentType.objects.get_for_model(type(car_instance)),
-    #     #             object_id = car_instance.id,title=serializer.validated_data.get('title'),).order_by('id').first()  
-
-    # #     # try:
-    # #     #     print('type image', type(serializer.validated_data.get('image')))
-    # #     #     obj = Images.objects.get(content_type = ContentType.objects.get_for_model(type(car_instance)),object_id = car_instance.id,
-    # #     #             title=serializer.validated_data.get('title'),image = serializer.validated_data.get('image'),)
-    # #     #     print('444444444444444444444', obj)
-    # #     #     return Response( [serializer.data, {"message": "This photo already uploaded"}], status=status.HTTP_206_PARTIAL_CONTENT)
-    # #     # except Images.DoesNotExist:
-    # #     #     obj = Images.objects.create(content_type = ContentType.objects.get_for_model(type(car_instance)),object_id = car_instance.id,
-    # #     #                         title=serializer.validated_data.get('title'),image = serializer.validated_data.get('image'),)
-    # #     #     return Response( [serializer.data, {"message": "Uploaded"}], status=status.HTTP_201_CREATED)
-
-    #     # self.perform_create(serializer)
-    #     # headers = self.get_success_headers(s)
-    #     # return Response([s, {"message": "Uploaded"}], status=status.HTTP_201_CREATED, headers=headers)
-
-    # def perform_create(self, serializer):
-    #     serializer.save(user=self.request.user)
 
 
 @extend_schema(
@@ -468,8 +395,8 @@ from django_filters import filters
 class StandardSetPagination(pagination.PageNumberPagination):
        page_size = 3
 @extend_schema(
-    tags=["Категории/Categories"],
-    summary=["По категориям получаем модель объявлений"],
+    tags=["Общая логика (Контент Тайп) / ContentType concerned"],
+    summary="По категориям получаем модель объявлений",
     request=CategorySerializer,
     # parameters=[OpenApiParameter('limit', exclude=True), OpenApiParameter('offset', exclude=True), \
     #             OpenApiParameter('ordering', exclude=True), OpenApiParameter('page', exclude=True),]
@@ -508,6 +435,8 @@ class GetModelFmCategoryView(generics.ListAPIView, generics.RetrieveAPIView):
         # print('self ======= ====== ======', self.request.data['parent'])
         print('obj', obj)
         return obj
+    
+
 def ChooseFilterSet():
     filters_list = [CarFilter,]
     
@@ -520,46 +449,50 @@ def ChooseFilterSet():
                 return  filterset
         except ContentType.DoesNotExist:
             return None
+        
+@extend_schema(
+    tags=["Общая логика (Контент Тайп) / ContentType concerned"],
+    summary="По модели получаем объект - объявление",
+)        
 class GetObjFmModelView(generics.ListAPIView, generics.RetrieveAPIView):
     filterset_class = ChooseFilterSet()
+    pagination_class = StandardSetPagination
+    filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
+    lookup_field=['id']
+    serializer_class = CarNameSerializer
+    queryset = Car.objects.all()
 
     def get_queryset(self):
-        print('000000000000000000000000000000000queryset')
+        if not content_type:
+            return Car.objects.all()
         try:
-            content_type = cache.get('content_type')#self.context.get("content_type")
-            print('content_type in GetObjFmModelView.get_queryset' , content_type)
+            content_type = cache.get('content_type')
         except AttributeError as e:
-            print(e)
+            print(e, '- ad/views.py 470str')
         except TypeError as e:
-            print(e)
+            print(e, '- ad/views.py 472str')
         try:
             model_name=ContentType.objects.get_for_id(content_type).model
-
-            print('model_name', (model_name[0].upper() + model_name[1:]))
             model_name = model_name[0].upper() + model_name[1:]
             MyModel = apps.get_model(app_label='ad', model_name=model_name)
-            print('type My Model',  MyModel)
-            # model_class = apps.get_registered_model(app_label="ad", model_name=ContentType.objects.get_for_id(content_type).model)
             queryset = MyModel.objects.all()
-            print('queryset', queryset)
+            
             return queryset
         except UnboundLocalError as e:
-            print(e)
+            print(e, ' - ad/views.py 549str')
         except TypeError as e:
-            print(e)
+            print(e, '- ad/views.py 551str')
         return queryset
 
 
     def get_serializer_class(self):
         serializer = DefaultSerializer
-        serializer_list = [CarNameSerializer,]
+        serializer_list = [CarNameSerializer,]# Будем добавлять сериализаторы по мере наполнения моделями
 
         try:
-            content_type = cache.get('content_type')#self.context.get("content_type")
-            print('content_type in GetObjectSerializer.get_serializer_class' , content_type)
+            content_type = cache.get('content_type')
             for i in serializer_list:
-                print(ContentType.objects.get_for_model(i.Meta.model))
-                print(ContentType.objects.get_for_id(content_type))
+                
                 if ContentType.objects.get_for_id(content_type) == ContentType.objects.get_for_model(i.Meta.model):
                     serializer = i
                     return serializer
@@ -567,12 +500,13 @@ class GetObjFmModelView(generics.ListAPIView, generics.RetrieveAPIView):
                 else:
                     return serializer
         except AttributeError as e:
-            print(e)
+            print(' - ad/views.py 572str - ', e)
         except UnboundLocalError as e:
-            print(e)
+            print(' - ad/views.py 574str - ', e)
         except TypeError as e:
-            print(e)
+            print(' - ad/views.py 576str - ', e)
 
+        print('error occured swagger serializer' , serializer)
         return serializer
 
 
@@ -591,11 +525,9 @@ class GetObjFmModelView(generics.ListAPIView, generics.RetrieveAPIView):
         return Response([serializer.data, {"content_type":content_type, "obj_id":obj_id, "message":"Got content_type and obj_id and pass it in cache at endpoin: like_add "}], status=status.HTTP_200_OK)
 
 
-    serializer_class = (CarNameSerializer,)
-    queryset = get_queryset
-    pagination_class = StandardSetPagination
-    filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
-    lookup_field=['id']
+    # serializer_class = (CarNameSerializer,)
+    # queryset = get_queryset
+    
 
 
 
@@ -603,7 +535,7 @@ class GetObjFmModelView(generics.ListAPIView, generics.RetrieveAPIView):
 @extend_schema(
     tags=["Лайки / Likes"],
     description="Добавление лайков пользователем / Likes for the instance",
-    summary="Add like by request user",
+    summary="Добавление лайков пользователем / Add like by request user",
     # parameters=[
         # OpenApiParameter("content_type", OpenApiTypes.INT, location=OpenApiParameter.QUERY, required=True,),
     #     OpenApiParameter("object_id", OpenApiTypes.INT, location=OpenApiParameter.QUERY, required=True,),

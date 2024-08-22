@@ -142,35 +142,14 @@ class AdvertisementSerializer(serializers.Serializer):
         model = Advertisement
         fields = '__all__'
         read_only_fields = ('created', 'changed')
-        # fields = ("category ", "profile", "created", "changed", "moderation")
-
-
-#     title = serializers.CharField()
-#     description = serializers.CharField()
-#     profile = ProfileSerializer() 
-#     category = CategorySerializer(many=True)
-#     created = serializers.DateTimeField()
-#     changed = serializers.DateTimeField()
-#     moderation = serializers.BooleanField()
-
-    # category = CategorySerializer()
-
-    # class Meta:
-    #     model = Advertisement
-    #     fields = ()
-# class ImagesImageSerializer():
-#     class Meta:
-#         model = Images
-#         fields = ("image",)
 
 class ImagesSerializer(serializers.ModelSerializer):
-    # content_object = serializers.SerializerMethodField()
+    
     class Meta:
         model = Images
         fields = ("title", "profile", "image" )
 
-    # def get_content_object(self, obj):
-    #     return 
+   
 from django.contrib.contenttypes.models import ContentType
 # from django.contrib.auth import get_user_model
 class CarListSerializer(serializers.ModelSerializer):
@@ -184,7 +163,7 @@ class CarSerializer(serializers.ModelSerializer):
     
         class Meta:
             model = Car
-            fields = ("by_mileage", "category_id", 'brand', "year", "model", "mileage", "price", "image", "title", "profile")
+            fields = ("id", "by_mileage", "category_id", 'brand', "year", "model", "mileage", "price", "image", "title", "profile")
 
         def create(self, validated_data):
             # user=get_user_model()

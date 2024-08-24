@@ -6,7 +6,7 @@ from rest_framework import pagination, filters
 from rest_framework.exceptions import APIException
 from django.core.cache import cache
 from django.utils.datastructures import MultiValueDictKeyError
-from django.db import IntegrityError
+from django.db import IntegrityError, ProgrammingError
 from rest_framework import generics
 from ad.filters import CarFilter, CategoryFilter, CustomFilterSet, CategoryFilterByName
 from ad.models import Category, Car, Like, Images, Views
@@ -125,7 +125,7 @@ class CarList(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
     parser_classes = [MultiPartParser, FormParser]
     serializer_class = CarCreateSerializer
-  
+
 
     @extend_schema(
     summary="Список автомобилей / Car list",
@@ -435,7 +435,7 @@ class GetModelFmCategoryView(generics.ListAPIView, generics.RetrieveAPIView):
         # print('self ======= ====== ======', self.request.data['parent'])
         print('obj', obj)
         return obj
-    
+
 
 def ChooseFilterSet():
     filters_list = [CarFilter,]
@@ -449,11 +449,14 @@ def ChooseFilterSet():
                 return  filterset
         except ContentType.DoesNotExist:
             return None
-        
+        except ProgrammingError as e:
+            print(e, 'строка 524')
+
+
 @extend_schema(
     tags=["Общая логика (Контент Тайп) / ContentType concerned"],
     summary="По модели получаем объект - объявление",
-)        
+)
 class GetObjFmModelView(generics.ListAPIView, generics.RetrieveAPIView):
     filterset_class = ChooseFilterSet()
     pagination_class = StandardSetPagination
@@ -476,7 +479,7 @@ class GetObjFmModelView(generics.ListAPIView, generics.RetrieveAPIView):
             model_name = model_name[0].upper() + model_name[1:]
             MyModel = apps.get_model(app_label='ad', model_name=model_name)
             queryset = MyModel.objects.all()
-            
+
             return queryset
         except UnboundLocalError as e:
             print(e, ' - ad/views.py 549str')
@@ -492,7 +495,7 @@ class GetObjFmModelView(generics.ListAPIView, generics.RetrieveAPIView):
         try:
             content_type = cache.get('content_type')
             for i in serializer_list:
-                
+
                 if ContentType.objects.get_for_id(content_type) == ContentType.objects.get_for_model(i.Meta.model):
                     serializer = i
                     return serializer
@@ -527,7 +530,7 @@ class GetObjFmModelView(generics.ListAPIView, generics.RetrieveAPIView):
 
     # serializer_class = (CarNameSerializer,)
     # queryset = get_queryset
-    
+
 
 
 

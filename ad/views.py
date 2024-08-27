@@ -403,7 +403,7 @@ class StandardSetPagination(pagination.PageNumberPagination):
 )
 class GetModelFmCategoryView(generics.ListAPIView, generics.RetrieveAPIView):
 
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)#  IsAuthenticated,)
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     pagination_class = StandardSetPagination
@@ -456,18 +456,18 @@ def ChooseFilterSet():
 @extend_schema(
     tags=["Общая логика (Контент Тайп) / ContentType concerned"],
     summary="По модели получаем объект - объявление",
+    parameters=[OpenApiParameter(name='id', description='Object Id', type=int)],
 )
 class GetObjFmModelView(generics.ListAPIView, generics.RetrieveAPIView):
     filterset_class = ChooseFilterSet()
     pagination_class = StandardSetPagination
     filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
-    lookup_field=['id']
-    serializer_class = CarNameSerializer
-    queryset = Car.objects.all()
+    filterset_fields = ['id']
+    # lookup_field=['id']
+    # serializer_class = CarNameSerializer
+    # queryset = Car.objects.all()
 
     def get_queryset(self):
-        if not content_type:
-            return Car.objects.all()
         try:
             content_type = cache.get('content_type')
         except AttributeError as e:
@@ -485,6 +485,8 @@ class GetObjFmModelView(generics.ListAPIView, generics.RetrieveAPIView):
             print(e, ' - ad/views.py 549str')
         except TypeError as e:
             print(e, '- ad/views.py 551str')
+        except ContentType.DoesNotExist:
+            queryset = None#{"ContentType is None":"ContentType is None"}
         return queryset
 
 
@@ -517,6 +519,9 @@ class GetObjFmModelView(generics.ListAPIView, generics.RetrieveAPIView):
 
         obj_id = ""
         queryset = self.filter_queryset(self.get_queryset())
+        print("queryset in class", queryset)
+        if not queryset:
+            return redirect(reverse("ad:get_model_fm_category")) 
         serializer=self.get_serializer_class()
         print('iiiiiiiiiiiiiii ==== serializer', serializer)
         serializer = serializer(queryset, many=True)
@@ -528,8 +533,8 @@ class GetObjFmModelView(generics.ListAPIView, generics.RetrieveAPIView):
         return Response([serializer.data, {"content_type":content_type, "obj_id":obj_id, "message":"Got content_type and obj_id and pass it in cache at endpoin: like_add "}], status=status.HTTP_200_OK)
 
 
-    # serializer_class = (CarNameSerializer,)
-    # queryset = get_queryset
+    serializer_class = (CarNameSerializer,)
+    queryset = get_queryset
 
 
 

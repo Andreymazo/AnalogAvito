@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     "ad.apps.AdConfig",
     "bulletin.apps.BulletinConfig",
     "users.apps.UsersConfig",
+    "chat.apps.ChatConfig",
     "drf_spectacular",
     'django_filters',
     "map",
@@ -229,8 +230,8 @@ DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")
 # SESSION_EXPIRE_AFTER_LAST_ACTIVITY = True
 # # SESSION_TIMEOUT_REDIRECT = "bulletin:log_in"  # Add your URL
 # SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Invalid session
-
-SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
+# SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+# SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 
 ATTEMPTS = 3  # Максимальное количество попыток ввести код
 SITE_ID = 1

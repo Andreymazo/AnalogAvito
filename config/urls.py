@@ -42,7 +42,8 @@ urlpatterns += i18n_patterns(
     # path("api/", include("bulletin.urls", namespace="bulletin")),
     path("ad/", include("ad.urls", namespace="ad")),
     path("map/", include("map.urls", namespace="map")),
-    path("users/", include("users.urls"), name="users")
+    path("users/", include("users.urls"), name="users"),
+    path("chat/", include("chat.urls"), name="chat")
 )
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

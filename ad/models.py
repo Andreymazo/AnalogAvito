@@ -121,6 +121,7 @@ class Car(Advertisement):
     images = GenericRelation("ad.Images", related_query_name='cars')
     promotions = GenericRelation("ad.Promotion", related_query_name='cars')
     views = GenericRelation("ad.Views", related_query_name='cars')
+    mssg = GenericRelation("chat.Mssg", related_query_name='cars')
 
     class Meta:
         verbose_name = _("Automobile")

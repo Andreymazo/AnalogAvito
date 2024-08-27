@@ -1,5 +1,3 @@
-from unicodedata import category
-
 from django.urls import path
 from ad.apps import AdConfig
 from ad.views import (

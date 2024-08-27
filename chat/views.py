@@ -84,7 +84,7 @@ def message_detail(request, pk):
     try: 
         mssg_instance = Mssg.objects.get(pk=pk) 
     except Mssg.DoesNotExist: 
-        return HttpResponse(status=404)
+        return Response({"message": "no messages for user"}, status=status.HTTP_404_NOT_FOUND)
     if request.method == 'GET': 
         serializer = MssgDetailSerializer(mssg_instance)
         return Response([serializer.data, {"message":"mssg detailed"}], status=status.HTTP_200_OK) 

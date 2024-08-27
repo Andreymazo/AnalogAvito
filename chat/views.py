@@ -76,7 +76,7 @@ def message_list(request):
 
 @extend_schema(
     tags=["Чат (переписка между пользователями по поводу объявления) / Chat between users advertisement concerned"],
-    summary="модель Mssg, в методе GET само объявление / object",
+    summary="модель Mssg, в методе GET само объявление в методе PUT изменяем в методе DELETE удаляем / object, CET - see, PUT - change, DELETE - remove",
     request=MssgDetailSerializer,  
 )
 @api_view(["GET", "PUT", "DELETE"])

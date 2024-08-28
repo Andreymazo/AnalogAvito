@@ -43,7 +43,8 @@ urlpatterns += i18n_patterns(
     path("ad/", include("ad.urls", namespace="ad")),
     path("map/", include("map.urls", namespace="map")),
     path("users/", include("users.urls"), name="users"),
-    path("chat/", include("chat.urls"), name="chat")
+    path("chat/", include("chat.urls"), name="chat"),
+    path ('account/wallet/', include('personal_account.urls'), name='account'),
 )
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

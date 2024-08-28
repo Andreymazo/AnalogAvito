@@ -28,7 +28,7 @@ class Balance(models.Model):
     currency = models.CharField(max_length=3,
                                 choices=CURRENCY,
                                 default='RUB')
-    owner = models.OneToOneField(settings.AUTH_USER_MODEL,
+    user = models.OneToOneField(settings.AUTH_USER_MODEL,
                                  on_delete=models.CASCADE,
                                  related_name='balance',
                                  verbose_name='Владелец баланса')
@@ -63,7 +63,7 @@ class Payments(models.Model):
                                  verbose_name='Сумма платежа')
     status = models.CharField(max_length=10, choices=STATUS, default='PENDING', verbose_name='Статус платежа')
     creating_payment = models.DateTimeField(auto_now_add=True, verbose_name="Дата и время создания платежа")
-    owner = models.OneToOneField(settings.AUTH_USER_MODEL,
+    user = models.OneToOneField(settings.AUTH_USER_MODEL,
                                  on_delete=models.CASCADE,
                                  related_name='payments',
                                  verbose_name='Владелец платежа')

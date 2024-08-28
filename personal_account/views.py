@@ -16,7 +16,7 @@ class UserBalanceAPIView(RetrieveAPIView):
         if not request.user.is_authenticated:
             return Response({"message": "Вы не авторизованы"}, status=status.HTTP_401_UNAUTHORIZED)
 
-        balance = Balance.objects.get(owner=request.user)
+        balance = Balance.objects.get(user=request.user)
 
         # Меняем баланс для отображения в соответствующей валюте, но НЕ записываем его в базу
         balance.balance = balance.get_balance_in_currency
@@ -33,7 +33,7 @@ class ChangeCurrencyApiView(APIView):
         if not user.is_authenticated:
             return Response({"message": "Вы не авторизованы"}, status=status.HTTP_401_UNAUTHORIZED)
 
-        balance = Balance.objects.get(owner=user)
+        balance = Balance.objects.get(user=user)
 
         currency = {
             "RUB": "USD",

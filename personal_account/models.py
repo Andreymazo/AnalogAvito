@@ -1,7 +1,8 @@
+from decimal import Decimal
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from config import settings
+from config import constants, settings
 
 CURRENCY = [
     ("RUB", "RUBLES"),
@@ -39,6 +40,20 @@ class Balance(models.Model):
     def __str__(self):
         return str(self.balance)
 
+    @property
+    def get_balance_in_currency(self):
+        # Делаем временно фиксированные валюты
+        usd = Decimal(constants.USD)
+        eur = Decimal(constants.EUR)
+
+        # Делаем проверку какая валюта записана в базе на данный момент и возвращаем баланс в этой валюте
+        if self.currency == 'USD':
+            return self.balance / usd
+        elif self.currency == 'EUR':
+            return self.balance / eur
+        else:
+            return self.balance
+
 
 class Payments(models.Model):
     """Платежи пользователя"""
@@ -52,7 +67,6 @@ class Payments(models.Model):
                                  on_delete=models.CASCADE,
                                  related_name='payments',
                                  verbose_name='Владелец платежа')
-
 
     class Meta:
         verbose_name = _('Платеж')

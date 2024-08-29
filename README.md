@@ -1,33 +1,48 @@
 # Bulletin_board_backend
-__1. Скопировать из репозитория develop__
+__1. До начала разворачивания проекта, на PC должны быть установлены следующие приложения:__
+##
+        Python 3.12
+        Redis 5
+__2. Скопировать из репозитория develop__
 ##
         git clone https://github.com/salfa-ru/Bulletin_board_backend.git
 __Если спрашивает имя, пароль, то попробуйте сначала склонировать по-другому:__
 ##
         git clone git@github.com:salfa-ru/Bulletin_board_backend.git
-__2. Запуск базы postgresql под именем postgres__
+__3. Необходимо создать .env  файл с переменными окружения в корне проекта.__
+##
+        (образец переменных лежит в файле .env.dev)
+__4. Запуск базы postgresql под именем postgres__
 ##
         psql -U postgres
 - Создаем базу bulletin и присоединяемся к ней
 ##
         create database bulletin;\c bulletin
+- Преобразуем базу Postgres в Postgis
+## 
+        CREATE EXTENSION postgis;
 - выход из postgresql ctr+c
 
-__3. Устанавливаем зависимости__
+__5. Устанавливаем зависимости__
 ##
         pip install -r requirements.txt
 
-__4. Запускаем миграции__
+__6. Создаём 2 директории для корректного функционирования Gdal__
+##
+        export CPLUS_INCLUDE_PATH=/usr/include/gdal
+        export C_INCLUDE_PATH=/usr/include/gdal
+
+__7. Запускаем миграции__
 ##
         python manage.py makemigrations
 ##
         python manage.py migrate
 
-__5. Запуск проекта__
+__8. Запуск проекта__
 ##
       python manage.py runserver
 
-__6. Загрузка тестовых данных__
+__9. Загрузка тестовых данных__
 ##
       python manage.py loaddata filling_test_data
 

@@ -2,6 +2,7 @@
 import django_filters
 from django.apps import apps
 from django_filters.rest_framework import DjangoFilterBackend
+from redis.exceptions import ConnectionError
 from rest_framework import pagination, filters
 from rest_framework.exceptions import APIException
 from django.core.cache import cache
@@ -451,6 +452,8 @@ def ChooseFilterSet():
             return None
         except ProgrammingError as e:
             print(e, 'строка 524')
+        except ConnectionError as e:
+            print(e, 'строка 455')
 
 
 @extend_schema(

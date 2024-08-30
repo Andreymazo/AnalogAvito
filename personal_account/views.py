@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema, OpenApiResponse
 from rest_framework import status
 from rest_framework.generics import RetrieveAPIView
 from rest_framework.response import Response
@@ -7,6 +8,23 @@ from personal_account.models import Balance
 from personal_account.serializers import BalanceSerializer
 
 
+@extend_schema(
+    tags=["Кошелек/Wallet"],
+    description="Отображение баланса и текущей валюты пользователя",
+    summary="Баланс пользователя",
+    responses={
+        status.HTTP_200_OK: OpenApiResponse(
+            description="Отображение баланса и валюты",
+            response=BalanceSerializer
+        ),
+        status.HTTP_401_UNAUTHORIZED: OpenApiResponse(
+            description="Пользователь не авторизован",
+            response=(
+                    {'message': 'Вы не авторизованы'}
+            )
+        )
+    }
+)
 class UserBalanceAPIView(RetrieveAPIView):
     """Эндпоинт для получения баланса и текущей валюты"""
     serializer_class = BalanceSerializer
@@ -24,6 +42,23 @@ class UserBalanceAPIView(RetrieveAPIView):
         return Response(serializer.data)
 
 
+@extend_schema(
+    tags=["Кошелек/Wallet"],
+    description="Отображение баланса при изменении валюты",
+    summary="Изменение валюты баланса",
+    responses={
+        status.HTTP_200_OK: OpenApiResponse(
+            description="Отображение баланса и измененной валюты",
+            response=BalanceSerializer
+        ),
+        status.HTTP_401_UNAUTHORIZED: OpenApiResponse(
+            description="Пользователь не авторизован",
+            response=(
+                    {'message': 'Вы не авторизованы'}
+            )
+        )
+    }
+)
 class ChangeCurrencyApiView(APIView):
     """Представление для изменения валюты баланса пользователя."""
 

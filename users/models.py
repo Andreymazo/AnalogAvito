@@ -114,9 +114,6 @@ def create_notification_for_logged_in(sender, user, request, **kwargs):
     print('sender', sender)
     print('type(user), user.id', type(user), user.id)
     print('ContentType.objects.get_for_model(user)', ContentType.objects.get_for_model(user))
-    object = user
-    content_type=type(user)
-    object_id=object.id
     car_quryset = Car.objects.prefetch_related('promotions') #  Car by Promotions
     try:
         promotions_user = Promotion.objects.prefetch_related('users')# Promotions by User
@@ -126,10 +123,9 @@ def create_notification_for_logged_in(sender, user, request, **kwargs):
     print('car_quryset', car_quryset)
     print('promotions_user', promotions_user)
 
-    # promotion_qeryset = Promotion.objects.prefetch_related('cars').all()#.filter(content_type=ContentType.objects.get_for_model(user), object_id=object.id)#Выберем промоушены зарегистрировавшегося юзера
+    promotion_qeryset = Promotion.objects.prefetch_related('cars').all()#.filter(content_type=ContentType.objects.get_for_model(user), object_id=object.id)#Выберем промоушены зарегистрировавшегося юзера
     # У Промоушена ключ на Профиль, у Профиля ключ на Юзера, Юзер входит, тут проверяется вся его подписка на подход к концу. CustomUser id = 32
     # ContentType
-  
   
     content_object = ContentType.objects.get_for_model(user)#get_for_id(content_type).get_object_for_this_type(pk=object_id)
     print('-----------------content_object', content_object)
@@ -137,9 +133,11 @@ def create_notification_for_logged_in(sender, user, request, **kwargs):
     for i in promotions_user:
         print('  content_object  ', i.content_object)
         if (i.time_paied - timezone.now()).days < 1:
-            Notification.objects.create(text = f"less 1 day left for {i.content_object} promotion", key_to_recepient=object.email, user=CustomUser.objects.get(email="andreymazo@mail.ru"))  #user от кого пришло, ставим суперюзера
+            Notification.objects.create(text = f"less 1 day left for {i.content_object} promotion", key_to_recepient=user.email,\
+                                         user=CustomUser.objects.get(email="andreymazo@mail.ru"))  #user от кого пришло, ставим суперюзера
+            print('Notification created')
         
-# user_logged_in.connect(create_notification_for_logged_in)
+user_logged_in.connect(create_notification_for_logged_in)
 
 class Profile(models.Model):
     """Модель профайла"""
@@ -179,3 +177,4 @@ class Notification(models.Model):
     text = models.CharField(max_length=400, **NULLABLE)
     user = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE, related_name='notification', **NULLABLE)
     key_to_recepient = models.CharField(max_length=50, verbose_name='Enter id or email of the user', **NULLABLE)
+    promotion = GenericRelation("ad.Promotion", related_query_name='notifications')

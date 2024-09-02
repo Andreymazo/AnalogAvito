@@ -25,7 +25,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.gis",
     "django.contrib.sites",
-    # "debug_toolbar",
+    "debug_toolbar",
     "rest_framework",
     'generic_relations',
     'rest_framework_gis',

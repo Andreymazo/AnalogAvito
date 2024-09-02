@@ -124,7 +124,7 @@ class CategoriesFilter(generics.ListAPIView):
 class CarList(generics.ListCreateAPIView):
     queryset = Car.objects.all()
     permission_classes = [IsAuthenticatedOrReadOnly]
-    parser_classes = [MultiPartParser, FormParser]
+    # parser_classes = [MultiPartParser, FormParser]
     serializer_class = CarCreateSerializer
 
 

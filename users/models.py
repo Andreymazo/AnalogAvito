@@ -178,3 +178,28 @@ class Notification(models.Model):
     user = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE, related_name='notification', **NULLABLE)
     key_to_recepient = models.CharField(max_length=50, verbose_name='Enter id or email of the user', **NULLABLE)
     promotion = GenericRelation("ad.Promotion", related_query_name='notifications')
+    viewed = models.BooleanField(default=False, verbose_name='Прочитано/Не прочитано')
+
+
+receiver(user_logged_in)
+def count_notification(sender, user, request, **kwargs):
+    """Получение количества непрочитанных уведомлений"""
+
+    try:
+        count = Notification.objects.filter(user=user, viewed=False).count()
+        request.user_notification_count = count
+
+        # Определение правильного имени на основе количества (сделал пока на первую десятку потом можно и на более расширить)
+        match count:
+            case 1:
+                correct_name = 'новое сообщение'
+            case 2 | 3 | 4:
+                correct_name = 'новых сообщения'
+            case _:
+                correct_name = 'новых сообщений'
+        request.correct_name = correct_name
+
+    except Exception:
+        request.user_notification_count = 0
+
+user_logged_in.connect(count_notification)

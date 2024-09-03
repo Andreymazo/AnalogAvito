@@ -30,5 +30,5 @@ class ProfileAdmin(ModelAdmin):
 
 @admin.register(Notification)
 class NotificationAdmin(ModelAdmin):
-    list_display = ('id', 'user',)
-    list_display_links = ('id', 'user',)
+    list_display = ('id', 'user', 'viewed', )
+    list_display_links = ('id', 'user', )

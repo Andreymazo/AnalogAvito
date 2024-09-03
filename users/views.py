@@ -48,6 +48,8 @@
 
 
 from datetime import datetime, timedelta, timezone
+from gc import get_count
+
 from django.contrib.auth import login, logout
 from django.core.signing import BadSignature, Signer
 from drf_spectacular.utils import (
@@ -82,7 +84,7 @@ from users.utils import (
 from users.models import (
     CustomUser,
     OneTimeCode,
-    Profile
+    Profile, Notification
 )
 
 
@@ -442,6 +444,9 @@ class ConfirmCodeView(APIView):
                 print("loged_in_________1___")
                 login(request, user, backend='config.backends.SettingsBackend')
                 print('request.user', request.user)
+
+                count_notification = getattr(request, 'user_notification_count')
+                correct_name = getattr(request, 'correct_name')
                 # access_token = get_tokens_for_user(user)['access']
                 # refresh_token = get_tokens_for_user(user)['refresh']
 
@@ -451,7 +456,7 @@ class ConfirmCodeView(APIView):
                 # cache.set("access_token", access_token)
                 # cache.set("refresh_token", refresh_token)
                 # return HttpResponseRedirect(reverse('ad:car_list'))
-                return Response(serializer.data, status=status.HTTP_200_OK, )  # headers=headers)
+                return Response({'data': serializer.data, 'message': f'У вас {count_notification} {correct_name}'}, status=status.HTTP_200_OK, )  # headers=headers)
 
             except Profile.DoesNotExist:
 

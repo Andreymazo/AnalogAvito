@@ -97,9 +97,10 @@ class Like(models.Model):
 
 class Favorite(models.Model):
     is_favorited = models.BooleanField()
-    user = models.ForeignKey(settings.AUTH_USER_MODEL,
-                             related_name='favorites',
-                             on_delete=models.CASCADE)
+    user = GenericRelation("users.CustomUser", related_query_name='fovorite')
+    # user = models.ForeignKey(settings.AUTH_USER_MODEL,
+    #                          related_name='favorites',
+    #                          on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now=True)
     updated = models.DateTimeField(auto_now_add=True)
     content_type = models.ForeignKey(ContentType,

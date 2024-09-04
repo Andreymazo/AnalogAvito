@@ -8,7 +8,8 @@ from django.contrib.contenttypes.models import ContentType
 def ff():
     user_id = CustomUser.objects.first().id
     obj = Car.objects.first()
-    Favorite.objects.create(is_favorited=False, user_id=user_id, content_type=ContentType.objects.get_for_model(obj), object_id=obj.id)
+    fav_instance = Favorite(is_favorited=False, content_object=obj)#content_type=ContentType.objects.get_for_model(obj), object_id=obj.id)
+    fav_instance.save()
   
 class Command(BaseCommand):
 

@@ -19,6 +19,8 @@ from django.dispatch import receiver
 from django.contrib.contenttypes.models import ContentType
 from rest_framework.response import Response
 from ad.models import Images
+from django.contrib.contenttypes.fields import GenericForeignKey
+
 
 NULLABLE = {'blank': True, 'null': True}
 
@@ -39,7 +41,9 @@ class CustomUser(AbstractUser):
     banned_at = models.DateTimeField(_("Время начала бана"), **NULLABLE)
     changed_at = models.DateTimeField(_("Время изменения"), auto_now_add=True)
     promotion = GenericRelation("ad.Promotion", related_query_name='users')
-
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
     objects = CustomUserManager()
 
     USERNAME_FIELD = "email"

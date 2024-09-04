@@ -89,10 +89,29 @@ class Like(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')#Как я понял вместотого, чтобы было понятно все написано с форейн кеями к каждой модели, можно так написать через content_type
+    
     def __str__(self):
         """Строковое представление объекта Лайк."""
         return f"{self.user}"
     
+
+class Favorite(models.Model):
+    is_favorited = models.BooleanField()
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             related_name='favorites',
+                             on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now=True)
+    updated = models.DateTimeField(auto_now_add=True)
+    content_type = models.ForeignKey(ContentType,
+                                     on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
+
+    def __str__(self):
+        """Строковое представление объекта Избранное."""
+        return f"{self.user}"
+
+
     # @property
     # def total_likes_user(self):
     #     return self.likes.count()  

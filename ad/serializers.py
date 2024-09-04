@@ -2,7 +2,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import serializers
 from django.contrib.contenttypes.models import ContentType
-from ad.models import IP, Car, Category, Images, Like
+from ad.models import IP, Car, Category, Images, Like, Favorite
 from bulletin.serializers import CarSerializer, ImagesSerializer, ProfileSerializer
 from users.models import CustomUser, Notification, Profile
 
@@ -23,6 +23,12 @@ class LikeSerializerCreate(serializers.ModelSerializer):
     class Meta:
         model = Like
         fields = [ "is_liked", ]
+
+class FavoriteSerializerCreate(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Favorite
+        fields = [ "is_favorited", ]
 
 class NotificationSerializer(serializers.ModelSerializer):
     class Meta:

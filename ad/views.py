@@ -686,11 +686,10 @@ def notifications_by_enter(
         # return redirect(login_url)
         return Response({"message": "Вы неавторизированы. Перенаправляем на авторизацию"},
                         status=status.HTTP_400_BAD_REQUEST)
-    serializer = NotificationSerializer(data=request.data)
     notifications = Notification.objects.all().filter(
         key_to_recepient=request.user.email) | Notification.objects.all().filter(key_to_recepient=request.user.id)
     num_mssgs = notifications.count()
-
+    serializer = NotificationSerializer(notifications)
     if not notifications:
         return Response([serializer.data, {"message": f"Дорогой {request.user.email}у вас нет сообщений"}],
                         status=status.HTTP_200_OK)

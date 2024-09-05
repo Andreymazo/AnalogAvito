@@ -24,7 +24,14 @@ class LikeSerializerCreate(serializers.ModelSerializer):
         model = Like
         fields = [ "is_liked", ]
 
-class FavoriteSerializerCreate(serializers.ModelSerializer):
+
+class FavoiteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Favorite
+        fields = "__all__"
+
+
+class FavoiteSrerializerCreate(serializers.ModelSerializer):
     
     class Meta:
         model = Favorite

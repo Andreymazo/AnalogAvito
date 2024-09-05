@@ -44,6 +44,7 @@ class CustomUser(AbstractUser):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
+    
     objects = CustomUserManager()
 
     USERNAME_FIELD = "email"
@@ -149,6 +150,7 @@ class Profile(models.Model):
     phone_number = models.CharField(_("Номер телефона"), max_length=MAX_LEN_PHONE_NUMBER, unique=True, validators=[phone_validator])
     name = models.CharField(_("Имя пользователя"), max_length=MAX_LEN_NAME_PROFILE)
     images = GenericRelation("ad.Images",  related_query_name='profile')#object_id_field='profile_id',
+    car = GenericRelation("ad.Car", related_query_name='profilee')
 
     # location =  PointField()
     # views = GenericRelation("ad.Views", related_query_name='profile')

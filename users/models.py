@@ -154,6 +154,7 @@ class Profile(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()    
     content_object = GenericForeignKey('content_type', 'object_id')
+    bagsknapsacks = GenericRelation("ad.BagsKnapsacks", related_query_name='profilee')
     # location =  PointField()
     # views = GenericRelation("ad.Views", related_query_name='profile')
     

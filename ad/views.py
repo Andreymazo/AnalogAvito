@@ -1,4 +1,4 @@
-
+from django.core.exceptions import FieldError
 import django_filters
 from django.apps import apps
 from django_filters.rest_framework import DjangoFilterBackend
@@ -11,7 +11,7 @@ from django.db import IntegrityError, ProgrammingError
 from rest_framework import generics
 from ad.filters import CarFilter, CategoryFilter, CustomFilterSet, CategoryFilterByName
 # from ad.func_for_help import choose_serializer
-from ad.models import Category, Car, Like, Images, Views
+from ad.models import Category, Car, Like, Images, MenClothes, Views
 from ad.pagination import CategoryListPagination
 from config.backends import CustomFilterQueryset, MyFilterBackend
 from users.models import Notification
@@ -46,6 +46,7 @@ from map.models import Marker
 from django.db import transaction
 from django.contrib import messages
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated, AllowAny
+from ad.serializers import BagsKnapsacksSerialiser, ChildClothesShoesSerialiser, MenClothesSerialiser, MenShoesSerialiser, WemenClothesSerialiser, WemenShoesSerialiser
 
 
 # @extend_schema(
@@ -822,10 +823,38 @@ def notifications_by_enter(
 # # serializer.save()
 #             return Response(serializer.data, status=status.HTTP_201_CREATED)
 #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+def choose_serializer(model):
+    print('model======================', model.__name__)
+    model =  model.__name__
+    mod_lst = ["MenClothes", "WemenClothes", "MenShoes", "WemenShoes", "ChildClothesShoes", "BagsKnapsacks", "Car"]
+    # ser_dict = {"MenClothes":MenClothesSerialiser, "WemenClothes": WemenClothesSerialiser, "MenShoes":MenShoesSerialiser,\
+    #             "WemenShoes" :WemenShoesSerialiser, "ChildClothesShoes":ChildClothesShoesSerialiser, "BagsKnapsacks":BagsKnapsacksSerialiser}
+    ser_lst =  [MenClothesSerialiser, WemenClothesSerialiser, MenShoesSerialiser, WemenShoesSerialiser, ChildClothesShoesSerialiser, 
+   BagsKnapsacksSerialiser, CarSerializer]
+    
+    if str(model) in mod_lst:
+        index = mod_lst.index(model)
+        return ser_lst[index]
+# Car
+# MenClothes
 @api_view(["GET"])
 def get_ads_fm_user(request):
-    serializer=choose_serializer()
+    user = request.user
+    app_models = apps.get_app_config('ad').get_models()
     if request.method == "GET":
-        pass
+        lst_data =[]
+        for i in app_models:
+            try:
+                instance = i.objects.all().filter(profilee=user.profile)
+                serializer=choose_serializer(i)
+                lst_data.append(serializer(instance, many=True).data)
+                
+            except AttributeError as e:
+                print(e)
+            except FieldError as e:
+                print(e)
+        return Response(lst_data, status=status.HTTP_200_OK)
+    
+    
+        
 

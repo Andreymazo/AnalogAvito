@@ -7,6 +7,7 @@ from ad.views import (
     GetModelFmCategoryView,
     GetObjFmModelView,
     UploadViewSet,
+    get_ads_fm_user,
     like_add,
     # like_list_create,
     like_list_obj,
@@ -44,6 +45,8 @@ urlpatterns = [
 
     # Category_filter_test
     path('categories_filter/', CategoriesFilter.as_view(), name='categories_filter'),
+    path('get_ads_fm_user/', get_ads_fm_user, name='get_ads_fm_user'),
+    
    
 ]
 

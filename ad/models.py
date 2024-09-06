@@ -148,7 +148,9 @@ class Car(Advertisement):
     promotions = GenericRelation("ad.Promotion", related_query_name='cars')
     views = GenericRelation("ad.Views", related_query_name='cars')
     mssg = GenericRelation("chat.Mssg", related_query_name='cars')
-
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()    
+    content_object = GenericForeignKey('content_type', 'object_id')
 
     class Meta:
         verbose_name = _("Automobile")

@@ -155,6 +155,13 @@ class Profile(models.Model):
     object_id = models.PositiveIntegerField()    
     content_object = GenericForeignKey('content_type', 'object_id')
     bagsknapsacks = GenericRelation("ad.BagsKnapsacks", related_query_name='profilee')
+    menclothes = GenericRelation("ad.MenClothes", related_query_name='profilee')
+    menshoes = GenericRelation("ad.MenShoes", related_query_name='profilee')
+    wemenclothes = GenericRelation("ad.WemenClothes", related_query_name='profilee')
+    wemenshoes = GenericRelation("ad.WemenShoes", related_query_name='profilee')
+    childclothesshoes = GenericRelation("ad.ChildClothesShoes", related_query_name='profilee')
+    
+    
     # location =  PointField()
     # views = GenericRelation("ad.Views", related_query_name='profile')
     

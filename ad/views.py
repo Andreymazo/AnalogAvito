@@ -10,6 +10,7 @@ from django.utils.datastructures import MultiValueDictKeyError
 from django.db import IntegrityError, ProgrammingError
 from rest_framework import generics
 from ad.filters import CarFilter, CategoryFilter, CustomFilterSet, CategoryFilterByName
+# from ad.func_for_help import choose_serializer
 from ad.models import Category, Car, Like, Images, Views
 from ad.pagination import CategoryListPagination
 from config.backends import CustomFilterQueryset, MyFilterBackend
@@ -821,4 +822,10 @@ def notifications_by_enter(
 # # serializer.save()
 #             return Response(serializer.data, status=status.HTTP_201_CREATED)
 #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(["GET"])
+def get_ads_fm_user(request):
+    serializer=choose_serializer()
+    if request.method == "GET":
+        pass
 

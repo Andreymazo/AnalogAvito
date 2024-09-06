@@ -24,7 +24,7 @@ def ff():
     for i in conttype_queryset:
         # print(i.model_class())
         try:
-            instance = i.model_class().profilee.rel.model.objects.filter(profile=user.profile)
+            instance = i.model_class().profilee.rel.model.objects.all().filter(profilee=user.profile)
             print('here smth', instance)
         except AttributeError as e:
             print(e)

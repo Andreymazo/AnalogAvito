@@ -2,7 +2,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import serializers
 from django.contrib.contenttypes.models import ContentType
-from ad.models import IP, Car, Category, Images, Like, Favorite
+from ad.models import IP, BagsKnapsacks, Car, Category, ChildClothesShoes, Images, Like, Favorite, MenClothes, MenShoes, WemenClothes, WemenShoes
 from bulletin.serializers import CarSerializer, ImagesSerializer, ProfileSerializer
 from users.models import CustomUser, Notification, Profile
 
@@ -116,3 +116,34 @@ class CategoryFilterSerializer(serializers.ModelSerializer):
         fields = super(CategoryFilterSerializer, self).get_fields()
         fields["children"] = CategoryFilterSerializer(many=True, required=False)
         return fields
+
+
+class MenClothesSerialiser(serializers.ModelSerializer):
+    class Meta:
+        model = MenClothes
+        fields = "__all__"
+
+class WemenClothesSerialiser(serializers.ModelSerializer):
+    class Meta:
+        model = WemenClothes
+        fields = "__all__"
+
+class MenShoesSerialiser(serializers.ModelSerializer):
+    class Meta:
+        model = MenShoes
+        fields = "__all__"
+
+class WemenShoesSerialiser(serializers.ModelSerializer):
+    class Meta:
+        model = WemenShoes
+        fields = "__all__"
+
+class ChildClothesShoesSerialiser(serializers.ModelSerializer):
+    class Meta:
+        model = ChildClothesShoes
+        fields = "__all__"
+
+class BagsKnapsacksSerialiser(serializers.ModelSerializer):
+    class Meta:
+        model = BagsKnapsacks
+        fields = "__all__"

@@ -1,12 +1,16 @@
 from django.core.management import BaseCommand
-from ad.models import Category
+from ad.models import BagsKnapsacks, Category, ChildClothesShoes, MenClothes, MenShoes, WemenClothes, WemenShoes
 from users.models import Profile
 # Avito:
 # Личные вещи --> Одежда, обувь, акссессуары --> Личные вещи --> Женская одежда
 #  https://www.avito.ru/sankt-peterburg/odezhda_obuv_aksessuary/svadebnye_platya_podgotovka_i_himchistka_2054834952
 def ff():
-    pass
-    # MenClothes
+    profile_lst = [Profile.objects.first(), Profile.objects.last()]
+    price_lst = [2000, 3000]
+    for i,ii in zip(profile_lst, price_lst):
+
+        menclothes = MenClothes(price=ii, content_object = i)
+        menclothes.save()
     # WemenClothes
     # MenShoes
     # WemenShoes

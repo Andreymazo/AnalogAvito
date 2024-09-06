@@ -240,7 +240,14 @@ class Views(models.Model):
 
 class MenClothes(Advertisement):
     size = models.CharField(choices=MEN_SIZES)
-    profile = GenericRelation("users.Profile", related_query_name='menclothes')
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()    
+    content_object = GenericForeignKey('content_type', 'object_id')
+    likes = GenericRelation("ad.Like", related_query_name='cars')
+    images = GenericRelation("ad.Images", related_query_name='cars')
+    promotions = GenericRelation("ad.Promotion", related_query_name='cars')
+    views = GenericRelation("ad.Views", related_query_name='cars')
+    mssg = GenericRelation("chat.Mssg", related_query_name='cars')
     class Meta:
         verbose_name = _("Men Clothes")
         verbose_name_plural = _("Men Clothes")

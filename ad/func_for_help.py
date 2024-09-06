@@ -29,16 +29,5 @@ def save_file(file, full_path):
         for chunk in file.chunks():
             f.write(chunk)    
 
-# def ChooseFilterSet():
-#     filters_list = [CarFilter,]
-#     content_type = cache.get("content_type")
-#     print('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++content_type', content_type)
-#     for i in filters_list:
-#         try:
-#             if ContentType.objects.get_for_id(content_type) == ContentType.objects.get_for_model(i.Meta.model):
-#                 filterset = i
-#                 print('filterset' , filterset)
-#                 return  filterset
-#         except ContentType.DoesNotExist:
-#             return None
-         
+# def choose_serializer():
+#     []

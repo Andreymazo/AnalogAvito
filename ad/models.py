@@ -256,7 +256,9 @@ class MenClothes(Advertisement):
         return str(self.id)
     
 class WemenClothes(Advertisement):
-    profile = GenericRelation("users.Profile", related_query_name='wemenclothes')
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()    
+    content_object = GenericForeignKey('content_type', 'object_id')
     class Meta:
         verbose_name = _("Automobile")
         verbose_name_plural = _("Automobiles")
@@ -265,7 +267,9 @@ class WemenClothes(Advertisement):
         return str(self.id)
 
 class MenShoes(Advertisement):
-    profile = GenericRelation("users.Profile", related_query_name='menshoes')
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()    
+    content_object = GenericForeignKey('content_type', 'object_id')
     class Meta:
         verbose_name = _("Men Shoes")
         verbose_name_plural = _("Men Shoes")
@@ -274,7 +278,9 @@ class MenShoes(Advertisement):
         return str(self.id)
 
 class WemenShoes(Advertisement):
-    profile = GenericRelation("users.Profile", related_query_name='wemenshoes')
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()    
+    content_object = GenericForeignKey('content_type', 'object_id')
     class Meta:
         verbose_name = _("Wemen Shoes")
         verbose_name_plural = _("Wemen Shoes")
@@ -283,7 +289,9 @@ class WemenShoes(Advertisement):
         return str(self.id)
 
 class ChildClothesShoes(Advertisement):
-    profile = GenericRelation("users.Profile", related_query_name='childclothes')
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()    
+    content_object = GenericForeignKey('content_type', 'object_id')
     class Meta:
         verbose_name = _("Child's Clothes&Shoes")
         verbose_name_plural = _("Child's Clothes&Shoes")
@@ -292,7 +300,9 @@ class ChildClothesShoes(Advertisement):
         return str(self.id)
 
 class BagsKnapsacks(Advertisement):
-    profile = GenericRelation("users.Profile", related_query_name='bagsknapsacks')
+    # content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    # object_id = models.PositiveIntegerField()    
+    # content_object = GenericForeignKey('content_type', 'object_id')
     class Meta:
         verbose_name = _("Bags&Knapsacks")
         verbose_name_plural = _("Bags&Knapsacks")

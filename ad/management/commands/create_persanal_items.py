@@ -11,11 +11,17 @@ def ff():
 
         menclothes = MenClothes(price=ii, content_object = i)
         menclothes.save()
-    # WemenClothes
-    # MenShoes
-    # WemenShoes
-    # ChildClothesShoes
-    # BagsKnapsacks
+    wemenclothes = WemenClothes(price=ii, content_object = i)
+    wemenclothes.save()
+    mensh = MenShoes(price=ii, content_object = i)
+    mensh.save()
+    wemsh = WemenShoes(price=ii, content_object = i)
+    wemsh.save()
+    childcloth = ChildClothesShoes(price=ii, content_object = i)
+    childcloth.save()
+    bagssnacks = BagsKnapsacks(price=ii, content_object = i)
+    bagssnacks.save()
+
     # parent_id  = Category.objects.get(name="Личные вещи").id
     # lst_of_smth = ["Мужская одежда", "Мужская обувь",  "Женская одежда", "Женская обувь", "Детская одежда и обувь" ,"Сумки, рюкзаки, чемоданы", "Остальное"]
     # [Category.objects.get_or_create(name=i, parent_id=parent_id)  for i in lst_of_smth]

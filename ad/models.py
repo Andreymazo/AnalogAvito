@@ -47,10 +47,12 @@ class Advertisement(models.Model):
     created = models.DateTimeField(auto_now=True)
     changed = models.DateTimeField(auto_now_add=True)
     moderation = models.BooleanField(_("Модерация"), default=False)
+    archived = models.BooleanField(_("Архивное"), default=False)
     price = models.CharField(_("price"), max_length=100)
     description = models.CharField(_("Description"), max_length=2000)
     # marker = models.OneToOneField('map.Marker', on_delete=models.CASCADE, related_name="card")
-    profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, related_name="card", **NULLABLE)
+    
+    
 
     class Meta:
         abstract = True
@@ -73,6 +75,10 @@ BY_COLOUR = [("BLACK", "BLACK"), ("WHITE", "WHITE"), ("GREEN", "GREEN"), ("GREY"
 
 BY_FUEL = [("PTR", "PETROL"), ("GAS", "GAS"), ("HYBRID", "HYBRID"), ("ELECTRIC", "ELECTRIC"), ("DIESEL", "DIESEL")]
 
+MEN_SIZES = [("XS—40/42", "особо маленький - extra small"), ("S — 44/46", "маленький - small") , ("(M—48/50", "средний - medium"), \
+    ("L— 52/54", "большой - large" ), ("XL—56/58", "особо большой — extra large"), ("XXL— 60/62", " особо особо большой— extra-extra large" ),\
+          ("3XL—64/66", "ососбо особо особо большой— extra-extra-extra large" ),
+]
 def current_year():
     return datetime.date.today().year
 
@@ -142,6 +148,7 @@ class Car(Advertisement):
     promotions = GenericRelation("ad.Promotion", related_query_name='cars')
     views = GenericRelation("ad.Views", related_query_name='cars')
     mssg = GenericRelation("chat.Mssg", related_query_name='cars')
+
 
     class Meta:
         verbose_name = _("Automobile")
@@ -230,7 +237,77 @@ class Views(models.Model):
     content_object = GenericForeignKey('content_type', 'object_id')
     profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, related_name="view", **NULLABLE)
     created = models.DateTimeField(auto_now_add=True)
+
+class MenClothes(Advertisement):
+    size = models.CharField(choices=MEN_SIZES)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()    
+    content_object = GenericForeignKey('content_type', 'object_id')
+    likes = GenericRelation("ad.Like", related_query_name='cars')
+    images = GenericRelation("ad.Images", related_query_name='cars')
+    promotions = GenericRelation("ad.Promotion", related_query_name='cars')
+    views = GenericRelation("ad.Views", related_query_name='cars')
+    mssg = GenericRelation("chat.Mssg", related_query_name='cars')
+    class Meta:
+        verbose_name = _("Men Clothes")
+        verbose_name_plural = _("Men Clothes")
+
+    def __str__(self) -> str:
+        return str(self.id)
     
+class WemenClothes(Advertisement):
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()    
+    content_object = GenericForeignKey('content_type', 'object_id')
+    class Meta:
+        verbose_name = _("Automobile")
+        verbose_name_plural = _("Automobiles")
+
+    def __str__(self) -> str:
+        return str(self.id)
+
+class MenShoes(Advertisement):
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()    
+    content_object = GenericForeignKey('content_type', 'object_id')
+    class Meta:
+        verbose_name = _("Men Shoes")
+        verbose_name_plural = _("Men Shoes")
+
+    def __str__(self) -> str:
+        return str(self.id)
+
+class WemenShoes(Advertisement):
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()    
+    content_object = GenericForeignKey('content_type', 'object_id')
+    class Meta:
+        verbose_name = _("Wemen Shoes")
+        verbose_name_plural = _("Wemen Shoes")
+
+    def __str__(self) -> str:
+        return str(self.id)
+
+class ChildClothesShoes(Advertisement):
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()    
+    content_object = GenericForeignKey('content_type', 'object_id')
+    class Meta:
+        verbose_name = _("Child's Clothes&Shoes")
+        verbose_name_plural = _("Child's Clothes&Shoes")
+
+    def __str__(self) -> str:
+        return str(self.id)
+
+class BagsKnapsacks(Advertisement):
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()    
+    content_object = GenericForeignKey('content_type', 'object_id')
+    class Meta:
+        verbose_name = _("Bags&Knapsacks")
+        verbose_name_plural = _("Bags&Knapsacks")
+    def __str__(self) -> str:
+        return str(self.id)
 
 
 """This is changed by model Advertisement, must be deleted after testing"""

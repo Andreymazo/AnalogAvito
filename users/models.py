@@ -151,7 +151,9 @@ class Profile(models.Model):
     name = models.CharField(_("Имя пользователя"), max_length=MAX_LEN_NAME_PROFILE)
     images = GenericRelation("ad.Images",  related_query_name='profile')#object_id_field='profile_id',
     car = GenericRelation("ad.Car", related_query_name='profilee')
-
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()    
+    content_object = GenericForeignKey('content_type', 'object_id')
     # location =  PointField()
     # views = GenericRelation("ad.Views", related_query_name='profile')
     

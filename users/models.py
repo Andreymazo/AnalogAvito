@@ -41,9 +41,9 @@ class CustomUser(AbstractUser):
     banned_at = models.DateTimeField(_("Время начала бана"), **NULLABLE)
     changed_at = models.DateTimeField(_("Время изменения"), auto_now_add=True)
     promotion = GenericRelation("ad.Promotion", related_query_name='users')
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField()
-    content_object = GenericForeignKey('content_type', 'object_id')
+    # content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    # object_id = models.PositiveIntegerField()
+    # content_object = GenericForeignKey('content_type', 'object_id')
     
     objects = CustomUserManager()
 

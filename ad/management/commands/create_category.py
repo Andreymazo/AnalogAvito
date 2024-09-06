@@ -19,7 +19,10 @@ def ff():
     parent_id  = Category.objects.get(name="Купить жильё").id
     lst_of_smth = ["Квартиры", "Дома", "Комнаты", "Земельные участки", "Коммерческая недвижимоcть",]
     [Category.objects.get_or_create(name=i, parent_id=parent_id)  for i in lst_of_smth]
-
+    
+    parent_id  = Category.objects.get(name="Личные вещи").id
+    lst_of_smth = ["Мужская одежда", "Мужская обувь",  "Женская одежда", "Женская обувь", "Детская одежда и обувь" ,"Сумки, рюкзаки, чемоданы",]
+    [Category.objects.get_or_create(name=i, parent_id=parent_id)  for i in lst_of_smth]
 class Command(BaseCommand):
 
     def handle(self, *args, **options):

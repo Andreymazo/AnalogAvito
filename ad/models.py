@@ -77,7 +77,7 @@ BY_FUEL = [("PTR", "PETROL"), ("GAS", "GAS"), ("HYBRID", "HYBRID"), ("ELECTRIC",
 
 MEN_SIZES = [("XS—40/42", "особо маленький - extra small"), ("S — 44/46", "маленький - small") , ("(M—48/50", "средний - medium"), \
     ("L— 52/54", "большой - large" ), ("XL—56/58", "особо большой — extra large"), ("XXL— 60/62", " особо особо большой— extra-extra large" ),\
-          ("3XL—64/66", "ососбо особо особо большой— extra-extra-extra large" ),
+          ("3XL—64/66", "особо особо особо большой— extra-extra-extra large" ),
 ]
 def current_year():
     return datetime.date.today().year
@@ -245,11 +245,11 @@ class MenClothes(Advertisement):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()    
     content_object = GenericForeignKey('content_type', 'object_id')
-    likes = GenericRelation("ad.Like", related_query_name='cars')
-    images = GenericRelation("ad.Images", related_query_name='cars')
-    promotions = GenericRelation("ad.Promotion", related_query_name='cars')
-    views = GenericRelation("ad.Views", related_query_name='cars')
-    mssg = GenericRelation("chat.Mssg", related_query_name='cars')
+    likes = GenericRelation("ad.Like", related_query_name='men_clothes')
+    images = GenericRelation("ad.Images", related_query_name='men_clothes')
+    promotions = GenericRelation("ad.Promotion", related_query_name='men_clothes')
+    views = GenericRelation("ad.Views", related_query_name='men_clothes')
+    mssg = GenericRelation("chat.Mssg", related_query_name='men_clothes')
     class Meta:
         verbose_name = _("Men Clothes")
         verbose_name_plural = _("Men Clothes")
@@ -261,9 +261,14 @@ class WemenClothes(Advertisement):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()    
     content_object = GenericForeignKey('content_type', 'object_id')
+    likes = GenericRelation("ad.Like", related_query_name='women_clothes')
+    images = GenericRelation("ad.Images", related_query_name='women_clothes')
+    promotions = GenericRelation("ad.Promotion", related_query_name='women_clothes')
+    views = GenericRelation("ad.Views", related_query_name='women_clothes')
+    mssg = GenericRelation("chat.Mssg", related_query_name='women_clothes')
     class Meta:
-        verbose_name = _("Automobile")
-        verbose_name_plural = _("Automobiles")
+        verbose_name = _("Women Shoes")
+        verbose_name_plural = _("Women Shoes")
 
     def __str__(self) -> str:
         return str(self.id)
@@ -272,6 +277,11 @@ class MenShoes(Advertisement):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()    
     content_object = GenericForeignKey('content_type', 'object_id')
+    likes = GenericRelation("ad.Like", related_query_name='men_shoes')
+    images = GenericRelation("ad.Images", related_query_name='men_shoes')
+    promotions = GenericRelation("ad.Promotion", related_query_name='men_shoes')
+    views = GenericRelation("ad.Views", related_query_name='men_shoes')
+    mssg = GenericRelation("chat.Mssg", related_query_name='men_shoes')
     class Meta:
         verbose_name = _("Men Shoes")
         verbose_name_plural = _("Men Shoes")
@@ -283,6 +293,11 @@ class WemenShoes(Advertisement):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()    
     content_object = GenericForeignKey('content_type', 'object_id')
+    likes = GenericRelation("ad.Like", related_query_name='women_shoes')
+    images = GenericRelation("ad.Images", related_query_name='women_shoes')
+    promotions = GenericRelation("ad.Promotion", related_query_name='women_shoes')
+    views = GenericRelation("ad.Views", related_query_name='women_shoes')
+    mssg = GenericRelation("chat.Mssg", related_query_name='women_shoes')
     class Meta:
         verbose_name = _("Wemen Shoes")
         verbose_name_plural = _("Wemen Shoes")
@@ -294,6 +309,11 @@ class ChildClothesShoes(Advertisement):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()    
     content_object = GenericForeignKey('content_type', 'object_id')
+    likes = GenericRelation("ad.Like", related_query_name='child_clothes_shoes')
+    images = GenericRelation("ad.Images", related_query_name='child_clothes_shoes')
+    promotions = GenericRelation("ad.Promotion", related_query_name='child_clothes_shoes')
+    views = GenericRelation("ad.Views", related_query_name='child_clothes_shoes')
+    mssg = GenericRelation("chat.Mssg", related_query_name='child_clothes_shoes')
     class Meta:
         verbose_name = _("Child's Clothes&Shoes")
         verbose_name_plural = _("Child's Clothes&Shoes")

@@ -838,11 +838,11 @@ def choose_serializer(model):
 Car
 
 @extend_schema(
-    tags=["Личные вещи/ Cars"],
+    tags=["Личные вещи/ Personal items"],
     # summary=" Car list and car creation",
     request=MenClothesSerialiser,
     responses={status.HTTP_200_OK: OpenApiResponse(
-        description="Объявление автомобиль создано",
+        description="Объявление создано",
         response=MenClothesSerialiser,
     ), }
 
@@ -862,7 +862,7 @@ class MenClothesList(generics.ListCreateAPIView):# Пока без криейт�
     # summary=" Car list and car creation",
     request=MenShoesSerialiser,
     responses={status.HTTP_200_OK: OpenApiResponse(
-        description="Объявление автомобиль создано",
+        description="Объявление создано",
         response=MenShoesSerialiser,
     ), }
 

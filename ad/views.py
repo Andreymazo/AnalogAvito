@@ -293,15 +293,20 @@ class UploadViewSet(ModelViewSet):
         ),
     },
 )
-@api_view(["GET"])  # Здесь лучше с фронта получать объект объявлений obj - объявление и сувать его в
-# content_type = ContentType.objects.get_for_model(obj).
-# Фронт не знает к какой модели какое число и потом номер инстанса надо брать. По obj фильтровать проще
-def like_list_obj(request, obj):  # ContentType_id=16, obj_id=6):
+@api_view(["GET"])  # Здесь в кэше уже должны быть модель и ноер объекта
+def like_list_obj(request):  # ContentType_id=16, obj_id=6):
+    try:
+        dict_of_cache = cache.get_many(["content_type", "obj_id"])
+        content_type = dict_of_cache['content_type']
+        obj_id = dict_of_cache['obj_id']
+    except KeyError as e:
+        print(e)
+        return redirect(reverse("ad:get_model_fm_category"))
     # content_type = ContentType.objects.get_for_id(ContentType_id)
     # obj = content_type.get_object_for_this_type(pk=obj_id)
-    content_type = ContentType.objects.get_for_model(obj)
+    # content_type = ContentType.objects.get_for_model(obj)
     if request.method == "GET":
-        like_queryset_obj = Like.objects.all().filter(content_type=content_type).filter(object_id=obj.id)
+        like_queryset_obj = Like.objects.all().filter(content_type=content_type).filter(object_id=obj_id)
         serializer = LikeSerializer(like_queryset_obj, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 

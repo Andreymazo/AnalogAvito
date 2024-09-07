@@ -124,7 +124,7 @@ class Favorite(models.Model):
     #     return self.likes.count()  
 class Car(Advertisement):
     category = TreeForeignKey('ad.Category', on_delete=models.CASCADE, related_name='advertisement')
-    profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, related_name='cars', **NULLABLE)
+    # profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, related_name='cars', **NULLABLE)
     by_mileage = models.CharField(_("Differ by mileage"), choices=BY_MILEAGE)
     brand = models.CharField(_("brand"), max_length=100)
     model = models.CharField(_("model"), max_length=100)

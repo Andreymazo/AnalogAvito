@@ -163,7 +163,7 @@ class CarSerializer(serializers.ModelSerializer):
     
         class Meta:
             model = Car
-            fields = ("id", "by_mileage", "category_id", 'brand', "year", "model", "mileage", "price", "image", "title", "profile")
+            fields = ("id", "by_mileage", "category_id", 'brand', "year", "model", "mileage", "price", "image", "title", )
 
         def create(self, validated_data):
             # user=get_user_model()

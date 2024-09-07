@@ -15,7 +15,7 @@ class CategoryAdmin(ModelAdmin):
 
 
 @register(Car)
-class CustomUserAdmin(TranslationAdmin):
+class CustomUserAdmin(ModelAdmin):
     # list_display_links = ("id",)
     list_display = ("description",)
 

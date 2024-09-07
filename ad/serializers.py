@@ -146,4 +146,5 @@ class ChildClothesShoesSerialiser(serializers.ModelSerializer):
 class BagsKnapsacksSerialiser(serializers.ModelSerializer):
     class Meta:
         model = BagsKnapsacks
-        fields = "__all__"
+        # fields = "__all__"
+        exclude = ['created', ]

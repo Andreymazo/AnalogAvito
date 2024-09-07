@@ -1,9 +1,9 @@
 import django_filters
 from django_filters import OrderingFilter
-from ad.models import Advertisement, Car, Category
+from ad.models import Advertisement, BagsKnapsacks, Car, Category, ChildClothesShoes, MenClothes, MenShoes, WemenClothes, WemenShoes
 
-"""Advertisement is abstract, cant be filtered AttributeError: 'NoneType' object has no attribute 'all'"""
-# class AdvertisementFilter(django_filters.FilterSet):
+# """MenClothes Filter"""
+# class MenClothesFilter(django_filters.FilterSet):
 #     # name = django_filters.CharFilter(lookup_expr='icontains')#iexact
 #     # name = django_filters.CharFilter(lookup_expr='iexact')
 
@@ -22,9 +22,64 @@ from ad.models import Advertisement, Car, Category
 #         return queryset
 
 #     class Meta:
-#         model = Advertisement
+#         model = MenClothes
 #         # ordering = ('title',)
 #         fields = ['title', 'created',]
+
+
+
+class MenClothesFilter(django_filters.FilterSet):
+
+    def filter_queryset(self, queryset):
+        queryset=MenClothes.objects.all().order_by('title')
+        return queryset
+
+    class Meta:
+        model = MenClothes
+        # ordering = ('title',)
+        fields = "__all__"
+
+class MenClothesFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = MenClothes
+        fields = "__all__"
+
+
+class MenShoesFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = MenShoes
+        fields = "__all__"
+
+class WemenClothesFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = WemenClothes
+        fields = "__all__"
+
+
+class WemenShoesFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = WemenShoes
+        fields = "__all__"
+
+
+class BagsKnapsacksFilter(django_filters.FilterSet):
+    # title__gt = django_filters.CharFilter(field_name='title', lookup_expr='gt')
+
+    class Meta:
+        model = BagsKnapsacks
+        fields = "__all__"# ['title',]
+
+
+
+class ChildClothesShoesFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = ChildClothesShoes
+        fields = "__all__"
 
 
 class CategoryFilter(django_filters.FilterSet):

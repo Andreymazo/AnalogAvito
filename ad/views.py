@@ -9,10 +9,10 @@ from django.core.cache import cache
 from django.utils.datastructures import MultiValueDictKeyError
 from django.db import IntegrityError, ProgrammingError
 from rest_framework import generics
-from ad.filters import CarFilter, CategoryFilter, CustomFilterSet, CategoryFilterByName
+from ad.filters import BagsKnapsacksFilter, CarFilter, CategoryFilter, ChildClothesShoesFilter, CustomFilterSet, CategoryFilterByName, MenClothesFilter, MenShoesFilter, WemenClothesFilter, WemenShoesFilter
 # from ad.func_for_help import choose_serializer
-from ad.models import Category, Car, Like, Images, MenClothes, Views
-from ad.pagination import CategoryListPagination
+from ad.models import BagsKnapsacks, Category, Car, ChildClothesShoes, Like, Images, MenClothes, MenShoes, Views, WemenClothes, WemenShoes
+from ad.pagination import OrdinaryListPagination
 from config.backends import CustomFilterQueryset, MyFilterBackend
 from users.models import Notification
 from ad.serializers import CarCreateSerializer, CarNameSerializer, DefaultSerializer, LikeSerializer, \
@@ -106,7 +106,7 @@ class CategoriesFilter(generics.ListAPIView):
     # Получаем queryset только для нулевого уровня, потомки будут получены в сериализаторе
     queryset = Category.objects.filter(level=0)
     serializer_class = CategoryFilterSerializer
-    pagination_class = CategoryListPagination
+    pagination_class = OrdinaryListPagination
     filter_backends = [DjangoFilterBackend]
     filterset_class = CategoryFilterByName
 
@@ -293,23 +293,25 @@ class UploadViewSet(ModelViewSet):
         ),
     },
 )
-@api_view(["GET"])  # Здесь лучше с фронта получать объект объявлений obj - объявление и сувать его в
-# content_type = ContentType.objects.get_for_model(obj).
-# Фронт не знает к какой модели какое число и потом номер инстанса надо брать. По obj фильтровать проще
-
-def like_list_obj(request, obj):  # ContentType_id=16, obj_id=6):
+@api_view(["GET"])  # Здесь в кэше уже должны быть модель и ноер объекта
+def like_list_obj(request):  # ContentType_id=16, obj_id=6):
+    try:
+        dict_of_cache = cache.get_many(["content_type", "obj_id"])
+        content_type = dict_of_cache['content_type']
+        obj_id = dict_of_cache['obj_id']
+    except KeyError as e:
+        print(e)
+        return redirect(reverse("ad:get_model_fm_category"))
     # content_type = ContentType.objects.get_for_id(ContentType_id)
     # obj = content_type.get_object_for_this_type(pk=obj_id)
-    content_type = ContentType.objects.get_for_model(obj)
+    # content_type = ContentType.objects.get_for_model(obj)
     if request.method == "GET":
-        like_queryset_obj = Like.objects.all().filter(content_type=content_type).filter(object_id=obj.id)
+        like_queryset_obj = Like.objects.all().filter(content_type=content_type).filter(object_id=obj_id)
         serializer = LikeSerializer(like_queryset_obj, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 """Function returns likes for requested user"""
-
-
 @extend_schema(
     tags=["Лайки / Likes "],
     summary="Лайки пользователя / List of likes request user concerned",
@@ -335,8 +337,6 @@ def like_list_user(request):
 
 
 """Function returns likes for user instance, for 1st by default"""
-
-
 @extend_schema(
 
     tags=["Лайки / Likes"],
@@ -835,8 +835,125 @@ def choose_serializer(model):
     if str(model) in mod_lst:
         index = mod_lst.index(model)
         return ser_lst[index]
-# Car
-# MenClothes
+Car
+
+@extend_schema(
+    tags=["Личные вещи/ Cars"],
+    # summary=" Car list and car creation",
+    request=MenClothesSerialiser,
+    responses={status.HTTP_200_OK: OpenApiResponse(
+        description="Объявление автомобиль создано",
+        response=MenClothesSerialiser,
+    ), }
+
+)
+class MenClothesList(generics.ListCreateAPIView):# Пока без криейта, чтобы сделать криейт, нужны криейтовские сериалайзеры, по аналогии с CarCreateSerializer
+    queryset = MenClothes.objects.all()
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    # parser_classes = [MultiPartParser, FormParser]
+    serializer_class = MenClothesSerialiser
+    pagination_class =  OrdinaryListPagination
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = MenClothesFilter
+    filter_backends = [DjangoFilterBackend]
+
+@extend_schema(
+    tags=["Личные вещи/ Personal items"],
+    # summary=" Car list and car creation",
+    request=MenShoesSerialiser,
+    responses={status.HTTP_200_OK: OpenApiResponse(
+        description="Объявление автомобиль создано",
+        response=MenShoesSerialiser,
+    ), }
+
+)
+class MenShoesList(generics.ListCreateAPIView):# Пока без криейта, чтобы сделать криейт, нужны криейтовские сериалайзеры, по аналогии с CarCreateSerializer
+    queryset = MenShoes.objects.all()
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    # parser_classes = [MultiPartParser, FormParser]
+    serializer_class = MenShoesSerialiser
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = MenShoesFilter
+    filter_backends = [DjangoFilterBackend]
+
+
+@extend_schema(
+    tags=["Личные вещи/ Personal items"],
+    # summary=" Car list and car creation",
+    request=BagsKnapsacksSerialiser,
+    responses={status.HTTP_200_OK: OpenApiResponse(
+        description="--------------------------",
+        response=BagsKnapsacksSerialiser,
+    ), }
+
+)
+class BagsKnapsacksList(generics.ListCreateAPIView):# Пока без криейта, чтобы сделать криейт, нужны криейтовские сериалайзеры, по аналогии с CarCreateSerializer
+    queryset = BagsKnapsacks.objects.all()
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    # parser_classes = [MultiPartParser, FormParser]
+    serializer_class = BagsKnapsacksSerialiser
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = BagsKnapsacksFilter
+    filter_backends = [DjangoFilterBackend]
+
+@extend_schema(
+    tags=["Личные вещи/ Personal items"],
+    # summary=" Car list and car creation",
+    request=ChildClothesShoesSerialiser,
+    responses={status.HTTP_200_OK: OpenApiResponse(
+        description="-----------------------",
+        response=ChildClothesShoesSerialiser,
+    ), }
+
+)
+class ChildClothesShoesList(generics.ListCreateAPIView):# Пока без криейта, чтобы сделать криейт, нужны криейтовские сериалайзеры, по аналогии с CarCreateSerializer
+    queryset = ChildClothesShoes.objects.all()
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    # parser_classes = [MultiPartParser, FormParser]
+    serializer_class = ChildClothesShoesSerialiser
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = ChildClothesShoesFilter
+    filter_backends = [DjangoFilterBackend]
+
+@extend_schema(
+    tags=["Личные вещи/ Personal items"],
+    # summary=" Car list and car creation",
+    request=WemenClothesSerialiser,
+    responses={status.HTTP_200_OK: OpenApiResponse(
+        description="---------------",
+        response=WemenClothesSerialiser,
+    ), }
+
+)
+class WemenClothesList(generics.ListCreateAPIView):# Пока без криейта, чтобы сделать криейт, нужны криейтовские сериалайзеры, по аналогии с CarCreateSerializer
+    queryset = WemenClothes.objects.all()
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    # parser_classes = [MultiPartParser, FormParser]
+    serializer_class = WemenClothesSerialiser
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = WemenClothesFilter
+    filter_backends = [DjangoFilterBackend]
+
+@extend_schema(
+    tags=["Личные вещи/ Personal items"],
+    # summary=" Car list and car creation",
+    request=WemenShoesSerialiser,
+    responses={status.HTTP_200_OK: OpenApiResponse(
+        description="О-------------",
+        response=WemenShoesSerialiser,
+    ), }
+
+)
+class WemenShoesList(generics.ListCreateAPIView):# Пока без криейта, чтобы сделать криейт, нужны криейтовские сериалайзеры, по аналогии с CarCreateSerializer
+    queryset = WemenShoes.objects.all()
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    # parser_classes = [MultiPartParser, FormParser]
+    serializer_class = WemenShoesSerialiser
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = WemenShoesFilter
+    filter_backends = [DjangoFilterBackend]
+
+
 @api_view(["GET"])
 def get_ads_fm_user(request):
     user = request.user

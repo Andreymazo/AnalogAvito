@@ -123,7 +123,7 @@ class Favorite(models.Model):
     # def total_likes_user(self):
     #     return self.likes.count()  
 class Car(Advertisement):
-    category = TreeForeignKey('ad.Category', on_delete=models.CASCADE, related_name='advertisement')
+    category = TreeForeignKey('ad.Category', on_delete=models.CASCADE, related_name='car')
     # profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, related_name='cars', **NULLABLE)
     by_mileage = models.CharField(_("Differ by mileage"), choices=BY_MILEAGE)
     brand = models.CharField(_("brand"), max_length=100)
@@ -241,6 +241,7 @@ class Views(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
 class MenClothes(Advertisement):
+    category = TreeForeignKey('ad.Category', on_delete=models.CASCADE, related_name='menclothes')
     size = models.CharField(choices=MEN_SIZES)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()    
@@ -258,6 +259,7 @@ class MenClothes(Advertisement):
         return str(self.id)
     
 class WemenClothes(Advertisement):
+    category = TreeForeignKey('ad.Category', on_delete=models.CASCADE, related_name='wemenclothes')
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()    
     content_object = GenericForeignKey('content_type', 'object_id')
@@ -274,6 +276,7 @@ class WemenClothes(Advertisement):
         return str(self.id)
 
 class MenShoes(Advertisement):
+    category = TreeForeignKey('ad.Category', on_delete=models.CASCADE, related_name='menshoes')
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()    
     content_object = GenericForeignKey('content_type', 'object_id')
@@ -290,6 +293,7 @@ class MenShoes(Advertisement):
         return str(self.id)
 
 class WemenShoes(Advertisement):
+    category = TreeForeignKey('ad.Category', on_delete=models.CASCADE, related_name='wemenshoes')
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()    
     content_object = GenericForeignKey('content_type', 'object_id')
@@ -306,6 +310,7 @@ class WemenShoes(Advertisement):
         return str(self.id)
 
 class ChildClothesShoes(Advertisement):
+    category = TreeForeignKey('ad.Category', on_delete=models.CASCADE, related_name='childclothesshoes')
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()    
     content_object = GenericForeignKey('content_type', 'object_id')
@@ -322,6 +327,7 @@ class ChildClothesShoes(Advertisement):
         return str(self.id)
 
 class BagsKnapsacks(Advertisement):
+    category = TreeForeignKey('ad.Category', on_delete=models.CASCADE, related_name='bagknapsacks')
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()    
     content_object = GenericForeignKey('content_type', 'object_id')

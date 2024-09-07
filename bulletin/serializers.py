@@ -111,11 +111,11 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 
 class ProfileSerializerCarUpdate(serializers.ModelSerializer):
-    Profile._meta.get_field('user')._unique = False
+    Profile._meta.get_field('id')._unique = False
     class Meta:
         model = Profile
         # fields = "__all__"
-        fields = ("user",)
+        fields = ("id",)
         
 
 class CategorySerializer(serializers.ModelSerializer):

@@ -1,7 +1,8 @@
 from django.contrib.admin import ModelAdmin, register, display
 from django.utils.safestring import mark_safe
 
-from ad.models import Car, Category, Images, Views, Like, Documents
+from ad.models import Car, Category, Images, Views, Like, Documents, MenClothes, MenShoes, WemenShoes, \
+    ChildClothesShoes, WemenClothes
 from modeltranslation.admin import TranslationAdmin
 
 from modeltranslation.admin import TranslationAdmin
@@ -15,9 +16,29 @@ class CategoryAdmin(ModelAdmin):
 
 
 @register(Car)
-class CustomUserAdmin(ModelAdmin):
-    # list_display_links = ("id",)
-    list_display = ("description",)
+class CarAdmin(ModelAdmin):
+    list_display_links = ("id",)
+    list_display = ("id", "brand", "description",)
+
+@register(MenClothes)
+class MenClothesAdmin(ModelAdmin):
+    list_display = ('id', 'title', 'created', )
+
+@register(MenShoes)
+class MenShoesAdmin(ModelAdmin):
+    list_display = ('id', 'title', 'created', )
+
+@register(WemenClothes)
+class WemenClothesShoesAdmin(ModelAdmin):
+    list_display = ('id', 'title', 'created', )
+
+@register(WemenShoes)
+class WemenShoesAdmin(ModelAdmin):
+    list_display = ('id', 'title', 'created', )
+
+@register(ChildClothesShoes)
+class ChildClothesShoesAdmin(ModelAdmin):
+    list_display = ('id', 'title', 'created', )
 
 @register(Images)
 class CategoryAdmin(ModelAdmin):

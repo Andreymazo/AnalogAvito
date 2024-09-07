@@ -8,16 +8,16 @@ def ff():
     [Category.objects.get_or_create(name=i,)  for i in category_list]
    
     parent_id = Category.objects.get(name="Услуги").id
-    lst_of_smth = ["Грузоперевозки", "Строительство", "Грузчики, Складские услуги","Аренда авто", "Ремонт, отделка","Крастота и здоровье",]
+    lst_of_smth = ["Грузоперевозки", "Строительство", "Грузчики, Складские услуги","Аренда авто", "Ремонт, отделка","Красота и здоровье",]
     [Category.objects.get_or_create(name=i, parent_id=parent_id)  for i in lst_of_smth]
     parent_id = Category.objects.get(name="Транспорт").id
     lst_of_smth = ["Автомобили", "Мотоциклы", "Водный транспорт", "Грузовая техника",]
     [Category.objects.get_or_create(name=i, parent_id=parent_id)  for i in lst_of_smth]
-    lst_of_smth = ["Купить жильё", "Снять долгосрочно", "Снять посуточно", "Коммерческая недвижисмоть",]
+    lst_of_smth = ["Купить жильё", "Снять долгосрочно", "Снять посуточно", "Коммерческая недвижимость",]
     parent_id = Category.objects.get(name="Недвижимость").id
     [Category.objects.get_or_create(name=i, parent_id=parent_id)  for i in lst_of_smth]
     parent_id  = Category.objects.get(name="Купить жильё").id
-    lst_of_smth = ["Квартиры", "Дома", "Комнаты", "Земельные участки", "Коммерческая недвижимоcть",]
+    lst_of_smth = ["Квартиры", "Дома", "Комнаты", "Земельные участки", "Коммерческая недвижимость",]
     [Category.objects.get_or_create(name=i, parent_id=parent_id)  for i in lst_of_smth]
     
     parent_id  = Category.objects.get(name="Личные вещи").id

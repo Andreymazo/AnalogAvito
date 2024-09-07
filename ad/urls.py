@@ -1,12 +1,18 @@
 from django.urls import path
 from ad.apps import AdConfig
 from ad.views import (
+    BagsKnapsacksList,
     CarDetailGeneric,
     CarList,
     CategoryViewSet,
+    ChildClothesShoesList,
     GetModelFmCategoryView,
     GetObjFmModelView,
+    MenClothesList,
+    MenShoesList,
     UploadViewSet,
+    WemenClothesList,
+    WemenShoesList,
     get_ads_fm_user,
     like_add,
     # like_list_create,
@@ -45,6 +51,14 @@ urlpatterns = [
 
     # Category_filter_test
     path('categories_filter/', CategoriesFilter.as_view(), name='categories_filter'),
+
+    path('men_clothes_list/', MenClothesList.as_view(), name='men_clothes_list'),
+    path('men_shoes_list/', MenShoesList.as_view(), name='men_shoes_list'),
+    path('wemen_clothes_list/', WemenClothesList.as_view(),  name='wemen_clothes_list'),
+    path('wemen_shoes_list/', WemenShoesList.as_view(),  name='wemen_shoes_list'),
+    path('bagsknapsack_list/', BagsKnapsacksList.as_view(), name='bagsknapsack_list'),
+    path('childclothesshoes_list/', ChildClothesShoesList.as_view(), name='childclothesshoes_list'),
+
     path('get_ads_fm_user/', get_ads_fm_user, name='get_ads_fm_user'),
     
    

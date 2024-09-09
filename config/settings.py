@@ -46,7 +46,6 @@ INSTALLED_APPS = [
     'personal_account',
 ]
 
-
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -183,13 +182,12 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 gettext = lambda s: s
 LANGUAGES = (
     ("es", gettext("Spanish")),
     ("ru", gettext("Russia")),
     ("en", gettext("English")),
-    
+
 )
 
 LOCALE_PATHS = (
@@ -239,7 +237,6 @@ SITE_ID = 1
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     'config.backends.SettingsBackend'
-  
 
 ]
 REDIS_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
@@ -250,7 +247,7 @@ REDIS_PORT = os.environ.get('REDIS_PORT', '6379')
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://{}:{}".format(REDIS_HOST, REDIS_PORT),#"redis://@127.0.0.1:6379/1",
+        "LOCATION": "redis://{}:{}".format(REDIS_HOST, REDIS_PORT),  # "redis://@127.0.0.1:6379/1",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
@@ -272,30 +269,30 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.AllowAny",
         # 'rest_framework.permissions.IsAuthenticated',
     ],
-    
+
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        
+
         # "rest_framework.authentication.BasicAuthentication",
         "rest_framework.authentication.SessionAuthentication",
         # "rest_framework.authentication.TokenAuthentication"
-        
+
         # "rest_framework_simplejwt.authentication.JWTAuthentication",
         # "rest_framework.authentication.BasicAuthentication",
         # "config.middleware.AuthenticationMiddlewareJWT.AuthenticationMiddlewareJWT"
     ],
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
-    'DEFAULT_FILTER_BACKENDS':(
+    'DEFAULT_FILTER_BACKENDS': (
         'django_filters.rest_framework.DjangoFilterBackend',
-        'rest_framework.filters.OrderingFilter', 
+        'rest_framework.filters.OrderingFilter',
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 5,
 
-#     'FILE_UPLOAD_HANDLERS' : [
-    
-#     "django.core.files.uploadhandler.MemoryFileUploadHandler",
-#     "django.core.files.uploadhandler.TemporaryFileUploadHandler",
-# ]
+    #     'FILE_UPLOAD_HANDLERS' : [
+
+    #     "django.core.files.uploadhandler.MemoryFileUploadHandler",
+    #     "django.core.files.uploadhandler.TemporaryFileUploadHandler",
+    # ]
 }
 # SERIALIZATION_MODULES = {
 #     "geojson": "django.contrib.gis.serializers.geojson",
@@ -310,8 +307,8 @@ SIMPLE_JWT = {
     "AUTH_HEADER_TYPES": ("Bearer",),
 }
 SIMPLE_JWT = {
-'AUTH_HEADER_TYPES': ('JWT',),
-'ACCESS_TOKEN_LIFETIME': timedelta(days=3),
+    'AUTH_HEADER_TYPES': ('JWT',),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=3),
 }
 
 CELERY_BROKER_URL = 'redis://0.0.0.0:6379/0'
@@ -320,11 +317,11 @@ CELERY_BROKER_URL = 'redis://0.0.0.0:6379/0'
 # CELERY_TIMEZONE = "Europe/Moscow"
 # CELERY_TASK_TRACK_STARTED = True
 # CELERY_TASK_TIME_LIMIT = 30 * 60
-CELERY_RESULT_BACKEND = 'redis://0.0.0.0:6379/0'  
-CELERY_ACCEPT_CONTENT = ['application/json']  
-CELERY_TASK_SERIALIZER = 'json'  
-CELERY_RESULT_SERIALIZER = 'json'  
-CELERY_TIMEZONE = "Moscow/Europe"
+CELERY_RESULT_BACKEND = 'redis://0.0.0.0:6379/0'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = "Europe/Moscow"
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60
 
@@ -380,10 +377,17 @@ LOGGING = {
     }
 }
 from celery.schedules import crontab
-CELERYBEAT_SCHEDULE = {
+
+CELERY_BEAT_SCHEDULE = {
     'my_scheduled_job': {
-        'task': 'count_profile_view_send_email', # the same goes in the task name
+        'task': 'count_profile_view_send_email',  # the same goes in the task name
         'schedule': crontab(hour=7, minute=30, day_of_week=1),
+    },
+
+    'scheduled_30days': {
+        'task': 'checking_before_archiving',
+        # 'schedule': timedelta(days=1), # проверка каждый день
+        'schedule': crontab(minute=2), # для тестов
     },
 }
 

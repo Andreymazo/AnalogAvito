@@ -17,7 +17,7 @@ def ff():
     parent_id = Category.objects.get(name="Недвижимость").id
     [Category.objects.get_or_create(name=i, parent_id=parent_id)  for i in lst_of_smth]
     parent_id  = Category.objects.get(name="Купить жильё").id
-    lst_of_smth = ["Квартиры", "Дома", "Комнаты", "Земельные участки", "Коммерческая недвижимость",]
+    lst_of_smth = ["Квартиры", "Дома", "Комнаты", "Земельные участки",]
     [Category.objects.get_or_create(name=i, parent_id=parent_id)  for i in lst_of_smth]
     
     parent_id  = Category.objects.get(name="Личные вещи").id

@@ -18,27 +18,27 @@ class CategoryAdmin(ModelAdmin):
 @register(Car)
 class CarAdmin(ModelAdmin):
     list_display_links = ("id",)
-    list_display = ("id", "brand", "description",)
+    list_display = ("id", "brand", "description", "archived",)
 
 @register(MenClothes)
 class MenClothesAdmin(ModelAdmin):
-    list_display = ('id', 'title', 'created', )
+    list_display = ('id', 'title', 'created', "archived",)
 
 @register(MenShoes)
 class MenShoesAdmin(ModelAdmin):
-    list_display = ('id', 'title', 'created', )
+    list_display = ('id', 'title', 'created', "archived",)
 
 @register(WemenClothes)
 class WemenClothesShoesAdmin(ModelAdmin):
-    list_display = ('id', 'title', 'created', )
+    list_display = ('id', 'title', 'created', "archived",)
 
 @register(WemenShoes)
 class WemenShoesAdmin(ModelAdmin):
-    list_display = ('id', 'title', 'created', )
+    list_display = ('id', 'title', 'created', "archived",)
 
 @register(ChildClothesShoes)
 class ChildClothesShoesAdmin(ModelAdmin):
-    list_display = ('id', 'title', 'created', )
+    list_display = ('id', 'title', 'created', "archived",)
 
 @register(Images)
 class CategoryAdmin(ModelAdmin):

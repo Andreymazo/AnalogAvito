@@ -387,7 +387,7 @@ CELERY_BEAT_SCHEDULE = {
     'scheduled_30days': {
         'task': 'checking_before_archiving',
         # 'schedule': timedelta(days=1), # проверка каждый день
-        'schedule': crontab(minute=2), # для тестов
+        'schedule': crontab(minute='*/2'), # для тестов выставлено выполнение раз в 2 минуты
     },
 }
 

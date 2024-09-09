@@ -42,11 +42,17 @@ __8. Запуск проекта__
 ##
       python manage.py runserver
 
-__9. Загрузка тестовых данных__
+__9. Загрузка тестовых данных__ (это получается не актуально можно удалять?)
 ##
       python manage.py loaddata filling_test_data
 
+__10. Команда для запуска Celery (запускается и worker, и beat)__
+##
+      celery -A config worker --loglevel=info -S django -B
 
+__11. Команда для просмотра логов Celery beat, видно какие задачи видит и какое расписание__
+##
+      celery -A config beat --loglevel=DEBUG
 
 sign_in_email:
 1. Авторизованный пользователь -> В ответе статус 400 и сообщение о том, что уже авторизован.

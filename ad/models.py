@@ -239,6 +239,17 @@ class Views(models.Model):
     content_object = GenericForeignKey('content_type', 'object_id')
     profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, related_name="view", **NULLABLE)
     created = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return str(self.id)
+    
+    @property
+    def view(self):
+        return self.profile
+    
+    @property
+    def total_viwes(self):
+        return self.profile.count()
 
 class MenClothes(Advertisement):
     category = TreeForeignKey('ad.Category', on_delete=models.CASCADE, related_name='menclothes')
@@ -327,7 +338,7 @@ class ChildClothesShoes(Advertisement):
         return str(self.id)
 
 class BagsKnapsacks(Advertisement):
-    category = TreeForeignKey('ad.Category', on_delete=models.CASCADE, related_name='bagknapsacks')
+    category = TreeForeignKey('ad.Category', on_delete=models.CASCADE, related_name='bagsknapsacks')
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()    
     content_object = GenericForeignKey('content_type', 'object_id')

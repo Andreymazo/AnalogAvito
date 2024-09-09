@@ -12,9 +12,12 @@ from config import settings
 
 
 @shared_task(name="count_profile_view_send_email")
-def count_profile_view_send_email(i):
-    users_total_views = Views.objects.filter(profile=i)
+def count_profile_view_send_email():
+    for i in Profile.objects.all():
+        users_total_views = Views.objects.filter(profile=i)
+
     users_car_views = users_total_views.filter(content_type=10)
+    print('1111111111111111111', f'Your advertisements has total {users_total_views.count()} views, {users_car_views.count()} car views')
     # res = send_mail(
     #     subject='advertisement vies statement',
     #     message=f'Your advertisements has total {users_total_views.count()} views, {users_car_views.count()} car views',
@@ -31,18 +34,18 @@ def count_profile_view_send_email(i):
 #                     mailing=i.user.email,
 #                     result=res
 #                 )
-# [count_profile_view_send_email(i) for i in Profile.objects.all()]
+# 
 
 
-@app.task(name='checking_before_archiving')
+@shared_task(name='checking_before_archiving')
 def checking_before_archiving():
     """Ежедневная проверка даты создания, при достижении дельты в 30 дней, объявление отправляется в архив"""
-
+    print('2222222222222222')
     # Список всех моделей объявлений
-    advertisements = [Car, MenClothes, WemenClothes, MenShoes, WemenShoes, ChildClothesShoes, BagsKnapsacks]
+    # advertisements = [Car, MenClothes, WemenClothes, MenShoes, WemenShoes, ChildClothesShoes, BagsKnapsacks]
 
-    # time_life - время, прошедшее с создания объявления
-    time_life = now() - datetime.timedelta(days=30)
+    # # time_life - время, прошедшее с создания объявления
+    # time_life = now() - datetime.timedelta(days=30)
 
-    for advertisement in advertisements:
-        advertisement.objects.filter(Q(archived=False), Q(created__lte=time_life)).update(archived=True)
+    # for advertisement in advertisements:
+    #     advertisement.objects.filter(Q(archived=False), Q(created__lte=time_life)).update(archived=True)

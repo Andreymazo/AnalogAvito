@@ -16,7 +16,7 @@ from ad.pagination import OrdinaryListPagination
 from config.backends import CustomFilterQueryset, MyFilterBackend
 from users.models import Notification
 from ad.serializers import CarCreateSerializer, CarNameSerializer, DefaultSerializer, LikeSerializer, \
-    LikeSerializerCreate, NotificationSerializer, CategoryFilterSerializer
+    LikeSerializerCreate, NotificationSerializer, CategoryFilterSerializer, ViewsSerializer
 from bulletin.serializers import CarListSerializer, CarSerializer, CategorySerializer, ImagesSerializer
 from rest_framework import status
 from rest_framework.response import Response
@@ -278,8 +278,6 @@ class UploadViewSet(ModelViewSet):
 
 
 """Func returns likes by obj (ad)"""
-
-
 @extend_schema(
 
     tags=["Лайки / Likes"],
@@ -394,7 +392,25 @@ from django_filters import filters
 #         model = Crop
 #         fields = ['name']
 
-
+def get_ad_forcategory(self_model_category):
+    lst_mdls =  [ChildClothesShoes, WemenShoes, MenShoes, WemenClothes, MenClothes,BagsKnapsacks]
+    for i in lst_mdls:
+      
+        # print(i.category.field._related_name)
+        # print(str((type(self_model_category.bagsknapsacks.all().first()).__name__)).lower())
+        if i.category.field._related_name==str((type(self_model_category.childclothesshoes.all().first()).__name__)).lower():
+            return i
+        if i.category.field._related_name==str((type(self_model_category.wemenshoes.all().first()).__name__)).lower():
+            return i
+        if i.category.field._related_name==str((type(self_model_category.menshoes.all().first()).__name__)).lower():
+            return i
+        if i.category.field._related_name==str((type(self_model_category.wemenclothes.all().first()).__name__)).lower():
+            return i
+        if i.category.field._related_name==str((type(self_model_category.menclothes.all().first()).__name__)).lower():
+            return i
+        if i.category.field._related_name==str((type(self_model_category.bagsknapsacks.all().first()).__name__)).lower():
+            return i
+       
 class StandardSetPagination(pagination.PageNumberPagination):
        page_size = 3
 @extend_schema(
@@ -416,11 +432,17 @@ class GetModelFmCategoryView(generics.ListAPIView, generics.RetrieveAPIView):
         ctype_id=""
         queryset = self.filter_queryset(self.get_queryset())
         print('queryset', queryset.first())
+        print('queryset', type(queryset.first()))
         serializer = CategorySerializer(queryset, many=True)
+        
         try:
-            self_model=type(queryset.first())
-            # print(type(queryset.first().advertisement.all().first()))
-            ctype = ContentType.objects.get_for_model(model=type(queryset.first().advertisement.all().first()))
+            self_model=queryset.first()
+            print('self_model 1', self_model)
+            self_model_returned = get_ad_forcategory(self_model)
+            print('self_model 2', self_model_returned)
+            # print('11111111111111', type(queryset.first().ad_for_category.all().first()))
+            ctype = ContentType.objects.get_for_model(self_model_returned)
+            # ctype = ContentType.objects.get_for_model(model=type(queryset.first().advertisement.all().first()))
             print('Number by contenttype', ctype.id)
             ctype_id=ctype.id
         except:
@@ -953,7 +975,7 @@ class WemenShoesList(generics.ListCreateAPIView):# Пока без криейт�
     filterset_class = WemenShoesFilter
     filter_backends = [DjangoFilterBackend]
 
-
+"""Получение объявлений по польльзователю"""
 @api_view(["GET"])
 def get_ads_fm_user(request):
     user = request.user
@@ -973,5 +995,34 @@ def get_ads_fm_user(request):
         return Response(lst_data, status=status.HTTP_200_OK)
     
     
-        
-
+"""Func add view and returns views by obj (ad)"""
+@extend_schema(
+    tags=["Просмотры / Views"],
+    summary="Просмотры объявления, добавляется по Профилю/ List of views the advertisement concerned, returns likes by obj (ad)",
+    request=ViewsSerializer,
+    responses={
+        status.HTTP_200_OK: OpenApiResponse(
+            description="Views by advertisement",
+            response=ViewsSerializer,
+        ),
+    },
+)
+@api_view(["GET"])  # Здесь в кэше уже должны быть модель и ноер объекта
+def views_list_obj(request):
+    try:
+        dict_of_cache = cache.get_many(["content_type", "obj_id"])
+        content_type = dict_of_cache['content_type']
+        obj_id = dict_of_cache['obj_id']
+    except KeyError as e:
+        print(e)
+        return redirect(reverse("ad:get_model_fm_category"))# Если в кэше нет обджекта, редиректим
+    # content_type = ContentType.objects.get_for_id(ContentType_id)
+    # obj = content_type.get_object_for_this_type(pk=obj_id)
+    # content_type = ContentType.objects.get_for_model(obj)
+    profile_instance = request.user.profile
+    if request.method == "GET":
+        view_instance = Views(profile=profile_instance, content_type=ContentType.objects.get_for_id(content_type), object_id=obj_id)
+        view_instance.save()
+        views_queryset_obj = Views.objects.all().filter(content_type=content_type).filter(object_id=obj_id)
+        serializer = ViewsSerializer(views_queryset_obj, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

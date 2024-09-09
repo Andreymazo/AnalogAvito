@@ -81,3 +81,6 @@ sign_up_profile:
 4. Пользователь ввел валидные данные -> В ответе статус 200 и поля id, name, phone_number пользователя. Создаем в БД профиль с номером телефона и именем. Логиним пользователя.
 
 - python manage.py update_translation_fields
+
+celery -A config worker -l info
+celery -A config beat -l INFO

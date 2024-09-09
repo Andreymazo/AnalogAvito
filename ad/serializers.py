@@ -2,11 +2,16 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import serializers
 from django.contrib.contenttypes.models import ContentType
-from ad.models import IP, BagsKnapsacks, Car, Category, ChildClothesShoes, Images, Like, Favorite, MenClothes, MenShoes, WemenClothes, WemenShoes
+from ad.models import IP, BagsKnapsacks, Car, Category, ChildClothesShoes, Images, Like, Favorite, MenClothes, MenShoes, Views, WemenClothes, WemenShoes
 from bulletin.serializers import CarSerializer, ImagesSerializer, ProfileSerializer
 from users.models import CustomUser, Notification, Profile
 
 
+
+class ViewsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Views
+        fields = "__all__"
 
 class LikeSerializer(serializers.ModelSerializer):
     class Meta:

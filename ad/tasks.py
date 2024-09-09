@@ -46,4 +46,3 @@ def checking_before_archiving():
 
     for advertisement in advertisements:
         advertisement.objects.filter(Q(archived=False), Q(created__lte=time_life)).update(archived=True)
-        print('процесс идет')

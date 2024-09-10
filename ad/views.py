@@ -393,7 +393,7 @@ from django_filters import filters
 #         fields = ['name']
 
 def get_ad_forcategory(self_model_category):
-    lst_mdls =  [ChildClothesShoes, WemenShoes, MenShoes, WemenClothes, MenClothes,BagsKnapsacks]
+    lst_mdls =  [ChildClothesShoes, WemenShoes, MenShoes, WemenClothes, MenClothes, BagsKnapsacks, Car]
     for i in lst_mdls:
       
         # print(i.category.field._related_name)
@@ -409,6 +409,8 @@ def get_ad_forcategory(self_model_category):
         if i.category.field._related_name==str((type(self_model_category.menclothes.all().first()).__name__)).lower():
             return i
         if i.category.field._related_name==str((type(self_model_category.bagsknapsacks.all().first()).__name__)).lower():
+            return i
+        if i.category.field._related_name==str((type(self_model_category.car.all().first()).__name__)).lower():
             return i
        
 class StandardSetPagination(pagination.PageNumberPagination):

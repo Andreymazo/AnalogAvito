@@ -149,6 +149,7 @@ class Profile(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE,related_name="profile",)
     phone_number = models.CharField(_("Номер телефона"), max_length=MAX_LEN_PHONE_NUMBER, unique=True, validators=[phone_validator])
     name = models.CharField(_("Имя пользователя"), max_length=MAX_LEN_NAME_PROFILE)
+    view = GenericRelation("ad.Views", related_query_name='profilee')
     images = GenericRelation("ad.Images",  related_query_name='profile')#object_id_field='profile_id',
     car = GenericRelation("ad.Car", related_query_name='profilee')
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)

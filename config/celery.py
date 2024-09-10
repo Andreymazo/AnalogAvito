@@ -25,6 +25,6 @@ app.autodiscover_tasks()
 app.conf.beat_schedule = {
     'run-me-every-thsnd-seconds': {
         'task': 'tasks.count_profile_view_send_email',
-        'schedule': 1000.0 # in seconds
+        'schedule': 10.0 # in seconds
     }
 }

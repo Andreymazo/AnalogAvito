@@ -997,8 +997,9 @@ def get_ads_fm_user(request):
     
 """Func add view and returns views by obj (ad)"""
 @extend_schema(
-    tags=["Просмотры / Views"],
-    summary="Просмотры объявления, добавляется по Профилю/ List of views the advertisement concerned, returns likes by obj (ad)",
+    tags=["Просмотры. На входе категория-модель, номер объявления, на выходе список просмотрров объявления с добавлением одного просмотра (сейчас добавляет п-любому), \
+          этого опльзователя / Views. Number of model and number of object by enter, list of views with adding (adds anyway) the current by exit"],
+    summary="Просмотры объявления, добавляется по Профилю / List of views the advertisement concerned, returns likes by obj (ad)",
     request=ViewsSerializer,
     responses={
         status.HTTP_200_OK: OpenApiResponse(
@@ -1025,4 +1026,5 @@ def views_list_obj(request):
         view_instance.save()
         views_queryset_obj = Views.objects.all().filter(content_type=content_type).filter(object_id=obj_id)
         serializer = ViewsSerializer(views_queryset_obj, many=True)
+        print('view_instance.total_viwes_profile, view_instance.total_viwes_object', view_instance.total_viwes_profile, view_instance.total_viwes_object)#Views.objects.get(id=obj_id)
         return Response(serializer.data, status=status.HTTP_200_OK)

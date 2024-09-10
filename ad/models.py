@@ -244,12 +244,12 @@ class Views(models.Model):
         return str(self.id)
     
     @property
-    def view(self):
-        return self.profile
+    def total_viwes_profile(self):
+        return Views.objects.all().filter(profile=self.profile).count()
     
     @property
-    def total_viwes(self):
-        return self.profile.count()
+    def total_viwes_object(self):
+        return Views.objects.all().filter(object_id=self.object_id).count()
 
 class MenClothes(Advertisement):
     category = TreeForeignKey('ad.Category', on_delete=models.CASCADE, related_name='menclothes')

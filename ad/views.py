@@ -997,6 +997,8 @@ def get_ads_fm_user(request):
                 print(e)
             except FieldError as e:
                 print(e)
+            except TypeError as e:
+                print(e)
         return Response(lst_data, status=status.HTTP_200_OK)
     
     

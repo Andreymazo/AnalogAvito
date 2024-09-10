@@ -6,7 +6,8 @@ from rest_framework import status
 from chat.models import Mssg
 from chat.serializers import MssgDetailSerializer, MssgSerializer
 from drf_spectacular.utils import (
-    extend_schema
+    extend_schema,
+    OpenApiResponse
 )
 from users.models import CustomUser
 from django.core.cache import cache
@@ -22,6 +23,11 @@ from django.urls import reverse
     request=MssgSerializer,
     # parameters=[OpenApiParameter('limit', exclude=True), OpenApiParameter('offset', exclude=True), \
     #             OpenApiParameter('ordering', exclude=True), OpenApiParameter('page', exclude=True),]
+    responses={status.HTTP_200_OK: OpenApiResponse(
+        description="-----------------------",
+        response=MssgSerializer,
+    ), }
+
 )
 @api_view(["GET", "POST"])
 def message_list(request):
@@ -78,6 +84,10 @@ def message_list(request):
     tags=["Чат (переписка между пользователями по поводу объявления) / Chat between users advertisement concerned"],
     summary="модель Mssg, в методе GET само объявление в методе PUT изменяем в методе DELETE удаляем / object, CET - see, PUT - change, DELETE - remove",
     request=MssgDetailSerializer,  
+    responses={status.HTTP_200_OK: OpenApiResponse(
+        description="-----------------------",
+        response=MssgDetailSerializer,
+    ), }
 )
 @api_view(["GET", "PUT", "DELETE"])
 def message_detail(request, pk):

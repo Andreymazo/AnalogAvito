@@ -126,7 +126,7 @@ class CategoriesFilter(generics.ListAPIView):
 class CarList(generics.ListCreateAPIView):
     queryset = Car.objects.all()
     permission_classes = [IsAuthenticatedOrReadOnly]
-    # parser_classes = [MultiPartParser, FormParser]
+    parser_classes = [MultiPartParser, FormParser]
     serializer_class = CarCreateSerializer
 
 
@@ -486,6 +486,8 @@ def ChooseFilterSet():
     tags=["Общая логика (Контент Тайп) / ContentType concerned"],
     summary="По модели получаем объект - объявление",
     parameters=[OpenApiParameter(name='id', description='Object Id', type=int)],
+    # request=inline_serializer(name=), Не понимаю как подхватить сериализатор из списка в схему
+    # responses=inline_serializer(),
 )
 class GetObjFmModelView(generics.ListAPIView, generics.RetrieveAPIView):
     filterset_class = ChooseFilterSet()
@@ -521,7 +523,8 @@ class GetObjFmModelView(generics.ListAPIView, generics.RetrieveAPIView):
 
     def get_serializer_class(self):
         serializer = DefaultSerializer
-        serializer_list = [CarNameSerializer,]# Будем добавлять сериализаторы по мере наполнения моделями
+        serializer_list = [CarNameSerializer, MenClothesSerialiser, MenShoesSerialiser, WemenClothesSerialiser, WemenShoesSerialiser, \
+            ChildClothesShoesSerialiser, BagsKnapsacksSerialiser]# Будем добавлять сериализаторы по мере наполнения моделями
 
         try:
             content_type = cache.get('content_type')
@@ -886,7 +889,7 @@ class MenClothesList(generics.ListCreateAPIView):# Пока без криейт�
     # summary=" Car list and car creation",
     request=MenShoesSerialiser,
     responses={status.HTTP_200_OK: OpenApiResponse(
-        description="Объявление создано",
+        description="---------------------",
         response=MenShoesSerialiser,
     ), }
 
@@ -993,6 +996,8 @@ def get_ads_fm_user(request):
             except AttributeError as e:
                 print(e)
             except FieldError as e:
+                print(e)
+            except TypeError as e:
                 print(e)
         return Response(lst_data, status=status.HTTP_200_OK)
     

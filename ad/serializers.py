@@ -69,8 +69,10 @@ class CarCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         uploaded_images = validated_data.pop("uploaded_images")
         print('validated_data=======', validated_data)
-        
-        car , _ = Car.objects.get_or_create(profile = self.context['request'].user.profile, category_id=Category.objects.get(name='Транспорт',).id,**validated_data)
+        profile_instance = self.context['request'].user.profile
+        car = Car(content_object = profile_instance, category_id=Category.objects.get(name='Автомобили',).id,**validated_data)
+        car.save()
+        # car , _ = Car.objects.get_or_create(profile = self.context['request'].user.profile, category_id=Category.objects.get(name='Транспорт',).id,**validated_data)
         
         for image in uploaded_images:
             images = Images( image=image, content_type=ContentType.objects.get_for_model(type(car)), object_id=car.id)

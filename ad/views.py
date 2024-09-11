@@ -874,7 +874,6 @@ def choose_serializer(model):
     if str(model) in mod_lst:
         index = mod_lst.index(model)
         return ser_lst[index]
-Car
 
 @extend_schema(
     tags=["Личные вещи/ Personal items"],

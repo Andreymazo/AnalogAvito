@@ -877,7 +877,7 @@ Car
 class MenClothesList(generics.ListCreateAPIView):# Пока без криейта, чтобы сделать криейт, нужны криейтовские сериалайзеры, по аналогии с CarCreateSerializer
     queryset = MenClothes.objects.all()
     permission_classes = [IsAuthenticatedOrReadOnly]
-    # parser_classes = [MultiPartParser, FormParser]
+    parser_classes = [MultiPartParser, FormParser]
     serializer_class = MenClothesSerialiser
     pagination_class =  OrdinaryListPagination
     filter_backends = [DjangoFilterBackend]

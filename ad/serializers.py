@@ -126,32 +126,141 @@ class CategoryFilterSerializer(serializers.ModelSerializer):
 
 
 class MenClothesSerialiser(serializers.ModelSerializer):
+    images =  ImagesSerializer(many=True, read_only=True)
+    uploaded_images = serializers.ListField(
+        child=serializers.ImageField(allow_empty_file=False, use_url=False),
+        write_only=True
+    )
     class Meta:
         model = MenClothes
-        fields = "__all__"
+        # fields = "__all__"
+    
+        fields = ["id", "size", "price", "title", "images", "uploaded_images",]
+        
+    def create(self, validated_data):
+        uploaded_images = validated_data.pop("uploaded_images")
+        print('validated_data=======', validated_data)
+        profile_instance = self.context['request'].user.profile
+        instance_here = MenClothes(content_object = profile_instance, category_id=Category.objects.get(name='Мужская одежда',).id,**validated_data)
+        instance_here.save()
+        
+        for image in uploaded_images:
+            images = Images( image=image, content_type=ContentType.objects.get_for_model(type(instance_here)), object_id=instance_here.id)
+            images.save()
+        return instance_here
+     
 
 class WemenClothesSerialiser(serializers.ModelSerializer):
+    images =  ImagesSerializer(many=True, read_only=True)
+    uploaded_images = serializers.ListField(
+        child=serializers.ImageField(allow_empty_file=False, use_url=False),
+        write_only=True
+    )
     class Meta:
         model = WemenClothes
-        fields = "__all__"
+        fields = ["id", "size", "price", "title", "images", "uploaded_images",]
+        
+    def create(self, validated_data):
+        uploaded_images = validated_data.pop("uploaded_images")
+        print('validated_data=======', validated_data)
+        profile_instance = self.context['request'].user.profile
+        instance_here = WemenClothes(content_object = profile_instance, category_id=Category.objects.get(name='Женская одежда',).id,**validated_data)
+        instance_here.save()
+        
+        for image in uploaded_images:
+            images = Images( image=image, content_type=ContentType.objects.get_for_model(type(instance_here)), object_id=instance_here.id)
+            images.save()
+        return instance_here
+
 
 class MenShoesSerialiser(serializers.ModelSerializer):
+    images =  ImagesSerializer(many=True, read_only=True)
+    uploaded_images = serializers.ListField(
+        child=serializers.ImageField(allow_empty_file=False, use_url=False),
+        write_only=True
+    )
     class Meta:
         model = MenShoes
-        fields = "__all__"
+        fields = ["id", "size", "price", "title", "images", "uploaded_images",]
+        
+    def create(self, validated_data):
+        uploaded_images = validated_data.pop("uploaded_images")
+        print('validated_data=======', validated_data)
+        profile_instance = self.context['request'].user.profile
+        instance_here = MenShoes(content_object = profile_instance, category_id=Category.objects.get(name='Мужская обувь',).id,**validated_data)
+        instance_here.save()
+        
+        for image in uploaded_images:
+            images = Images( image=image, content_type=ContentType.objects.get_for_model(type(instance_here)), object_id=instance_here.id)
+            images.save()
+        return instance_here
+    
 
 class WemenShoesSerialiser(serializers.ModelSerializer):
+    images =  ImagesSerializer(many=True, read_only=True)
+    uploaded_images = serializers.ListField(
+        child=serializers.ImageField(allow_empty_file=False, use_url=False),
+        write_only=True
+    )
     class Meta:
         model = WemenShoes
-        fields = "__all__"
+        fields = ["id", "size", "price", "title", "images", "uploaded_images",]
+        
+    def create(self, validated_data):
+        uploaded_images = validated_data.pop("uploaded_images")
+        print('validated_data=======', validated_data)
+        profile_instance = self.context['request'].user.profile
+        instance_here = WemenShoes(content_object = profile_instance, category_id=Category.objects.get(name='Женская обувь',).id,**validated_data)
+        instance_here.save()
+        
+        for image in uploaded_images:
+            images = Images( image=image, content_type=ContentType.objects.get_for_model(type(instance_here)), object_id=instance_here.id)
+            images.save()
+        return instance_here
+
 
 class ChildClothesShoesSerialiser(serializers.ModelSerializer):
+    images =  ImagesSerializer(many=True, read_only=True)
+    uploaded_images = serializers.ListField(
+        child=serializers.ImageField(allow_empty_file=False, use_url=False),
+        write_only=True
+    )
     class Meta:
         model = ChildClothesShoes
-        fields = "__all__"
+        fields = ["id", "size", "price", "title", "images", "uploaded_images",]
+        
+    def create(self, validated_data):
+        uploaded_images = validated_data.pop("uploaded_images")
+        print('validated_data=======', validated_data)
+        profile_instance = self.context['request'].user.profile
+        instance_here = ChildClothesShoes(content_object = profile_instance, category_id=Category.objects.get(name='Детская одежда и обувь',).id,**validated_data)
+        instance_here.save()
+        
+        for image in uploaded_images:
+            images = Images( image=image, content_type=ContentType.objects.get_for_model(type(instance_here)), object_id=instance_here.id)
+            images.save()
+        return instance_here
+    
 
 class BagsKnapsacksSerialiser(serializers.ModelSerializer):
+    images =  ImagesSerializer(many=True, read_only=True)
+    uploaded_images = serializers.ListField(
+        child=serializers.ImageField(allow_empty_file=False, use_url=False),
+        write_only=True
+    )
     class Meta:
         model = BagsKnapsacks
-        # fields = "__all__"
-        exclude = ['created', ]
+        fields = ["id", "size", "price", "title", "images", "uploaded_images",]
+        
+    def create(self, validated_data):
+        uploaded_images = validated_data.pop("uploaded_images")
+        print('validated_data=======', validated_data)
+        profile_instance = self.context['request'].user.profile
+        instance_here = BagsKnapsacks(content_object = profile_instance, category_id=Category.objects.get(name='Сумки, рюкзаки, чемоданы',).id,**validated_data)
+        instance_here.save()
+        
+        for image in uploaded_images:
+            images = Images( image=image, content_type=ContentType.objects.get_for_model(type(instance_here)), object_id=instance_here.id)
+            images.save()
+        return instance_here
+   

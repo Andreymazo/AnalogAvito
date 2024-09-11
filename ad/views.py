@@ -205,7 +205,7 @@ class CarDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
     )
     def get(self, request, pk, format=None):
         # Add new model instance Views get_or_creation
-
+        profile_instance = request.user.profile
         item = get_object_or_404(Car.objects.all(), pk=pk)
         serializer = CarSerializer(item)
         try:
@@ -217,9 +217,10 @@ class CarDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
         except Profile.DoesNotExist:
             return Response({"message": "У вас нет Профиля, перенаправляем на регистрацию"},
                             status=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION)
-        view_instance = Views.objects.get_or_create(profile=profile,
-                                                    content_type=ContentType.objects.get_for_model(item),
-                                                    object_id=item.id)
+        # print('view created') #Here we create view every time we enter the object
+        # content_type = ContentType.objects.get(model='car').id
+        # view_instance = Views(profile=profile_instance, content_type=ContentType.objects.get_for_id(content_type), object_id=pk)
+        # view_instance.save()
 
         return Response(serializer.data)
 
@@ -246,9 +247,19 @@ class CarDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
         summary="Частичное обновление информации об автомобиле",
         description="Метод позволяет частично обновить информацию об автомобиле."
     )
+    # def patch(self, request, *args, **kwargs):
+    #     return super().patch(request, *args, **kwargs)
     def patch(self, request, *args, **kwargs):
-        return super().partial_update(request, *args, **kwargs)  # Дла реализации доки
-
+        pk = kwargs['pk']
+        
+        # return super().partial_update(request, *args, **kwargs)  # Дла реализации доки
+        car_object = self.get_object()
+        print('------------------------pk--------------------', pk, 'car_oblect ', car_object)
+        serializer = CarUpdateImagesSerializer(car_object, data=request.data, partial=True) # set partial=True to update a data partially
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     @extend_schema(
         methods=['DELETE'],
         summary="Удаление объекта"

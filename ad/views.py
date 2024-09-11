@@ -15,7 +15,7 @@ from ad.models import BagsKnapsacks, Category, Car, ChildClothesShoes, Like, Ima
 from ad.pagination import OrdinaryListPagination
 from config.backends import CustomFilterQueryset, MyFilterBackend
 from users.models import Notification
-from ad.serializers import CarCreateSerializer, CarNameSerializer, DefaultSerializer, LikeSerializer, \
+from ad.serializers import CarCreateSerializer, CarNameSerializer, CarPatchSerializer, DefaultSerializer, LikeSerializer, \
     LikeSerializerCreate, NotificationSerializer, CategoryFilterSerializer, ViewsSerializer
 from bulletin.serializers import CarListSerializer, CarSerializer, CategorySerializer, ImagesSerializer
 from rest_framework import status
@@ -127,7 +127,7 @@ class CarList(generics.ListCreateAPIView):
     queryset = Car.objects.all()
     permission_classes = [IsAuthenticatedOrReadOnly]
     parser_classes = [MultiPartParser, FormParser]
-    serializer_class = CarCreateSerializer
+    serializer_class =  CarCreateSerializer
 
 
     @extend_schema(
@@ -255,11 +255,12 @@ class CarDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
         # return super().partial_update(request, *args, **kwargs)  # Дла реализации доки
         car_object = self.get_object()
         print('------------------------pk--------------------', pk, 'car_oblect ', car_object)
-        serializer = CarUpdateImagesSerializer(car_object, data=request.data, partial=True) # set partial=True to update a data partially
+        serializer = CarPatchSerializer(car_object, data=request.data, partial=True) # set partial=True to update a data partially...CarUpdateImagesSerializer
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
     @extend_schema(
         methods=['DELETE'],
         summary="Удаление объекта"

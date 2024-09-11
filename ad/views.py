@@ -233,13 +233,14 @@ class CarDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
     def put(self, request, *args, **kwargs):
         return super().put(request, *args, **kwargs)  # Дла реализации доки
 
-    #     def put(self, request, pk, format=None):
-    #         item = get_object_or_404(Item.objects.all(), pk=pk)
-    #         serializer = ItemSerializer(item, data=request.data)
-    #         if serializer.is_valid():
-    #             serializer.save()
-    #             return Response(serializer.data)
-    #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    # def put(self, request, pk, format=None):
+    #     item = get_object_or_404(Car.objects.all(), pk=pk)
+    #     serializer = CarCreateSerializer(item, data=request.data)
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return Response(serializer.data)
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
     @extend_schema(
         methods=['PATCH'],
         summary="Частичное обновление информации об автомобиле",
@@ -877,7 +878,7 @@ Car
 class MenClothesList(generics.ListCreateAPIView):# Пока без криейта, чтобы сделать криейт, нужны криейтовские сериалайзеры, по аналогии с CarCreateSerializer
     queryset = MenClothes.objects.all()
     permission_classes = [IsAuthenticatedOrReadOnly]
-    # parser_classes = [MultiPartParser, FormParser]
+    parser_classes = [MultiPartParser, FormParser]
     serializer_class = MenClothesSerialiser
     pagination_class =  OrdinaryListPagination
     filter_backends = [DjangoFilterBackend]

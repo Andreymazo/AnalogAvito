@@ -181,3 +181,40 @@ class GetCardsUserArchivedAPIList(ListAPIView):
         return Response(data, status=status.HTTP_200_OK)
 
 
+@extend_schema(
+    tags=["Аккаунт / Account"],
+    description="Отображение объявления пользователя в личном кабинете",
+    summary="Объявление пользователя",
+    responses={
+        status.HTTP_200_OK: OpenApiResponse(
+            description="Отображение объявления пользователя",
+            response=choose_serializer
+        ),
+        status.HTTP_404_NOT_FOUND: OpenApiResponse(
+            description="Объявление не найдено",
+            response=choose_serializer
+        ),
+
+    }
+)
+class GetCardRetrieveAPIView(RetrieveAPIView):
+    """Отображение объявления пользователя в личном кабинете"""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+
+        # Получаем пользователя
+        user = self.request.user
+
+        try:
+            # Получаем модель объявления
+            model = apps.get_app_config('ad').get_model(kwargs['model_name'])
+
+            # Получаем объявление по pk, а так же проверяем принадлежность пользователю
+            ad = model.objects.get(pk=kwargs['pk'], object_id=user.profile.id)
+
+            serializer = choose_serializer(kwargs['model_name'])
+
+            return Response(serializer(ad).data, status=status.HTTP_200_OK)
+        except model.DoesNotExist:
+            return Response({"Ошибка": "Объявление не найдено"}, status=status.HTTP_404_NOT_FOUND)

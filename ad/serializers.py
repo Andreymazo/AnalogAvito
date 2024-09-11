@@ -51,19 +51,22 @@ class IpSerializer(serializers.ModelSerializer):
 
 
 class CarCreateSerializer(serializers.ModelSerializer):
+    image = ImagesSerializer(many=True, read_only=True)
     uploaded_images = serializers.ListField(
         child=serializers.ImageField(allow_empty_file=False, use_url=False),
         write_only=True
     )
+    
+    # images_car_instance=ImagesSerializer()
     class Meta:
         model = Car
         fields = ["id", "title", "by_mileage", "brand", "model", "price", "year", "mileage", "transmission",\
                   "by_wheel_drive", "engine_capacity", "engine_power", "fuel_consumption", "type", "colour", "fuel",\
-                       "uploaded_images",]
+                       "image", "uploaded_images"]
 
     def create(self, validated_data):
         uploaded_images = validated_data.pop("uploaded_images")
-        print('validated_data=======', validated_data)
+        print('validated_data=======  mmmmmmm', validated_data)
         profile_instance = self.context['request'].user.profile
         car = Car(content_object = profile_instance, category_id=Category.objects.get(name='Автомобили',).id,**validated_data)
         car.save()
@@ -74,26 +77,78 @@ class CarCreateSerializer(serializers.ModelSerializer):
             images.save()
         return car
     #Update надо сделать отдельным сериалезатором, изза списка фотографий
-    # def update(self, instance, validated_data):
-    #     instance.by_mileage = validated_data.get('by_mileage', instance.by_mileage)
-    #     instance.brand = validated_data.get('brand', instance.brand)
-    #     # instance.model = validated_data.get('model', instance.model)
-    #     instance.price = validated_data.get('price', instance.price)
-    #     instance.year = validated_data.get('year', instance.year)
-    #     instance.mileage = validated_data.get('mileage', instance.mileage)
-    #     instance.transmission = validated_data.get('transmission', instance.transmission)
-    #     instance.by_wheel_drive = validated_data.get('by_wheel_drive', instance.by_wheel_drive)
-    #     instance.engine_capacity = validated_data.get('engine_capacity', instance.engine_capacity)
-    #     instance.engine_power = validated_data.get('engine_power', instance.engine_power)
-    #     instance.fuel_consumption = validated_data.get('fuel_consumption', instance.fuel_consumption)
-    #     instance.type = validated_data.get('type', instance.type)
-    #     instance.colour = validated_data.get('colour', instance.colour)
-    #     instance.fuel = validated_data.get('fuel', instance.fuel)
-    #     instance.images = validated_data.get('images', instance.images)
-    #     instance.uploaded_images = validated_data.get('uploaded_images', instance.uploaded_images)
-    #     return instance
-     
+    def update(self, instance, validated_data):
+        print('================instsance ------------>', instance.images.all())
+        print('================validated_data------------>', validated_data)
+        print('================validated_data------------>', self.__dict__)
+        image_queryset = instance.images.all()
+        images_car_instance=ImagesSerializer(image_queryset, many=True)
+        instance.by_mileage = validated_data.get('by_mileage', instance.by_mileage)
+        instance.brand = validated_data.get('brand', instance.brand)
+        instance.model = validated_data.get('model', instance.model)
+        instance.price = validated_data.get('price', instance.price)
+        instance.year = validated_data.get('year', instance.year)
+        instance.mileage = validated_data.get('mileage', instance.mileage)
+        instance.transmission = validated_data.get('transmission', instance.transmission)
+        instance.by_wheel_drive = validated_data.get('by_wheel_drive', instance.by_wheel_drive)
+        instance.engine_capacity = validated_data.get('engine_capacity', instance.engine_capacity)
+        instance.engine_power = validated_data.get('engine_power', instance.engine_power)
+        instance.fuel_consumption = validated_data.get('fuel_consumption', instance.fuel_consumption)
+        instance.type = validated_data.get('type', instance.type)
+        instance.colour = validated_data.get('colour', instance.colour)
+        instance.fuel = validated_data.get('fuel', instance.fuel)
+        instance.image = validated_data.get('image', instance.images)
+        # instance.uploaded_images = validated_data.get('uploaded_images', instance.uploaded_images)
+        print('end======================',)
+       
+        instance.save()
 
+        return instance
+     
+class CarPatchSerializer(serializers.ModelSerializer):
+    # image = serializers.ImageField( write_only=True )
+    uploaded_images = serializers.ListField(
+        child=serializers.ImageField(allow_empty_file=False, use_url=False),
+        write_only=True
+    )
+    images_car_instance=ImagesSerializer(source='images',  many=True)
+    class Meta:
+        model = Car
+        fields = ["id", "title", "by_mileage", "brand", "model", "price", "year", "mileage", "transmission",\
+                  "by_wheel_drive", "engine_capacity", "engine_power", "fuel_consumption", "type", "colour", "fuel",\
+                    "uploaded_images", "images_car_instance"]
+    def create(self, validated_data):
+        image_data = validated_data.pop('images')
+        print('image_data', image_data)
+    def update(self, instance, validated_data):
+            print('================instsance ------------>', instance.images.all())
+            print('================validated_data------------>', validated_data)
+            print('================validated_data------------>', self['uploaded_images'].__dict__)
+            print('777777777777',self['uploaded_images']._field)
+            # image_data = validated_data.pop('cars')
+            print('image_data', images_car_instance)
+            image_queryset = instance.images.all()
+            images_car_instance=ImagesSerializer(image_queryset, many=True)
+            instance.by_mileage = validated_data.get('by_mileage', instance.by_mileage)
+            instance.brand = validated_data.get('brand', instance.brand)
+            instance.model = validated_data.get('model', instance.model)
+            instance.price = validated_data.get('price', instance.price)
+            instance.year = validated_data.get('year', instance.year)
+            instance.mileage = validated_data.get('mileage', instance.mileage)
+            instance.transmission = validated_data.get('transmission', instance.transmission)
+            instance.by_wheel_drive = validated_data.get('by_wheel_drive', instance.by_wheel_drive)
+            instance.engine_capacity = validated_data.get('engine_capacity', instance.engine_capacity)
+            instance.engine_power = validated_data.get('engine_power', instance.engine_power)
+            instance.fuel_consumption = validated_data.get('fuel_consumption', instance.fuel_consumption)
+            instance.type = validated_data.get('type', instance.type)
+            instance.colour = validated_data.get('colour', instance.colour)
+            instance.fuel = validated_data.get('fuel', instance.fuel)
+            # instance.images_car_instance = validated_data.get('images_car_instance', instance.images_car_instance)
+            # instance.uploaded_images = validated_data.get('uploaded_images', instance.images)
+            # instance.image = validated_data.get('image', instance.images)
+            instance.save()
+            return instance
+            
 class CarNameSerializer(serializers.ModelSerializer):
     # id = serializers.CharField()
     class Meta:
@@ -119,6 +174,7 @@ class CategoryFilterSerializer(serializers.ModelSerializer):
 
 
 class MenClothesSerialiser(serializers.ModelSerializer):
+    image = ImagesSerializer(many=True, read_only=True)
     uploaded_images = serializers.ListField(
         child=serializers.ImageField(allow_empty_file=False, use_url=False),
         write_only=True
@@ -127,7 +183,7 @@ class MenClothesSerialiser(serializers.ModelSerializer):
         model = MenClothes
         # fields = "__all__"
     
-        fields = ["id", "size", "price", "title", "uploaded_images",]
+        fields = ["id", "size", "price", "title", "uploaded_images","image"]
         
     def create(self, validated_data):
         uploaded_images = validated_data.pop("uploaded_images")
@@ -143,13 +199,14 @@ class MenClothesSerialiser(serializers.ModelSerializer):
      
 
 class WemenClothesSerialiser(serializers.ModelSerializer):
+    image = ImagesSerializer(many=True, read_only=True)
     uploaded_images = serializers.ListField(
         child=serializers.ImageField(allow_empty_file=False, use_url=False),
         write_only=True
     )
     class Meta:
         model = WemenClothes
-        fields = ["id", "price", "title", "uploaded_images",]
+        fields = ["id", "price", "title", "uploaded_images","image"]
         
     def create(self, validated_data):
         uploaded_images = validated_data.pop("uploaded_images")
@@ -165,13 +222,14 @@ class WemenClothesSerialiser(serializers.ModelSerializer):
 
 
 class MenShoesSerialiser(serializers.ModelSerializer):
+    image = ImagesSerializer(many=True, read_only=True)
     uploaded_images = serializers.ListField(
         child=serializers.ImageField(allow_empty_file=False, use_url=False),
         write_only=True
     )
     class Meta:
         model = MenShoes
-        fields = ["id", "price", "title", "uploaded_images",]
+        fields = ["id", "price", "title", "uploaded_images","image"]
         
     def create(self, validated_data):
         uploaded_images = validated_data.pop("uploaded_images")
@@ -187,13 +245,14 @@ class MenShoesSerialiser(serializers.ModelSerializer):
     
 
 class WemenShoesSerialiser(serializers.ModelSerializer):
+    image = ImagesSerializer(many=True, read_only=True)
     uploaded_images = serializers.ListField(
         child=serializers.ImageField(allow_empty_file=False, use_url=False),
         write_only=True
     )
     class Meta:
         model = WemenShoes
-        fields = ["id", "price", "title", "uploaded_images",]
+        fields = ["id", "price", "title", "uploaded_images","image"]
         
     def create(self, validated_data):
         uploaded_images = validated_data.pop("uploaded_images")
@@ -209,13 +268,14 @@ class WemenShoesSerialiser(serializers.ModelSerializer):
 
 
 class ChildClothesShoesSerialiser(serializers.ModelSerializer):
+    image = ImagesSerializer(many=True, read_only=True)
     uploaded_images = serializers.ListField(
         child=serializers.ImageField(allow_empty_file=False, use_url=False),
         write_only=True
     )
     class Meta:
         model = ChildClothesShoes
-        fields = ["id", "price", "title",  "uploaded_images",]
+        fields = ["id", "price", "title",  "uploaded_images","image"]
         
     def create(self, validated_data):
         uploaded_images = validated_data.pop("uploaded_images")
@@ -231,13 +291,14 @@ class ChildClothesShoesSerialiser(serializers.ModelSerializer):
     
 
 class BagsKnapsacksSerialiser(serializers.ModelSerializer):
+    image = ImagesSerializer(many=True, read_only=True)
     uploaded_images = serializers.ListField(
         child=serializers.ImageField(allow_empty_file=False, use_url=False),
         write_only=True
     )
     class Meta:
         model = BagsKnapsacks
-        fields = ["id", "price", "title", "uploaded_images",]
+        fields = ["id", "price", "title", "uploaded_images","image"]
         
     def create(self, validated_data):
         uploaded_images = validated_data.pop("uploaded_images")

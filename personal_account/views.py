@@ -103,7 +103,7 @@ class ChangeCurrencyApiView(APIView):
 
     }
 )
-class GetCategoryUserNotArchivedAPIList(ListAPIView):
+class GetCardsUserNotArchivedAPIList(ListAPIView):
     """Представление списка активных объявлений пользователя"""
     permission_classes = [IsAuthenticated]
 
@@ -148,7 +148,7 @@ class GetCategoryUserNotArchivedAPIList(ListAPIView):
 
     }
 )
-class GetCategoryUserArchivedAPIList(ListAPIView):
+class GetCardsUserArchivedAPIList(ListAPIView):
     """Представление списка архивных объявлений пользователя"""
     permission_classes = [IsAuthenticated]
 
@@ -179,3 +179,5 @@ class GetCategoryUserArchivedAPIList(ListAPIView):
             data.extend(serializer(queryset, many=True).data)
 
         return Response(data, status=status.HTTP_200_OK)
+
+

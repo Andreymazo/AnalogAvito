@@ -2,7 +2,7 @@ from django.contrib.admin import ModelAdmin, register, display
 from django.utils.safestring import mark_safe
 
 from ad.models import Car, Category, Images, Views, Like, Documents, MenClothes, MenShoes, WemenShoes, \
-    ChildClothesShoes, WemenClothes
+    ChildClothesShoes, WemenClothes, BagsKnapsacks
 from modeltranslation.admin import TranslationAdmin
 
 from modeltranslation.admin import TranslationAdmin
@@ -38,6 +38,10 @@ class WemenShoesAdmin(ModelAdmin):
 
 @register(ChildClothesShoes)
 class ChildClothesShoesAdmin(ModelAdmin):
+    list_display = ('id', 'title', 'created', "archived",)
+
+@register(BagsKnapsacks)
+class BagsKnapsacksAdmin(ModelAdmin):
     list_display = ('id', 'title', 'created', "archived",)
 
 @register(Images)

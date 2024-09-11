@@ -1,15 +1,21 @@
+from django.contrib.contenttypes.models import ContentType
+from django.db.models.base import ModelBase
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 from rest_framework import status
-from rest_framework.generics import RetrieveAPIView
+from rest_framework.generics import RetrieveAPIView, ListAPIView
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from django.apps import apps
+
+from ad.models import Advertisement
 from personal_account.models import Balance
-from personal_account.serializers import BalanceSerializer
+from personal_account.serializers import BalanceSerializer, choose_serializer
 
 
 @extend_schema(
-    tags=["Кошелек/Wallet"],
+    tags=["Аккаунт / Account"],
     description="Отображение баланса и текущей валюты пользователя",
     summary="Баланс пользователя",
     responses={
@@ -43,7 +49,7 @@ class UserBalanceAPIView(RetrieveAPIView):
 
 
 @extend_schema(
-    tags=["Кошелек/Wallet"],
+    tags=["Аккаунт / Account"],
     description="Отображение баланса при изменении валюты",
     summary="Изменение валюты баланса",
     responses={
@@ -83,3 +89,93 @@ class ChangeCurrencyApiView(APIView):
         balance.balance = balance.get_balance_in_currency
         serializer = BalanceSerializer(balance)
         return Response(serializer.data)
+
+
+@extend_schema(
+    tags=["Аккаунт / Account"],
+    description="Отображение активных объявлений пользователя в личном кабинете",
+    summary="Активные объявления созданные пользователем",
+    responses={
+        status.HTTP_200_OK: OpenApiResponse(
+            description="Отображение активных объявлений",
+            response=choose_serializer
+        ),
+
+    }
+)
+class GetCategoryUserNotArchivedAPIList(ListAPIView):
+    """Представление списка активных объявлений пользователя"""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        # Получение пользователя
+        user = self.request.user
+
+        # Фильтрация моделей по принадлежности только моделям наследованных от абстрактного класса Advertisement
+        all_models = apps.get_app_config('ad').get_models()
+        models = [model for model in all_models
+                  if isinstance(model, ModelBase) and
+                  issubclass(model, Advertisement)
+                  ]
+
+        # Получение типа профиля пользователя
+        profile_content_type = ContentType.objects.get_for_model(user.profile.__class__)
+
+        data = []
+
+        for model in models:
+            queryset = model.objects.all().filter(
+                content_type=profile_content_type,
+                object_id=user.profile.id,
+                archived=False
+            )
+
+            serializer = choose_serializer(model.__name__)
+            data.extend(serializer(queryset, many=True).data)
+
+        return Response(data, status=status.HTTP_200_OK)
+
+
+@extend_schema(
+    tags=["Аккаунт / Account"],
+    description="Отображение архивных объявлений пользователя в личном кабинете",
+    summary="Объявления пользователя отправленные в архив",
+    responses={
+        status.HTTP_200_OK: OpenApiResponse(
+            description="Отображение архивных объявлений пользователя",
+            response=choose_serializer
+        ),
+
+    }
+)
+class GetCategoryUserArchivedAPIList(ListAPIView):
+    """Представление списка архивных объявлений пользователя"""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        # Получение пользователя
+        user = self.request.user
+
+        # Фильтрация моделей по принадлежности только моделям наследованных от абстрактного класса Advertisement
+        all_models = apps.get_app_config('ad').get_models()
+        models = [model for model in all_models
+                  if isinstance(model, ModelBase) and
+                  issubclass(model, Advertisement)
+                  ]
+
+        # Получение типа профиля пользователя
+        profile_content_type = ContentType.objects.get_for_model(user.profile.__class__)
+
+        data = []
+
+        for model in models:
+            queryset = model.objects.all().filter(
+                content_type=profile_content_type,
+                object_id=user.profile.id,
+                archived=True
+            )
+
+            serializer = choose_serializer(model.__name__)
+            data.extend(serializer(queryset, many=True).data)
+
+        return Response(data, status=status.HTTP_200_OK)

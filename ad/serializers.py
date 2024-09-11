@@ -13,15 +13,12 @@ class ViewsSerializer(serializers.ModelSerializer):
         model = Views
         fields = "__all__"
 
+
 class LikeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Like
         fields = "__all__"
 
-# class ContentTypeSerializer():
-#     class Meta:
-#         model = ContentType
-#         fields = "__all__"
 
 class LikeSerializerCreate(serializers.ModelSerializer):
     
@@ -54,17 +51,15 @@ class IpSerializer(serializers.ModelSerializer):
 
 
 class CarCreateSerializer(serializers.ModelSerializer):
-    
-    images =  ImagesSerializer(many=True, read_only=True)
     uploaded_images = serializers.ListField(
         child=serializers.ImageField(allow_empty_file=False, use_url=False),
         write_only=True
     )
     class Meta:
         model = Car
-        fields = ["id", "by_mileage", "brand", "model", "price", "year", "mileage", "transmission",\
+        fields = ["id", "title", "by_mileage", "brand", "model", "price", "year", "mileage", "transmission",\
                   "by_wheel_drive", "engine_capacity", "engine_power", "fuel_consumption", "type", "colour", "fuel",\
-                      "images", "uploaded_images",]# ["year", "images", "uploaded_images", "mileage"] ["__all__"]
+                       "uploaded_images",]
 
     def create(self, validated_data):
         uploaded_images = validated_data.pop("uploaded_images")
@@ -78,6 +73,25 @@ class CarCreateSerializer(serializers.ModelSerializer):
             images = Images( image=image, content_type=ContentType.objects.get_for_model(type(car)), object_id=car.id)
             images.save()
         return car
+    #Update надо сделать отдельным сериалезатором, изза списка фотографий
+    # def update(self, instance, validated_data):
+    #     instance.by_mileage = validated_data.get('by_mileage', instance.by_mileage)
+    #     instance.brand = validated_data.get('brand', instance.brand)
+    #     # instance.model = validated_data.get('model', instance.model)
+    #     instance.price = validated_data.get('price', instance.price)
+    #     instance.year = validated_data.get('year', instance.year)
+    #     instance.mileage = validated_data.get('mileage', instance.mileage)
+    #     instance.transmission = validated_data.get('transmission', instance.transmission)
+    #     instance.by_wheel_drive = validated_data.get('by_wheel_drive', instance.by_wheel_drive)
+    #     instance.engine_capacity = validated_data.get('engine_capacity', instance.engine_capacity)
+    #     instance.engine_power = validated_data.get('engine_power', instance.engine_power)
+    #     instance.fuel_consumption = validated_data.get('fuel_consumption', instance.fuel_consumption)
+    #     instance.type = validated_data.get('type', instance.type)
+    #     instance.colour = validated_data.get('colour', instance.colour)
+    #     instance.fuel = validated_data.get('fuel', instance.fuel)
+    #     instance.images = validated_data.get('images', instance.images)
+    #     instance.uploaded_images = validated_data.get('uploaded_images', instance.uploaded_images)
+    #     return instance
      
 
 class CarNameSerializer(serializers.ModelSerializer):
@@ -86,28 +100,7 @@ class CarNameSerializer(serializers.ModelSerializer):
         model = Car
         fields = ["id",]
 
-# class GetObjectSerializer(serializers.Serializer):
-#     liked_instance = serializers.Serializer.to_representation
-    
-#     def to_representation(self, instance):
-#         serializer_list = [CarNameSerializer,]
-#         content_type = self.context.get("content_type")
-#         print('content_type in GetObjectSerializer' , content_type)
-#         for i in serializer_list:
-#             if ContentType.objects.get_for_id(content_type) == ContentType.objects.get_for_model(i.Meta.model):
-#                 return i
-#                 return [j for j in serializer_list if ContentType.objects.get_for_id(content_type) == ContentType.objects.get_for_model(i.Meta.model)]
-#             else:
-#                 return None
-#     def get_liked_instance(self, obj):
-#         serializer_list = [CarNameSerializer,]
-#         content_type = self.context.get("content_type")
-#         print('content_type in serializer' , content_type)
-#         for i in serializer_list:
-#             if ContentType.objects.get_for_id(content_type) == ContentType.objects.get_for_model(i.Meta.model):
-#                 return [j for j in serializer_list if ContentType.objects.get_for_id(content_type) == ContentType.objects.get_for_model(i.Meta.model)]
-#         else:
-#             return None
+
 class DefaultSerializer(serializers.Serializer):
     id = serializers.CharField(required=False)
 
@@ -126,7 +119,6 @@ class CategoryFilterSerializer(serializers.ModelSerializer):
 
 
 class MenClothesSerialiser(serializers.ModelSerializer):
-    images =  ImagesSerializer(many=True, read_only=True)
     uploaded_images = serializers.ListField(
         child=serializers.ImageField(allow_empty_file=False, use_url=False),
         write_only=True
@@ -135,7 +127,7 @@ class MenClothesSerialiser(serializers.ModelSerializer):
         model = MenClothes
         # fields = "__all__"
     
-        fields = ["id", "size", "price", "title", "images", "uploaded_images",]
+        fields = ["id", "size", "price", "title", "uploaded_images",]
         
     def create(self, validated_data):
         uploaded_images = validated_data.pop("uploaded_images")
@@ -151,14 +143,13 @@ class MenClothesSerialiser(serializers.ModelSerializer):
      
 
 class WemenClothesSerialiser(serializers.ModelSerializer):
-    images =  ImagesSerializer(many=True, read_only=True)
     uploaded_images = serializers.ListField(
         child=serializers.ImageField(allow_empty_file=False, use_url=False),
         write_only=True
     )
     class Meta:
         model = WemenClothes
-        fields = ["id", "size", "price", "title", "images", "uploaded_images",]
+        fields = ["id", "price", "title", "uploaded_images",]
         
     def create(self, validated_data):
         uploaded_images = validated_data.pop("uploaded_images")
@@ -174,14 +165,13 @@ class WemenClothesSerialiser(serializers.ModelSerializer):
 
 
 class MenShoesSerialiser(serializers.ModelSerializer):
-    images =  ImagesSerializer(many=True, read_only=True)
     uploaded_images = serializers.ListField(
         child=serializers.ImageField(allow_empty_file=False, use_url=False),
         write_only=True
     )
     class Meta:
         model = MenShoes
-        fields = ["id", "size", "price", "title", "images", "uploaded_images",]
+        fields = ["id", "price", "title", "uploaded_images",]
         
     def create(self, validated_data):
         uploaded_images = validated_data.pop("uploaded_images")
@@ -197,14 +187,13 @@ class MenShoesSerialiser(serializers.ModelSerializer):
     
 
 class WemenShoesSerialiser(serializers.ModelSerializer):
-    images =  ImagesSerializer(many=True, read_only=True)
     uploaded_images = serializers.ListField(
         child=serializers.ImageField(allow_empty_file=False, use_url=False),
         write_only=True
     )
     class Meta:
         model = WemenShoes
-        fields = ["id", "size", "price", "title", "images", "uploaded_images",]
+        fields = ["id", "price", "title", "uploaded_images",]
         
     def create(self, validated_data):
         uploaded_images = validated_data.pop("uploaded_images")
@@ -220,14 +209,13 @@ class WemenShoesSerialiser(serializers.ModelSerializer):
 
 
 class ChildClothesShoesSerialiser(serializers.ModelSerializer):
-    images =  ImagesSerializer(many=True, read_only=True)
     uploaded_images = serializers.ListField(
         child=serializers.ImageField(allow_empty_file=False, use_url=False),
         write_only=True
     )
     class Meta:
         model = ChildClothesShoes
-        fields = ["id", "size", "price", "title", "images", "uploaded_images",]
+        fields = ["id", "price", "title",  "uploaded_images",]
         
     def create(self, validated_data):
         uploaded_images = validated_data.pop("uploaded_images")
@@ -237,20 +225,19 @@ class ChildClothesShoesSerialiser(serializers.ModelSerializer):
         instance_here.save()
         
         for image in uploaded_images:
-            images = Images( image=image, content_type=ContentType.objects.get_for_model(type(instance_here)), object_id=instance_here.id)
+            images = Images(image=image, content_type=ContentType.objects.get_for_model(type(instance_here)), object_id=instance_here.id)
             images.save()
         return instance_here
     
 
 class BagsKnapsacksSerialiser(serializers.ModelSerializer):
-    images =  ImagesSerializer(many=True, read_only=True)
     uploaded_images = serializers.ListField(
         child=serializers.ImageField(allow_empty_file=False, use_url=False),
         write_only=True
     )
     class Meta:
         model = BagsKnapsacks
-        fields = ["id", "size", "price", "title", "images", "uploaded_images",]
+        fields = ["id", "price", "title", "uploaded_images",]
         
     def create(self, validated_data):
         uploaded_images = validated_data.pop("uploaded_images")

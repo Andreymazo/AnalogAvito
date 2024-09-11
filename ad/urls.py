@@ -48,6 +48,7 @@ urlpatterns = [
    path("like_list_user/", like_list_user, name="like_list_user"),
    path("like_add/", like_add, name="like_add"),
    path("notifications_by_enter/", notifications_by_enter, name="notifications_by_enter"),
+   
    path("car_detail_generic/<int:pk>", CarDetailGeneric.as_view(), name="car_detail_generic"),
 
     path('view_list_obj', views_list_obj, name='view_list_obj'),

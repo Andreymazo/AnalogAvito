@@ -9,7 +9,7 @@ from ad.views import (
     GetModelFmCategoryView,
     GetObjFmModelView,
     MenClothesList,
-    MenShoesList,
+    MenShoesList,   
     UploadViewSet,
     WemenClothesList,
     WemenShoesList,
@@ -50,7 +50,7 @@ urlpatterns = [
    path("notifications_by_enter/", notifications_by_enter, name="notifications_by_enter"),
    
    path("car_detail_generic/<int:pk>", CarDetailGeneric.as_view(), name="car_detail_generic"),
-
+    # path("car_partial_update/<int:pk>", CarPartialUpdateAPIView.as_view(), name='car_partial_update'),
     path('view_list_obj', views_list_obj, name='view_list_obj'),
     path('categories_filter/', CategoriesFilter.as_view(), name='categories_filter'),
 

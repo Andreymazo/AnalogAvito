@@ -158,7 +158,7 @@ class CarListSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 class CarSerializer(serializers.ModelSerializer):
-        image = serializers.ImageField( write_only=True )
+        image = ImagesSerializer(many=True, read_only=True)
         title = serializers.CharField(write_only=True)
     
         class Meta:

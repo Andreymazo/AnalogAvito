@@ -2,7 +2,7 @@ from django.urls import path
 
 from personal_account.apps import PersonalAccountConfig
 from personal_account.views import UserBalanceAPIView, ChangeCurrencyApiView, GetCardsUserNotArchivedAPIList, \
-    GetCardsUserArchivedAPIList, GetCardRetrieveAPIView
+    GetCardsUserArchivedAPIList, GetCardRetrieveAPIView, add_archive
 
 app_name = PersonalAccountConfig.name
 
@@ -12,4 +12,5 @@ urlpatterns = [
     path('cards/', GetCardsUserNotArchivedAPIList.as_view(), name='cards'),
     path('archived/', GetCardsUserArchivedAPIList.as_view(), name='archived'),
     path('card/<str:model_name>/<int:pk>/', GetCardRetrieveAPIView.as_view(), name='get-card'),
+    path('add-archive/<str:model_name>/<int:pk>/', add_archive, name='add_archive'),
 ]

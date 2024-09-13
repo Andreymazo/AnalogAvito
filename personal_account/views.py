@@ -2,6 +2,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models.base import ModelBase
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.generics import RetrieveAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.response import Response
@@ -218,3 +219,27 @@ class GetCardRetrieveAPIView(RetrieveAPIView):
             return Response(serializer(ad).data, status=status.HTTP_200_OK)
         except model.DoesNotExist:
             return Response({"Ошибка": "Объявление не найдено"}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def add_archive(request, *args, **kwargs):
+    try:
+        # Получаем модель по имени
+        model = apps.get_app_config('ad').get_model(kwargs['model_name'])
+    except Exception:
+        return Response({"error": "Модель не найдена"}, status=status.HTTP_404_NOT_FOUND)
+
+    try:
+        # Получаем объект
+        ad = model.objects.get(pk=kwargs['pk'])
+
+        # Меняем статус архива
+        ad.archived = not ad.archived
+        ad.save()
+
+        message = "Объявление перенесено в архив" if ad.archived else "Объявление восстановлено из архива"
+        return Response({"message": message}, status=status.HTTP_200_OK)
+
+    except Exception:
+        return Response({"error": "Объект не найден"}, status=status.HTTP_404_NOT_FOUND)

@@ -3,7 +3,7 @@ import json
 from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
 from django.core.management import BaseCommand
-from ad.models import BagsKnapsacks, Car, Category, ChildClothesShoes, MenClothes, MenShoes, WemenClothes, WemenShoes
+from ad.models import BagsKnapsacks, Car, Category, ChildClothesShoes, Images, MenClothes, MenShoes, WemenClothes, WemenShoes
 from users.models import Profile
 
  
@@ -17,8 +17,20 @@ def ff():
     #     if i.category.field._related_name==str((type(p1.childclothesshoes.all().first()).__name__)).lower():
     #         print('here')
     #         return str(i.__name__)
-    content_type = ContentType.objects.get(model='car')
-    print(content_type.id)
+    # content_type = ContentType.objects.get(model='car')
+
+    # print(content_type.id)
+    car=Car.objects.get(id=6)
+    # content_type =  ContentType.objects.get(model='car')
+    print(car.images.all())
+    # print(Images.objects.filter(content_type).filter(object_id=car.id))
+    # Images
+    
+#  prefetch = GenericPrefetch(
+# ...     "content_object", [Bookmark.objects.all(), Animal.objects.only("name")]
+# ... )
+# >>> TaggedItem.objects.prefetch_related(prefetch).all()
+# <QuerySet [<TaggedItem: Great>, <TaggedItem: Awesome>]>
 
     # p2 = Category.objects.get(id=31)
 #    print(Category.objects.get(id=30))

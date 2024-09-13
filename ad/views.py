@@ -157,36 +157,56 @@ class CarList(generics.ListCreateAPIView):
 )
 
 
-# class CarCreate(generics.CreateAPIView, generics.ListAPIView):
+# class CarPartialUpdateAPIView(generics.UpdateAPIView):
 #     queryset = Car.objects.all()
-#     permission_classes = [IsAuthenticatedOrReadOnly]
 #     parser_classes = [MultiPartParser, FormParser]
-#     serializer_class = CarCreateSerializer
+#     serializer_class = CarPatchSerializer
+#     permission_classes = [IsAuthenticated]
 
+#     # lookup_field = 'pk'
+#     #Зайдем сюда с общей логики, то есть с моделью и номером объявления в кэше
 #     @extend_schema(
-#     summary="Список всех автомобилей",
+#             tags=["Автомобили/Cars"],
+#             request=CarPatchSerializer,
+#             responses=CarPatchSerializer,
 #     )
-#     def get(self, request, *args, **kwargs):
-#         serializer = CarCreateSerializer(Car.objects.all(), many=True)
-#         return Response([serializer.data, {"message": "Список объявлений автомобилей / List of cars"}])
+#     def patch(self, request, *args, **kwargs):
+#         try:
+#             dict_of_cache = cache.get_many(["content_type", "obj_id"])
+#             content_type = dict_of_cache['content_type']
+#             obj_id = dict_of_cache['obj_id']
+#         except KeyError as e:
+#             print(e)
+#             return redirect(reverse("ad:get_model_fm_category"))
+#         print('are we hwere', content_type, obj_id)
+#         obj = Car.objects.get(id=obj_id)
+#         serializer = CarPatchSerializer(obj, data=request.data, partial=True) # set partial=True to update a data partially...CarUpdateImagesSerializer
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+#     @extend_schema(
+#             tags=["Автомобили/Cars"],
+#             request=CarPatchSerializer,
+#             responses=CarPatchSerializer,
+#     )
+#     def partial_update(self, request, *args, **kwargs):
+#         partial = True
+#         instance = self.get_object()
+#         serializer = self.get_serializer(instance, data=request.data, partial=partial)
+#         serializer.is_valid(raise_exception=True)
+#         self.perform_update(serializer)
 
-#     @extend_schema(
-#     tags=["Автомобили/Cars"],
-#     summary="Создание объявления авто несколько фото подгружаются / Car multyple image creation",
-#     responses={
-#             201: OpenApiResponse(response=CarCreateSerializer,
-#                                  description='Created. New car in response'),
-#             400: OpenApiResponse(description='Bad request (something invalid)'),
-#         },
-#     parameters=[OpenApiParameter('limit', exclude=True), OpenApiParameter('offset', exclude=True), OpenApiParameter('ordering', exclude=True),]
-#     )
-#     def post(self, request, *args, **kwargs):
-#         serializer = CarCreateSerializer(request.data)
-#         print("serializer.data ==", serializer.data)
+#         if getattr(instance, '_prefetched_objects_cache', None):
+#             # If 'prefetch_related' has been applied to a queryset, we need to
+#             # forcibly invalidate the prefetch cache on the instance.
+#             instance._prefetched_objects_cache = {}
+
 #         return Response(serializer.data)
 
-#     # def perform_create(self, serializer):
-#     #     serializer.save(user=self.request.user)
+#     def perform_update(self, serializer):
+#         serializer.save()
 
 
 @extend_schema(
@@ -194,7 +214,7 @@ class CarList(generics.ListCreateAPIView):
 )
 class CarDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
     queryset = Car.objects.all()
-    serializer_class = CarSerializer
+    serializer_class = CarPatchSerializer
 
     ## Под капотом три метода ниже, если что-то надо их меняем:
     # class ItemDetail(APIView):
@@ -207,7 +227,7 @@ class CarDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
         # Add new model instance Views get_or_creation
         profile_instance = request.user.profile
         item = get_object_or_404(Car.objects.all(), pk=pk)
-        serializer = CarSerializer(item)
+        serializer = CarPatchSerializer(item)
         try:
             profile = request.user.profile
         except AttributeError:
@@ -247,14 +267,10 @@ class CarDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
         summary="Частичное обновление информации об автомобиле",
         description="Метод позволяет частично обновить информацию об автомобиле."
     )
-    # def patch(self, request, *args, **kwargs):
-    #     return super().patch(request, *args, **kwargs)
+  
     def patch(self, request, *args, **kwargs):
         pk = kwargs['pk']
-        
-        # return super().partial_update(request, *args, **kwargs)  # Дла реализации доки
         car_object = self.get_object()
-        print('------------------------pk--------------------', pk, 'car_oblect ', car_object)
         serializer = CarPatchSerializer(car_object, data=request.data, partial=True) # set partial=True to update a data partially...CarUpdateImagesSerializer
         if serializer.is_valid():
             serializer.save()
@@ -266,7 +282,25 @@ class CarDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
         summary="Удаление объекта"
     )
     def delete(self, request, *args, **kwargs):
-        super().delete(request, *args, **kwargs)  # Дла реализации доки
+        pk=kwargs['pk'] 
+        try:
+            car_instanse = get_object_or_404(Car.objects.all(), pk=pk)
+            print('car_instanse', car_instanse)
+        
+            images_instance = car_instanse.images.all()
+            if len(images_instance)>1:
+                for i in images_instance:
+                    i.delete
+                    i.save()
+            if len(images_instance)==1:
+                images_instance.delete()
+            else:
+                pass
+            car_instanse.delete()
+        except Car.DoesNotExist as e:
+                print(e)
+                return Response({"message":"Theres no object with this id "})
+        return Response({"message":"Deleted"}, status=status.HTTP_200_OK)
 
 
 #     def delete(self, request, pk, format=None):
@@ -446,19 +480,19 @@ class GetModelFmCategoryView(generics.ListAPIView, generics.RetrieveAPIView):
     def get(self, request, *args, **kwargs):# This is for retrieve
         ctype_id=""
         queryset = self.filter_queryset(self.get_queryset())
-        print('queryset', queryset.first())
-        print('queryset', type(queryset.first()))
+        # print('queryset', queryset.first())
+        # print('queryset', type(queryset.first()))
         serializer = CategorySerializer(queryset, many=True)
         
         try:
             self_model=queryset.first()
-            print('self_model 1', self_model)
+            # print('self_model 1', self_model)
             self_model_returned = get_ad_forcategory(self_model)
-            print('self_model 2', self_model_returned)
+            # print('self_model 2', self_model_returned)
             # print('11111111111111', type(queryset.first().ad_for_category.all().first()))
             ctype = ContentType.objects.get_for_model(self_model_returned)
             # ctype = ContentType.objects.get_for_model(model=type(queryset.first().advertisement.all().first()))
-            print('Number by contenttype', ctype.id)
+            # print('Number by contenttype', ctype.id)
             ctype_id=ctype.id
         except:
             self_model.DoesNotExist
@@ -470,10 +504,10 @@ class GetModelFmCategoryView(generics.ListAPIView, generics.RetrieveAPIView):
                          {"message": "Selected Category and number by ContentType advertisement concerned"}], status=status.HTTP_200_OK)
     def get_object(self):#This is for retrieveupdate
         queryset = self.filter_queryset(self.get_queryset())
-        print('queryset', queryset)
+        # print('queryset', queryset)
         obj = queryset.get(pk=self.request.data['parent'])
         # print('self ======= ====== ======', self.request.data['parent'])
-        print('obj', obj)
+        # print('obj', obj)
         return obj
 
 
@@ -485,7 +519,7 @@ def ChooseFilterSet():
             content_type = cache.get("content_type")
             if ContentType.objects.get_for_id(content_type) == ContentType.objects.get_for_model(i.Meta.model):
                 filterset = i
-                print('filterset' , filterset)
+                # print('filterset' , filterset)
                 return  filterset
         except ContentType.DoesNotExist:
             return None
@@ -556,7 +590,7 @@ class GetObjFmModelView(generics.ListAPIView, generics.RetrieveAPIView):
         except TypeError as e:
             print(' - ad/views.py 576str - ', e)
 
-        print('error occured swagger serializer' , serializer)
+        # print('error occured swagger serializer' , serializer)
         return serializer
 
 
@@ -564,17 +598,17 @@ class GetObjFmModelView(generics.ListAPIView, generics.RetrieveAPIView):
 
         obj_id = ""
         queryset = self.filter_queryset(self.get_queryset())
-        print("queryset in class", queryset)
+        # print("queryset in class", queryset)
         if not queryset:
             return redirect(reverse("ad:get_model_fm_category")) 
         serializer=self.get_serializer_class()
-        print('iiiiiiiiiiiiiii ==== serializer', serializer)
+        # print('iiiiiiiiiiiiiii ==== serializer', serializer)
         serializer = serializer(queryset, many=True)
         content_type = cache.get('content_type')
-        print('serialiser', serializer)
+        # print('serialiser', serializer)
         obj_id = serializer.data[0]['id']
         cache.set_many({"obj_id": obj_id, "content_type":content_type}, 60)
-        print(' ============ serializer.data', serializer.data)
+        # print(' ============ serializer.data', serializer.data)
         return Response([serializer.data, {"content_type":content_type, "obj_id":obj_id, "message":"Got content_type and obj_id and pass it in cache at endpoin: like_add "}], status=status.HTTP_200_OK)
 
 

@@ -1,3 +1,6 @@
+from http.cookiejar import month
+
+from django.urls import reverse
 from rest_framework import serializers
 
 from ad.models import Car, MenClothes, WemenClothes, MenShoes, WemenShoes, ChildClothesShoes, BagsKnapsacks
@@ -34,6 +37,7 @@ class CarForAccountSerializer(serializers.ModelSerializer):
 
     images = ImagesSerializer(many=True, read_only=True)
     category = CategorySerializer(read_only=True)
+    in_out_archive = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Car
@@ -41,7 +45,15 @@ class CarForAccountSerializer(serializers.ModelSerializer):
             'id', 'category', 'title', 'description', 'images', 'moderation', 'archived',
             'price', 'brand', 'model', 'year', 'by_mileage', 'mileage', 'transmission', 'by_wheel_drive',
             'engine_capacity', 'engine_power', 'fuel_consumption', 'location', 'type', 'colour', 'fuel',
-            'created', 'changed', )
+            'created', 'changed', 'in_out_archive',)
+
+    def get_in_out_archive(self, obj):
+        # Забираем название модели из мета-информации
+        model_name = self.Meta.model.__name__
+
+        # Формируем урл для перехода на эндпоинт передачи в архив/восстановления из архива с заполненными данными
+        url = reverse("personal_account:add_archive", kwargs={'model_name': model_name, 'pk': obj.pk})
+        return  url
 
 
 class WomenClothesForAccountSerializer(serializers.ModelSerializer):
@@ -49,12 +61,21 @@ class WomenClothesForAccountSerializer(serializers.ModelSerializer):
 
     images = ImagesSerializer(many=True, read_only=True)
     category = CategorySerializer(read_only=True)
+    in_out_archive = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = WemenClothes
         fields = (
             'id', 'category', 'title', 'description', 'images', 'moderation', 'archived',
-            'price', 'created', 'changed',)
+            'price', 'created', 'changed', 'in_out_archive',)
+
+    def get_in_out_archive(self, obj):
+        # Забираем название модели из мета-информации
+        model_name = self.Meta.model.__name__
+
+        # Формируем урл для перехода на эндпоинт передачи в архив/восстановления из архива с заполненными данными
+        url = reverse("personal_account:add_archive", kwargs={'model_name': model_name, 'pk': obj.pk})
+        return url
 
 
 class MenShoesForAccountSerializer(serializers.ModelSerializer):
@@ -62,12 +83,21 @@ class MenShoesForAccountSerializer(serializers.ModelSerializer):
 
     images = ImagesSerializer(many=True, read_only=True)
     category = CategorySerializer(read_only=True)
+    in_out_archive = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = MenShoes
         fields = (
             'id', 'category', 'title', 'description', 'images', 'moderation', 'archived',
-            'price', 'created', 'changed',)
+            'price', 'created', 'changed', 'in_out_archive',)
+
+    def get_in_out_archive(self, obj):
+        # Забираем название модели из мета-информации
+        model_name = self.Meta.model.__name__
+
+        # Формируем урл для перехода на эндпоинт передачи в архив/восстановления из архива с заполненными данными
+        url = reverse("personal_account:add_archive", kwargs={'model_name': model_name, 'pk': obj.pk})
+        return url
 
 
 class WomenShoesForAccountSerializer(serializers.ModelSerializer):
@@ -75,12 +105,21 @@ class WomenShoesForAccountSerializer(serializers.ModelSerializer):
 
     images = ImagesSerializer(many=True, read_only=True)
     category = CategorySerializer(read_only=True)
+    in_out_archive = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = WemenShoes
         fields = (
             'id', 'category', 'title', 'description', 'images', 'moderation', 'archived',
-            'price', 'created', 'changed',)
+            'price', 'created', 'changed', 'in_out_archive',)
+
+    def get_in_out_archive(self, obj):
+        # Забираем название модели из мета-информации
+        model_name = self.Meta.model.__name__
+
+        # Формируем урл для перехода на эндпоинт передачи в архив/восстановления из архива с заполненными данными
+        url = reverse("personal_account:add_archive", kwargs={'model_name': model_name, 'pk': obj.pk})
+        return url
 
 
 class ChildClothesShoesForAccountSerializer(serializers.ModelSerializer):
@@ -88,12 +127,21 @@ class ChildClothesShoesForAccountSerializer(serializers.ModelSerializer):
 
     images = ImagesSerializer(many=True, read_only=True)
     category = CategorySerializer(read_only=True)
+    in_out_archive = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = ChildClothesShoes
         fields = (
             'id', 'category', 'title', 'description', 'images', 'moderation', 'archived',
-            'price', 'created', 'changed',)
+            'price', 'created', 'changed', 'in_out_archive',)
+
+    def get_in_out_archive(self, obj):
+        # Забираем название модели из мета-информации
+        model_name = self.Meta.model.__name__
+
+        # Формируем урл для перехода на эндпоинт передачи в архив/восстановления из архива с заполненными данными
+        url = reverse("personal_account:add_archive", kwargs={'model_name': model_name, 'pk': obj.pk})
+        return url
 
 
 class BagsKnapsacksForAccountSerializer(serializers.ModelSerializer):
@@ -101,12 +149,21 @@ class BagsKnapsacksForAccountSerializer(serializers.ModelSerializer):
 
     images = ImagesSerializer(many=True, read_only=True)
     category = CategorySerializer(read_only=True)
+    in_out_archive = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = BagsKnapsacks
         fields = (
             'id', 'category', 'title', 'description', 'images', 'moderation', 'archived',
-            'price', 'created', 'changed',)
+            'price', 'created', 'changed', 'in_out_archive',)
+
+    def get_in_out_archive(self, obj):
+        # Забираем название модели из мета-информации
+        model_name = self.Meta.model.__name__
+
+        # Формируем урл для перехода на эндпоинт передачи в архив/восстановления из архива с заполненными данными
+        url = reverse("personal_account:add_archive", kwargs={'model_name': model_name, 'pk': obj.pk})
+        return url
 
 
 class MenClothesForAccountSerializer(serializers.ModelSerializer):
@@ -114,9 +171,18 @@ class MenClothesForAccountSerializer(serializers.ModelSerializer):
 
     images = ImagesSerializer(many=True, read_only=True)
     category = CategorySerializer(read_only=True)
+    in_out_archive = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = MenClothes
         fields = (
             'id', 'category', 'title', 'description', 'size', 'images', 'moderation', 'archived',
-            'price', 'created', 'changed',)
+            'price', 'created', 'changed', 'in_out_archive',)
+
+    def get_in_out_archive(self, obj):
+        # Забираем название модели из мета-информации
+        model_name = self.Meta.model.__name__
+
+        # Формируем урл для перехода на эндпоинт передачи в архив/восстановления из архива с заполненными данными
+        url = reverse("personal_account:add_archive", kwargs={'model_name': model_name, 'pk': obj.pk})
+        return url

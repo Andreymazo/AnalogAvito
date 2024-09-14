@@ -184,3 +184,4 @@ volumes:
 
 
 # docker info | sed '/Username:/!d;s/.* //'
+# docker tag 50c5394c1d26 andreymazo/bulletin_board_backend_celery:1.0

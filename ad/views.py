@@ -897,6 +897,8 @@ def notifications_by_enter(
 # # serializer.save()
 #             return Response(serializer.data, status=status.HTTP_201_CREATED)
 #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+"""На входе модель на выходе ее сериалайзер"""
 def choose_serializer(model):
     print('model======================', model.__name__)
     model =  model.__name__
@@ -1081,3 +1083,37 @@ def views_list_obj(request):
         serializer = ViewsSerializer(views_queryset_obj, many=True)
         print('view_instance.total_viwes_profile, view_instance.total_viwes_object', view_instance.total_viwes_profile, view_instance.total_viwes_object)#Views.objects.get(id=obj_id)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+
+@extend_schema(
+    tags=["Детальные методы без привязки к конкретной модели / Detailed methods wthout model seriliser concerned, could be applied to any model"],
+    summary="модель Mssg, в методе GET само объявление в методе PUT изменяем в методе DELETE удаляем / object, CET - see, PUT - change, DELETE - remove",
+    request=choose_serializer,  
+    responses={status.HTTP_200_OK: OpenApiResponse(
+        description="-----------------------",
+        response=choose_serializer,
+    ), }
+)
+@api_view(["GET", "PUT", "DELETE"])
+def message_detail(request, pk):
+    try: 
+        mssg_instance = Mssg.objects.get(pk=pk) 
+    except Mssg.DoesNotExist: 
+        return Response({"message": "no messages for user"}, status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'GET': 
+        serializer = MssgDetailSerializer(mssg_instance)
+        return Response([serializer.data, {"message":"mssg detailed"}], status=status.HTTP_200_OK) 
+    elif request.method == 'PUT': 
+        data = JSONParser().parse(request) 
+        serializer = MssgDetailSerializer(mssg_instance, data=data) 
+  
+        if serializer.is_valid(): 
+            serializer.save() 
+            return Response([serializer.data, {"message":"mssg updated"}], status=status.HTTP_200_OK) 
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+  
+    elif request.method == 'DELETE': 
+        mssg_instance.delete() 
+        return Response({"message":"mssg deleted"}, status=status.HTTP_204_NO_CONTENT) 

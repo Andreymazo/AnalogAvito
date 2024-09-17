@@ -28,10 +28,11 @@ class SignUpSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = self.context["user"]
-        profile = Profile.objects.create(
+        profile = Profile(
             user=user,
             name=validated_data["name"],
             phone_number=validated_data["phone_number"],
+            content_object=user
         )
         profile.save()
         return profile

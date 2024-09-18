@@ -1,8 +1,5 @@
-from http.cookiejar import month
-
 from django.urls import reverse
 from rest_framework import serializers
-
 from ad.models import Car, MenClothes, WemenClothes, MenShoes, WemenShoes, ChildClothesShoes, BagsKnapsacks
 from bulletin.serializers import ImagesSerializer, CategorySerializer
 from personal_account.models import Balance

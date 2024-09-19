@@ -106,40 +106,13 @@ class CarCreateSerializer(serializers.ModelSerializer):
         return instance
      
 class CarPatchSerializer(serializers.ModelSerializer):
-    image = ImagesSerializer(many=True, read_only=True)
-    uploaded_images = serializers.ListField(
-        child=serializers.ImageField(allow_empty_file=False, use_url=False),
-        write_only=True
-    )
-    
-    # images_car_instance=ImagesSerializer()
+  
     class Meta:
         model = Car
         fields = ["id", "title", "by_mileage", "brand", "model", "price", "year", "mileage", "transmission",\
-                  "by_wheel_drive", "engine_capacity", "engine_power", "fuel_consumption", "type", "colour", "fuel",\
-                       "image", "uploaded_images"]
+                  "by_wheel_drive", "engine_capacity", "engine_power", "fuel_consumption", "type", "colour", "fuel",]
 
-    def create(self, validated_data):
-        uploaded_images = validated_data.pop("uploaded_images")
-        # print('validated_data=======  mmmmmmm', validated_data)
-        profile_instance = self.context['request'].user.profile
-        car = Car(content_object = profile_instance, category_id=Category.objects.get(name='Автомобили',).id,**validated_data)
-        car.save()
-        # car , _ = Car.objects.get_or_create(profile = self.context['request'].user.profile, category_id=Category.objects.get(name='Транспорт',).id,**validated_data)
-        
-        for image in uploaded_images:
-            images = Images( image=image, content_type=ContentType.objects.get_for_model(type(car)), object_id=car.id)
-            images.save()
-        return car
-    #Update надо сделать отдельным сериалезатором, изза списка фотографий
     def update(self, instance, validated_data):
-        # print('================instsance ------------>', instance.images.all())
-        # print('================validated_data------------>', validated_data)
-        # print('================validated_data------------>', self.__dict__)
-        # image_queryset = instance.images.all()
-        # images_car_instance=ImagesSerializer(image_queryset, many=True)
-        uploaded_images_instance = validated_data.pop('uploaded_images')
-        # print('uploaded_images_instance', uploaded_images_instance)
         instance.by_mileage = validated_data.get('by_mileage', instance.by_mileage)
         instance.brand = validated_data.get('brand', instance.brand)
         instance.model = validated_data.get('model', instance.model)
@@ -155,15 +128,10 @@ class CarPatchSerializer(serializers.ModelSerializer):
         instance.colour = validated_data.get('colour', instance.colour)
         instance.fuel = validated_data.get('fuel', instance.fuel)
         instance.image = validated_data.get('image', instance.images)
-        # instance.uploaded_images = validated_data.get('uploaded_images', instance.uploaded_images)
-        # print('end======================',)
 
         instance.save()
-        for image in uploaded_images_instance:
-            images = Images( image=image, content_type=ContentType.objects.get_for_model(type(instance)), object_id=instance.id)
-            images.save()
-
         return instance
+            
             
 class CarNameSerializer(serializers.ModelSerializer):
     # id = serializers.CharField()
@@ -315,6 +283,8 @@ class BagsKnapsacksSerialiser(serializers.ModelSerializer):
     class Meta:
         model = BagsKnapsacks
         fields = ["id", "price", "title", "uploaded_images","image"]
+      
+      
         
     def create(self, validated_data):
         uploaded_images = validated_data.pop("uploaded_images")

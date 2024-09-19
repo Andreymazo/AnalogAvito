@@ -270,6 +270,8 @@ class CarDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
   
     def patch(self, request, *args, **kwargs):
         pk = kwargs['pk']
+        kwargs['partial'] = True 
+        print('--------------kwargs==', kwargs)
         car_object = self.get_object()
         serializer = CarPatchSerializer(car_object, data=request.data, partial=True) # set partial=True to update a data partially...CarUpdateImagesSerializer
         if serializer.is_valid():
@@ -954,22 +956,36 @@ class MenShoesList(generics.ListCreateAPIView):# Пока без криейта,
 
 @extend_schema(
     tags=["Личные вещи/ Personal items"],
-    # summary=" Car list and car creation",
+    summary=" BagsKnapsacks list and car creation",
+    parameters=[BagsKnapsacksSerialiser,
+    OpenApiParameter("uploaded_images", ImagesSerializer),
+    OpenApiParameter("price", OpenApiTypes.INT, OpenApiParameter.QUERY),
+    OpenApiParameter("title", OpenApiTypes.STR, OpenApiParameter.QUERY),
+    
+    ],
     request=BagsKnapsacksSerialiser,
-    responses={status.HTTP_200_OK: OpenApiResponse(
+    responses={
+        status.HTTP_200_OK: OpenApiResponse(
         description="--------------------------",
-        response=BagsKnapsacksSerialiser,
-    ), }
+        response=BagsKnapsacksSerialiser,), 
+        status.HTTP_201_CREATED: OpenApiResponse(
+        description=("Создано ____"),
+        response=BagsKnapsacksSerialiser,)},
+
 
 )
 class BagsKnapsacksList(generics.ListCreateAPIView):# Пока без криейта, чтобы сделать криейт, нужны криейтовские сериалайзеры, по аналогии с CarCreateSerializer
     queryset = BagsKnapsacks.objects.all()
     permission_classes = [IsAuthenticatedOrReadOnly]
-    # parser_classes = [MultiPartParser, FormParser]
+    parser_classes = [MultiPartParser, FormParser]
     serializer_class = BagsKnapsacksSerialiser
     filter_backends = [DjangoFilterBackend]
     filterset_class = BagsKnapsacksFilter
     filter_backends = [DjangoFilterBackend]
+    
+    def perform_create(self, serializer):
+        print('-------------serializer===============', serializer)
+        serializer.save()
 
 @extend_schema(
     tags=["Личные вещи/ Personal items"],

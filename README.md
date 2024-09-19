@@ -84,3 +84,11 @@ sign_up_profile:
 
 celery -A config worker -l info
 celery -A config beat -l INFO
+
+https://crusat.ru/blog/105-kak-proshe-vsego-razvernut-django-proekt-cherez-do/
+https://yandex.ru/video/preview/63361828915957190
+<!-- docker compose -f docker-compose_celery_images.yaml up -->
+<!-- CTRL-p CTRL-q  exit fm container -->
+<!-- docker exec -it 9bfbb562767a /bin/bash изпод контейнера -->
+<!-- gunicorn config.wsgi:application --bind 0.0.0.0:8000 -->
+<!-- https://dzen.ru/video/watch/660cfbb2aca2404a9108e66c -->

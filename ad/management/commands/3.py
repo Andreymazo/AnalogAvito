@@ -4,7 +4,9 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
 from django.core.management import BaseCommand
 from ad.models import BagsKnapsacks, Car, Category, ChildClothesShoes, Images, MenClothes, MenShoes, WemenClothes, WemenShoes
+from config.settings import BASE_DIR, BASE_URL
 from users.models import Profile
+
 
  
 def ff():
@@ -20,9 +22,10 @@ def ff():
     # content_type = ContentType.objects.get(model='car')
 
     # print(content_type.id)
-    car=Car.objects.get(id=6)
+    # car=Car.objects.get(id=6)
     # content_type =  ContentType.objects.get(model='car')
-    print(car.images.all())
+    print(BASE_DIR, BASE_URL, )
+    #car.images.all())
     # print(Images.objects.filter(content_type).filter(object_id=car.id))
     # Images
     

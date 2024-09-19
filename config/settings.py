@@ -381,13 +381,19 @@ from celery.schedules import crontab
 CELERY_BEAT_SCHEDULE = {
     'my_scheduled_job': {
         'task': 'count_profile_view_send_email',  # the same goes in the task name
-        'schedule': crontab(minute='*/1'),#hour=7, minute=30, day_of_week=1),
+        'schedule': crontab(minute='*/1'),  # hour=7, minute=30, day_of_week=1),
     },
 
     'scheduled_30days': {
         'task': 'checking_before_archiving',
         # 'schedule': timedelta(days=1), # проверка каждый день
-        'schedule': crontab(minute='*/1'), # для тестов выставлено выполнение раз в 2 минуты
+        'schedule': crontab(minute='*/2'),  # для тестов выставлено выполнение раз в 2 минуты
+    },
+
+    'update_currencies': {
+        'task': 'get_currency',
+        'schedule': timedelta(days=1), # проверка каждый день
+        # 'schedule': crontab(minute='*/2'),  # для тестов выставлено выполнение раз в 2 минуты (бесплатных запросов 250 шт.)
     },
 }
 

@@ -1,8 +1,7 @@
-from decimal import Decimal
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from config import constants, settings
+from config import settings
 
 CURRENCY = [
     ("RUB", "RUBLES"),
@@ -15,6 +14,19 @@ STATUS = [
     ("COMPLETED", "COMPLETED"),
     ("FAILED", "FAILED")
 ]
+
+class Currencies(models.Model):
+    """Валюта"""
+    usd_rate = models.DecimalField(max_digits=5, decimal_places=2, default=1, verbose_name='1 доллар')
+    eur_rate = models.DecimalField(max_digits=5, decimal_places=2, default=1, verbose_name='1 евро')
+
+    class Meta:
+        verbose_name = _('Валюта')
+        verbose_name_plural = _('Валюты')
+
+    def __str__(self):
+        return str(self.usd_rate)
+
 
 
 class Balance(models.Model):
@@ -33,6 +45,7 @@ class Balance(models.Model):
                                  related_name='balance',
                                  verbose_name='Владелец баланса')
 
+
     class Meta:
         verbose_name = _('Баланс')
         verbose_name_plural = _('Балансы')
@@ -42,9 +55,11 @@ class Balance(models.Model):
 
     @property
     def get_balance_in_currency(self):
-        # Делаем временно фиксированные валюты
-        usd = Decimal(constants.USD)
-        eur = Decimal(constants.EUR)
+
+        currencies = Currencies.objects.all().first()
+
+        usd = currencies.usd_rate
+        eur = currencies.eur_rate
 
         # Делаем проверку какая валюта записана в базе на данный момент и возвращаем баланс в этой валюте
         if self.currency == 'USD':

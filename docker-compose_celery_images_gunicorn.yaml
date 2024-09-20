@@ -1,8 +1,6 @@
-version: '3'
 services:
   redis:
     image: "redis:alpine"
-
   server:
     image: nginx:alpine
     restart: always
@@ -14,14 +12,10 @@ services:
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
       - ./public:/code/public
-
   web:
     container_name: web
     image: andreymazo/bulletin_board_backend_web:1.0
-    # build:     
-    #   context: .
-    #   dockerfile: Dockerfile
-    
+  
     env_file:
       .env.dev
     environment:
@@ -30,60 +24,42 @@ services:
     ports:
       - 8000:8000
     depends_on:
-      # - db
-      # - redis
-      # db:
-      #   condition: service_healthy
       db:
         condition: service_healthy
-        # restart: true
+        
       redis:
         condition: service_started
     command: >
-      sh -c "python manage.py makemigrations && python manage.py migrate && python manage.py loaddata --exclude contenttypes db1.json && ls -a && python manage.py runserver 0.0.0.0:8000 "  
+      sh -c "python manage.py makemigrations && python manage.py migrate && python manage.py loaddata --exclude contenttypes db1.json && ls -a && gunicorn config.wsgi:application --bind 0.0.0.0:8000 "  
   celery:
     image: celery
-    # environment:
-    # - BROKER_URL=redis://0.0.0.0:6379/0
-    # build: .
+    
     command: celery -A config worker -l info
     volumes:
       - .:/code
     depends_on:
-      # - db
-      # - redis
       db:
         condition: service_healthy
-        # restart: true
       redis:
         condition: service_started
   celery-beat:
     image: andreymazo/bulletin_board_backend_celery-beat:1.0
-    # build: .
-    # command: celery -A config beat -l info
     volumes:
       - .:/code
     depends_on:
-      # - db
-      # - redis
       db:
         condition: service_healthy
-        # restart: true
       redis:
         condition: service_started
    
   db:
     container_name: db
     image: andreymazo/bulletin_board_backend_db:1.0
-    # build:
-    #   context: .
-    #   dockerfile: Dockerfile-db
     restart: always
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: "123456"
       POSTGRES_DB: bulletin
-      # - "POSTGRES_HOST_AUTH_METHOD=trust"
     env_file:
       - .env.dev
     ports:
@@ -97,15 +73,5 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-
-
-  # celery:
-  #   depends_on:
-  #     -redis
-
-  # redis:
-  #   ports:
-  #     - 8000:8000
 volumes:
   database_volume:
-  # docker-compose -f docker-compose_celery.yaml up

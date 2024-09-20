@@ -180,6 +180,33 @@ class MenClothesSerialiser(serializers.ModelSerializer):
             images = Images( image=image, content_type=ContentType.objects.get_for_model(type(instance_here)), object_id=instance_here.id)
             images.save()
         return instance_here
+    
+    def update(self, instance, validated_data):
+        print('================instsance ------------>', instance.images.all())
+        print('================validated_data------------>', validated_data)
+        print('================validated_data------------>', self.__dict__)
+        image_queryset = instance.images.all()
+        images_car_instance=ImagesSerializer(image_queryset, many=True)
+        instance.by_mileage = validated_data.get('by_mileage', instance.by_mileage)
+        instance.brand = validated_data.get('brand', instance.brand)
+        instance.model = validated_data.get('model', instance.model)
+        instance.price = validated_data.get('price', instance.price)
+        instance.year = validated_data.get('year', instance.year)
+        instance.mileage = validated_data.get('mileage', instance.mileage)
+        instance.transmission = validated_data.get('transmission', instance.transmission)
+        instance.by_wheel_drive = validated_data.get('by_wheel_drive', instance.by_wheel_drive)
+        instance.engine_capacity = validated_data.get('engine_capacity', instance.engine_capacity)
+        instance.engine_power = validated_data.get('engine_power', instance.engine_power)
+        instance.fuel_consumption = validated_data.get('fuel_consumption', instance.fuel_consumption)
+        instance.type = validated_data.get('type', instance.type)
+        instance.colour = validated_data.get('colour', instance.colour)
+        instance.fuel = validated_data.get('fuel', instance.fuel)
+        instance.image = validated_data.get('image', instance.images)
+        # instance.uploaded_images = validated_data.get('uploaded_images', instance.uploaded_images)
+        print('end======================',)
+       
+        instance.save()
+    
      
 
 class WemenClothesSerialiser(serializers.ModelSerializer):
@@ -203,6 +230,32 @@ class WemenClothesSerialiser(serializers.ModelSerializer):
             images = Images( image=image, content_type=ContentType.objects.get_for_model(type(instance_here)), object_id=instance_here.id)
             images.save()
         return instance_here
+    
+    # def update(self, instance, validated_data):
+    #     print('================instsance ------------>', instance.images.all())
+    #     print('================validated_data------------>', validated_data)
+    #     print('================validated_data------------>', self.__dict__)
+    #     image_queryset = instance.images.all()
+    #     images_car_instance=ImagesSerializer(image_queryset, many=True)
+    #     instance.by_mileage = validated_data.get('by_mileage', instance.by_mileage)
+    #     instance.brand = validated_data.get('brand', instance.brand)
+    #     instance.model = validated_data.get('model', instance.model)
+    #     instance.price = validated_data.get('price', instance.price)
+    #     instance.year = validated_data.get('year', instance.year)
+    #     instance.mileage = validated_data.get('mileage', instance.mileage)
+    #     instance.transmission = validated_data.get('transmission', instance.transmission)
+    #     instance.by_wheel_drive = validated_data.get('by_wheel_drive', instance.by_wheel_drive)
+    #     instance.engine_capacity = validated_data.get('engine_capacity', instance.engine_capacity)
+    #     instance.engine_power = validated_data.get('engine_power', instance.engine_power)
+    #     instance.fuel_consumption = validated_data.get('fuel_consumption', instance.fuel_consumption)
+    #     instance.type = validated_data.get('type', instance.type)
+    #     instance.colour = validated_data.get('colour', instance.colour)
+    #     instance.fuel = validated_data.get('fuel', instance.fuel)
+    #     instance.image = validated_data.get('image', instance.images)
+    #     # instance.uploaded_images = validated_data.get('uploaded_images', instance.uploaded_images)
+    #     print('end======================',)
+       
+    #     instance.save()
 
 
 class MenShoesSerialiser(serializers.ModelSerializer):

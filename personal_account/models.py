@@ -78,7 +78,7 @@ class Payments(models.Model):
                                  verbose_name='Сумма платежа')
     status = models.CharField(max_length=10, choices=STATUS, default='PENDING', verbose_name='Статус платежа')
     creating_payment = models.DateTimeField(auto_now_add=True, verbose_name="Дата и время создания платежа")
-    user = models.OneToOneField(settings.AUTH_USER_MODEL,
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
                                  on_delete=models.CASCADE,
                                  related_name='payments',
                                  verbose_name='Владелец платежа')

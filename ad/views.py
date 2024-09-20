@@ -214,7 +214,7 @@ class CarList(generics.ListCreateAPIView):
 )
 class CarDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
     queryset = Car.objects.all()
-    serializer_class = CarPatchSerializer
+    serializer_class = CarCreateSerializer
 
     ## Под капотом три метода ниже, если что-то надо их меняем:
     # class ItemDetail(APIView):
@@ -309,7 +309,97 @@ class CarDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
 #         item = get_object_or_404(Item.objects.all(), pk=pk)
 #         item.delete()
 #         return Response(status=status.HTTP_204_NO_CONTENT)
+class MenClothesDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
+    queryset = MenClothes.objects.all()
+    serializer_class = MenClothesSerialiser
 
+    ## Под капотом три метода ниже, если что-то надо их меняем:
+    # class ItemDetail(APIView):
+
+    @extend_schema(
+        methods=['GET'],
+        summary='Получение информации об автомобиле',
+    )
+    def get(self, request, pk, format=None):
+        # Add new model instance Views get_or_creation
+        profile_instance = request.user.profile
+        item = get_object_or_404(Car.objects.all(), pk=pk)
+        serializer = CarPatchSerializer(item)
+        try:
+            profile = request.user.profile
+        except AttributeError:
+            print('---------------------', request.user, '4444444444', self.request.user)
+            return Response([serializer.data, {"message": "Anonymoususer, Views dont counted"}],
+                            status=status.HTTP_200_OK)
+        except Profile.DoesNotExist:
+            return Response({"message": "У вас нет Профиля, перенаправляем на регистрацию"},
+                            status=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION)
+        # print('view created') #Here we create view every time we enter the object
+        # content_type = ContentType.objects.get(model='car').id
+        # view_instance = Views(profile=profile_instance, content_type=ContentType.objects.get_for_id(content_type), object_id=pk)
+        # view_instance.save()
+
+        return Response(serializer.data)
+
+    @extend_schema(
+        methods=['PUT'],
+        summary="Обновление данных об автомобиле",
+        description="Метод позволяет полностью обновить информацию об автомобиле. "
+                    "Тело запроса должно содержать полную информацию об автомобиле, "
+                    "включая все обязательные поля."
+    )
+    def put(self, request, *args, **kwargs):
+        return super().put(request, *args, **kwargs)  # Дла реализации доки
+
+    # def put(self, request, pk, format=None):
+    #     item = get_object_or_404(Car.objects.all(), pk=pk)
+    #     serializer = CarCreateSerializer(item, data=request.data)
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return Response(serializer.data)
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    @extend_schema(
+        methods=['PATCH'],
+        summary="Частичное обновление информации об автомобиле",
+        description="Метод позволяет частично обновить информацию об автомобиле."
+    )
+  
+    def patch(self, request, *args, **kwargs):
+        pk = kwargs['pk']
+        kwargs['partial'] = True 
+        print('--------------kwargs==', kwargs)
+        car_object = self.get_object()
+        serializer = CarPatchSerializer(car_object, data=request.data, partial=True) # set partial=True to update a data partially...CarUpdateImagesSerializer
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    @extend_schema(
+        methods=['DELETE'],
+        summary="Удаление объекта"
+    )
+    def delete(self, request, *args, **kwargs):
+        pk=kwargs['pk'] 
+        try:
+            car_instanse = get_object_or_404(Car.objects.all(), pk=pk)
+            print('car_instanse', car_instanse)
+        
+            images_instance = car_instanse.images.all()
+            if len(images_instance)>1:
+                for i in images_instance:
+                    i.delete
+                    i.save()
+            if len(images_instance)==1:
+                images_instance.delete()
+            else:
+                pass
+            car_instanse.delete()
+        except Car.DoesNotExist as e:
+                print(e)
+                return Response({"message":"Theres no object with this id "})
+        return Response({"message":"Deleted"}, status=status.HTTP_200_OK)
 @extend_schema(
     tags=["Изображения/Images"],
 )

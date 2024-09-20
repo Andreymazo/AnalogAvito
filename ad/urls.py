@@ -51,7 +51,7 @@ urlpatterns = [
     path("notifications_by_enter/", notifications_by_enter, name="notifications_by_enter"),
    
     path("car_detail_generic/<int:pk>", CarDetailGeneric.as_view(), name="car_detail_generic"),
-    path("car_detail_generic/<int:pk>", MenClothesDetailGeneric.as_view(), name="car_detail_generic"),
+    
     # path("car_detail_generic/<int:pk>", MenShoesDetailGeneric.as_view(), name="car_detail_generic"),
     # path("car_detail_generic/<int:pk>", WemenClothesDetailGeneric.as_view(), name="car_detail_generic"),
     # path("car_detail_generic/<int:pk>", WemenShoesDetailGeneric.as_view(), name="car_detail_generic"),
@@ -61,8 +61,9 @@ urlpatterns = [
     # path("car_partial_update/<int:pk>", CarPartialUpdateAPIView.as_view(), name='car_partial_update'),
     path('view_list_obj', views_list_obj, name='view_list_obj'),
     path('categories_filter/', CategoriesFilter.as_view(), name='categories_filter'),
-
+    
     path('men_clothes_list/', MenClothesList.as_view(), name='men_clothes_list'),
+    path("men_clothes_detail_generic/<int:pk>", MenClothesDetailGeneric.as_view(), name="men_clothes_detail_generic"),
     path('men_shoes_list/', MenShoesList.as_view(), name='men_shoes_list'),
     path('wemen_clothes_list/', WemenClothesList.as_view(),  name='wemen_clothes_list'),
     path('wemen_shoes_list/', WemenShoesList.as_view(),  name='wemen_shoes_list'),

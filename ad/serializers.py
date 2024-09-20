@@ -165,8 +165,6 @@ class MenClothesSerialiser(serializers.ModelSerializer):
     )
     class Meta:
         model = MenClothes
-        # fields = "__all__"
-    
         fields = ["id", "size", "price", "title", "uploaded_images","image"]
         
     def create(self, validated_data):
@@ -185,26 +183,25 @@ class MenClothesSerialiser(serializers.ModelSerializer):
         print('================instsance ------------>', instance.images.all())
         print('================validated_data------------>', validated_data)
         print('================validated_data------------>', self.__dict__)
-        image_queryset = instance.images.all()
-        images_car_instance=ImagesSerializer(image_queryset, many=True)
-        instance.by_mileage = validated_data.get('by_mileage', instance.by_mileage)
-        instance.brand = validated_data.get('brand', instance.brand)
-        instance.model = validated_data.get('model', instance.model)
+        instance.size = validated_data.get('by_milsizeeage', instance.size)
         instance.price = validated_data.get('price', instance.price)
-        instance.year = validated_data.get('year', instance.year)
-        instance.mileage = validated_data.get('mileage', instance.mileage)
-        instance.transmission = validated_data.get('transmission', instance.transmission)
-        instance.by_wheel_drive = validated_data.get('by_wheel_drive', instance.by_wheel_drive)
-        instance.engine_capacity = validated_data.get('engine_capacity', instance.engine_capacity)
-        instance.engine_power = validated_data.get('engine_power', instance.engine_power)
-        instance.fuel_consumption = validated_data.get('fuel_consumption', instance.fuel_consumption)
-        instance.type = validated_data.get('type', instance.type)
-        instance.colour = validated_data.get('colour', instance.colour)
-        instance.fuel = validated_data.get('fuel', instance.fuel)
+        instance.title = validated_data.get('title', instance.title)
         instance.image = validated_data.get('image', instance.images)
         # instance.uploaded_images = validated_data.get('uploaded_images', instance.uploaded_images)
         print('end======================',)
        
+        instance.save()
+    
+class MenClothesPatchSerialiser(serializers.ModelSerializer):
+    class Meta:
+        model = MenClothes
+        fields = [ "size", "price", "title",]
+    def update(self, instance, validated_data):
+        print('================instsance ------------>', instance)
+        instance.size = validated_data.get('by_milsizeeage', instance.size)
+        instance.price = validated_data.get('price', instance.price)
+        instance.title = validated_data.get('title', instance.title)
+        print('end======================',)
         instance.save()
     
      

@@ -309,6 +309,9 @@ class CarDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
 #         item = get_object_or_404(Item.objects.all(), pk=pk)
 #         item.delete()
 #         return Response(status=status.HTTP_204_NO_CONTENT)
+@extend_schema(
+    tags=["Личные вещи/ Personal items"],
+)
 class MenClothesDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
     queryset = MenClothes.objects.all()
     serializer_class = MenClothesSerialiser
@@ -318,13 +321,13 @@ class MenClothesDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
 
     @extend_schema(
         methods=['GET'],
-        summary='Получение информации об автомобиле',
+        summary='Получение информации о мужской одежде',
     )
     def get(self, request, pk, format=None):
         # Add new model instance Views get_or_creation
         profile_instance = request.user.profile
-        item = get_object_or_404(Car.objects.all(), pk=pk)
-        serializer = CarPatchSerializer(item)
+        item = get_object_or_404(MenClothes.objects.all(), pk=pk)
+        serializer = MenClothesSerialiser(item)
         try:
             profile = request.user.profile
         except AttributeError:
@@ -343,9 +346,9 @@ class MenClothesDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
 
     @extend_schema(
         methods=['PUT'],
-        summary="Обновление данных об автомобиле",
-        description="Метод позволяет полностью обновить информацию об автомобиле. "
-                    "Тело запроса должно содержать полную информацию об автомобиле, "
+        summary="Обновление данных о мужской одежде",
+        description="Метод позволяет полностью обновить информацию о мужской одежде. "
+                    "Тело запроса должно содержать полную информацию о мужской одежде, "
                     "включая все обязательные поля."
     )
     def put(self, request, *args, **kwargs):
@@ -361,8 +364,8 @@ class MenClothesDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
     
     @extend_schema(
         methods=['PATCH'],
-        summary="Частичное обновление информации об автомобиле",
-        description="Метод позволяет частично обновить информацию об автомобиле."
+        summary="Частичное обновление информации о мужской одежде",
+        description="Метод позволяет частично обновить информацию о мужской одежде."
     )
   
     def patch(self, request, *args, **kwargs):
@@ -370,7 +373,7 @@ class MenClothesDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
         kwargs['partial'] = True 
         print('--------------kwargs==', kwargs)
         car_object = self.get_object()
-        serializer = CarPatchSerializer(car_object, data=request.data, partial=True) # set partial=True to update a data partially...CarUpdateImagesSerializer
+        serializer = MenClothesSerialiser(car_object, data=request.data, partial=True) # set partial=True to update a data partially...CarUpdateImagesSerializer
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -383,7 +386,7 @@ class MenClothesDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
     def delete(self, request, *args, **kwargs):
         pk=kwargs['pk'] 
         try:
-            car_instanse = get_object_or_404(Car.objects.all(), pk=pk)
+            car_instanse = get_object_or_404(MenClothes.objects.all(), pk=pk)
             print('car_instanse', car_instanse)
         
             images_instance = car_instanse.images.all()
@@ -400,6 +403,8 @@ class MenClothesDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
                 print(e)
                 return Response({"message":"Theres no object with this id "})
         return Response({"message":"Deleted"}, status=status.HTTP_200_OK)
+
+
 @extend_schema(
     tags=["Изображения/Images"],
 )

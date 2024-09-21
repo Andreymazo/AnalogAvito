@@ -48,7 +48,7 @@ class Advertisement(models.Model):
     changed = models.DateTimeField(auto_now_add=True)
     moderation = models.BooleanField(_("Модерация"), default=False)
     archived = models.BooleanField(_("Архивное"), default=False)
-    price = models.CharField(_("price"), max_length=100)
+    price = models.CharField(_("price"), validators=[MinValueValidator(1), MaxValueValidator(1000000000)], max_length=100)
     description = models.CharField(_("Description"), max_length=2000)
     # marker = models.OneToOneField('map.Marker', on_delete=models.CASCADE, related_name="card")
     

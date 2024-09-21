@@ -466,10 +466,20 @@ class ConfirmCodeView(APIView):
                 otc.save()
 
                 serializer = SignInSerializer(user)
-                return Response(
-                    serializer.data,
-                    status=status.HTTP_201_CREATED # Перенаправить на создание профиля
-                )
+                signed_value_code=signer.sign(email_code)
+
+                response = Response(serializer.data, status=status.HTTP_201_CREATED)
+                # return Response(
+                #     serializer.data,
+                #     status=status.HTTP_201_CREATED # Перенаправить на создание профиля
+                # )
+        
+
+            
+                response.set_cookie("email_code", signed_value_code, httponly=True)
+                print("----------------111-------------------", response.cookies)
+                print("----------------222-------------------", response.cookies["email_code"])
+                return response
 
         # otc.count_attempts = otc.count_attempts - 1
         otc.count_attempts += 1
@@ -603,12 +613,16 @@ class SignUpView(APIView):
 
         signer = Signer()
         try:
+            
             signed_value = request.COOKIES.get("email")
-            if signed_value:
+            signed_value_email_code=request.COOKIES.get("email_code")
+            if signed_value and signed_value_email_code:
                 email = signer.unsign(signed_value)
+                email_code=signer.unsign(signed_value_email_code)
+                print('из кэша пришли:  email_code, email', email_code, email)
             else:
                 return Response(
-                    {"message": "Cookie с email не найден."},
+                    {"message": "В Cookie email или код не найдены."},
                     status=status.HTTP_404_NOT_FOUND
                 )
         except BadSignature:

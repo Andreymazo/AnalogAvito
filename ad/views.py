@@ -316,9 +316,6 @@ class MenClothesDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
     queryset = MenClothes.objects.all()
     serializer_class = MenClothesSerialiser
 
-    ## Под капотом три метода ниже, если что-то надо их меняем:
-    # class ItemDetail(APIView):
-
     @extend_schema(
         methods=['GET'],
         summary='Получение информации о мужской одежде',
@@ -328,19 +325,16 @@ class MenClothesDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
         profile_instance = request.user.profile
         item = get_object_or_404(MenClothes.objects.all(), pk=pk)
         serializer = MenClothesSerialiser(item)
-        try:
-            profile = request.user.profile
-        except AttributeError:
-            print('---------------------', request.user, '4444444444', self.request.user)
-            return Response([serializer.data, {"message": "Anonymoususer, Views dont counted"}],
-                            status=status.HTTP_200_OK)
-        except Profile.DoesNotExist:
-            return Response({"message": "У вас нет Профиля, перенаправляем на регистрацию"},
-                            status=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION)
-        # print('view created') #Here we create view every time we enter the object
-        # content_type = ContentType.objects.get(model='car').id
-        # view_instance = Views(profile=profile_instance, content_type=ContentType.objects.get_for_id(content_type), object_id=pk)
-        # view_instance.save()
+        # Может если не надо проверять наличие профиля у пользователя ,тогда просто выводим да и все
+        # try:
+        #     profile = request.user.profile
+        # except AttributeError:
+        #     print('---------------------', request.user, '4444444444', self.request.user)
+        #     return Response([serializer.data, {"message": "Anonymoususer, Views dont counted"}],
+        #                     status=status.HTTP_200_OK)
+        # except Profile.DoesNotExist:
+        #     return Response({"message": "У вас нет Профиля, перенаправляем на регистрацию"},
+        #                     status=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION)
 
         return Response(serializer.data)
 
@@ -1024,10 +1018,9 @@ class MenClothesList(generics.ListCreateAPIView):# Пока без криейт�
     permission_classes = [IsAuthenticatedOrReadOnly]
     parser_classes = [MultiPartParser, FormParser]
     serializer_class = MenClothesSerialiser
-    pagination_class =  OrdinaryListPagination
-    filter_backends = [DjangoFilterBackend]
-    filterset_class = MenClothesFilter
-    filter_backends = [DjangoFilterBackend]
+    # pagination_class =  OrdinaryListPagination
+    # filter_backends = [DjangoFilterBackend]
+    # filterset_class = MenClothesFilter
 
 @extend_schema(
     tags=["Личные вещи/ Personal items"],

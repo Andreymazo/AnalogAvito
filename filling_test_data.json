@@ -1,13 +1,235 @@
 [
   {
+    "model": "users.customuser",
+    "pk": 1,
+    "fields": {
+      "password": "pbkdf2_sha256$720000$5wBh49EqfAoyPE7Jvs0LXB$bjWhdEA+lFn1CYHlMq8mae7EClI981VBvR7f4h/y6zc=",
+      "last_login": "2024-09-21T07:04:16.170Z",
+      "is_superuser": true,
+      "first_name": "",
+      "last_name": "",
+      "is_staff": true,
+      "is_active": true,
+      "date_joined": "2024-09-21T07:04:00.487Z",
+      "username": null,
+      "info": null,
+      "email": "andreymazo@mail.ru",
+      "is_banned": false,
+      "banned_at": null,
+      "changed_at": "2024-09-21T07:04:00.487Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "users.customuser",
+    "pk": 2,
+    "fields": {
+      "password": "qwert123asd",
+      "last_login": null,
+      "is_superuser": false,
+      "first_name": "",
+      "last_name": "",
+      "is_staff": true,
+      "is_active": false,
+      "date_joined": "2024-09-21T07:05:01.207Z",
+      "username": null,
+      "info": null,
+      "email": "adsf@arfg.com",
+      "is_banned": false,
+      "banned_at": null,
+      "changed_at": "2024-09-21T07:05:01.207Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "users.customuser",
+    "pk": 3,
+    "fields": {
+      "password": "qwert123asd",
+      "last_login": null,
+      "is_superuser": false,
+      "first_name": "",
+      "last_name": "",
+      "is_staff": true,
+      "is_active": false,
+      "date_joined": "2024-09-21T07:05:01.216Z",
+      "username": null,
+      "info": null,
+      "email": "lkgr@agr.agr",
+      "is_banned": false,
+      "banned_at": null,
+      "changed_at": "2024-09-21T07:05:01.216Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "users.customuser",
+    "pk": 4,
+    "fields": {
+      "password": "qwert123asd",
+      "last_login": null,
+      "is_superuser": false,
+      "first_name": "",
+      "last_name": "",
+      "is_staff": true,
+      "is_active": false,
+      "date_joined": "2024-09-21T07:05:01.220Z",
+      "username": null,
+      "info": null,
+      "email": "asf1@adgf.fd",
+      "is_banned": false,
+      "banned_at": null,
+      "changed_at": "2024-09-21T07:05:01.220Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "users.profile",
+    "pk": 1,
+    "fields": {
+      "user": 1,
+      "phone_number": "+7854328954",
+      "name": "Kirill",
+      "content_type": 22,
+      "object_id": 1
+    }
+  },
+  {
+    "model": "users.profile",
+    "pk": 2,
+    "fields": {
+      "user": 2,
+      "phone_number": "+78095326765",
+      "name": "Serega",
+      "content_type": 22,
+      "object_id": 2
+    }
+  },
+  {
+    "model": "users.profile",
+    "pk": 3,
+    "fields": {
+      "user": 3,
+      "phone_number": "+7897234980",
+      "name": "Max",
+      "content_type": 22,
+      "object_id": 3
+    }
+  },
+  {
+    "model": "users.profile",
+    "pk": 4,
+    "fields": {
+      "user": 4,
+      "phone_number": "+798345975",
+      "name": "Sasha",
+      "content_type": 22,
+      "object_id": 4
+    }
+  },
+  {
+    "model": "users.notification",
+    "pk": 1,
+    "fields": {
+      "text": "Это тест должно  идти в счет не прочитанных сообщений при входе",
+      "user": 1,
+      "key_to_recepient": null,
+      "viewed": false
+    }
+  },
+  {
+    "model": "users.notification",
+    "pk": 2,
+    "fields": {
+      "text": "Это 2222 тест должно  идти в счет не прочитанных сообщений при входе",
+      "user": 1,
+      "key_to_recepient": null,
+      "viewed": false
+    }
+  },
+  {
+    "model": "users.notification",
+    "pk": 3,
+    "fields": {
+      "text": "3 тест не должно идти в счет не прочитанных при входе",
+      "user": 1,
+      "key_to_recepient": null,
+      "viewed": true
+    }
+  },
+  {
+    "model": "users.notification",
+    "pk": 4,
+    "fields": {
+      "text": "тест1",
+      "user": 2,
+      "key_to_recepient": null,
+      "viewed": true
+    }
+  },
+  {
+    "model": "users.notification",
+    "pk": 5,
+    "fields": {
+      "text": "тест2",
+      "user": 2,
+      "key_to_recepient": null,
+      "viewed": false
+    }
+  },
+  {
+    "model": "users.notification",
+    "pk": 6,
+    "fields": {
+      "text": "тест1",
+      "user": 3,
+      "key_to_recepient": null,
+      "viewed": false
+    }
+  },
+  {
+    "model": "users.notification",
+    "pk": 7,
+    "fields": {
+      "text": "тест2",
+      "user": 3,
+      "key_to_recepient": null,
+      "viewed": false
+    }
+  },
+  {
+    "model": "users.notification",
+    "pk": 8,
+    "fields": {
+      "text": "тест3",
+      "user": 3,
+      "key_to_recepient": null,
+      "viewed": false
+    }
+  },
+  {
+    "model": "users.notification",
+    "pk": 9,
+    "fields": {
+      "text": "теееест",
+      "user": 4,
+      "key_to_recepient": null,
+      "viewed": true
+    }
+  },
+  {
     "model": "ad.category",
     "pk": 1,
     "fields": {
       "name": "Транспорт",
       "parent": null,
       "lft": 1,
-      "rght": 26,
-      "tree_id": 3,
+      "rght": 10,
+      "tree_id": 4,
       "level": 0
     }
   },
@@ -15,11 +237,11 @@
     "model": "ad.category",
     "pk": 2,
     "fields": {
-      "name": "Услуги",
+      "name": "Недвижимость",
       "parent": null,
       "lft": 1,
-      "rght": 20,
-      "tree_id": 4,
+      "rght": 18,
+      "tree_id": 3,
       "level": 0
     }
   },
@@ -30,8 +252,8 @@
       "name": "Личные вещи",
       "parent": null,
       "lft": 1,
-      "rght": 18,
-      "tree_id": 1,
+      "rght": 14,
+      "tree_id": 2,
       "level": 0
     }
   },
@@ -42,7 +264,7 @@
       "name": "Электроника",
       "parent": null,
       "lft": 1,
-      "rght": 22,
+      "rght": 2,
       "tree_id": 6,
       "level": 0
     }
@@ -51,35 +273,35 @@
     "model": "ad.category",
     "pk": 5,
     "fields": {
-      "name": "Грузоперевозки",
-      "parent": 2,
-      "lft": 4,
-      "rght": 9,
-      "tree_id": 4,
-      "level": 1
+      "name": "Животные",
+      "parent": null,
+      "lft": 1,
+      "rght": 2,
+      "tree_id": 1,
+      "level": 0
     }
   },
   {
     "model": "ad.category",
     "pk": 6,
     "fields": {
-      "name": "Автомобили",
-      "parent": 1,
-      "lft": 2,
-      "rght": 3,
-      "tree_id": 3,
-      "level": 1
+      "name": "Услуги",
+      "parent": null,
+      "lft": 1,
+      "rght": 14,
+      "tree_id": 5,
+      "level": 0
     }
   },
   {
     "model": "ad.category",
     "pk": 7,
     "fields": {
-      "name": "Оргтехника",
-      "parent": 4,
-      "lft": 8,
-      "rght": 15,
-      "tree_id": 6,
+      "name": "Грузоперевозки",
+      "parent": 6,
+      "lft": 4,
+      "rght": 5,
+      "tree_id": 5,
       "level": 1
     }
   },
@@ -87,59 +309,59 @@
     "model": "ad.category",
     "pk": 8,
     "fields": {
-      "name": "Принтер",
-      "parent": 7,
-      "lft": 11,
-      "rght": 12,
-      "tree_id": 6,
-      "level": 2
+      "name": "Строительство",
+      "parent": 6,
+      "lft": 12,
+      "rght": 13,
+      "tree_id": 5,
+      "level": 1
     }
   },
   {
     "model": "ad.category",
     "pk": 9,
     "fields": {
-      "name": "Сканер",
-      "parent": 7,
-      "lft": 13,
-      "rght": 14,
-      "tree_id": 6,
-      "level": 2
+      "name": "Грузчики, Складские услуги",
+      "parent": 6,
+      "lft": 6,
+      "rght": 7,
+      "tree_id": 5,
+      "level": 1
     }
   },
   {
     "model": "ad.category",
     "pk": 10,
     "fields": {
-      "name": "Копир",
-      "parent": 7,
-      "lft": 9,
-      "rght": 10,
-      "tree_id": 6,
-      "level": 2
+      "name": "Аренда авто",
+      "parent": 6,
+      "lft": 2,
+      "rght": 3,
+      "tree_id": 5,
+      "level": 1
     }
   },
   {
     "model": "ad.category",
     "pk": 11,
     "fields": {
-      "name": "Недвижимость",
-      "parent": null,
-      "lft": 1,
-      "rght": 20,
-      "tree_id": 2,
-      "level": 0
+      "name": "Ремонт, отделка",
+      "parent": 6,
+      "lft": 10,
+      "rght": 11,
+      "tree_id": 5,
+      "level": 1
     }
   },
   {
     "model": "ad.category",
     "pk": 12,
     "fields": {
-      "name": "Купить",
-      "parent": 11,
-      "lft": 2,
+      "name": "Красота и здоровье",
+      "parent": 6,
+      "lft": 8,
       "rght": 9,
-      "tree_id": 2,
+      "tree_id": 5,
       "level": 1
     }
   },
@@ -147,11 +369,11 @@
     "model": "ad.category",
     "pk": 13,
     "fields": {
-      "name": "Продать",
-      "parent": 11,
-      "lft": 10,
-      "rght": 11,
-      "tree_id": 2,
+      "name": "Автомобили",
+      "parent": 1,
+      "lft": 2,
+      "rght": 3,
+      "tree_id": 4,
       "level": 1
     }
   },
@@ -159,11 +381,11 @@
     "model": "ad.category",
     "pk": 14,
     "fields": {
-      "name": "Сдать",
-      "parent": 11,
-      "lft": 12,
-      "rght": 13,
-      "tree_id": 2,
+      "name": "Мотоциклы",
+      "parent": 1,
+      "lft": 8,
+      "rght": 9,
+      "tree_id": 4,
       "level": 1
     }
   },
@@ -171,11 +393,11 @@
     "model": "ad.category",
     "pk": 15,
     "fields": {
-      "name": "Снять",
-      "parent": 11,
-      "lft": 14,
-      "rght": 19,
-      "tree_id": 2,
+      "name": "Водный транспорт",
+      "parent": 1,
+      "lft": 4,
+      "rght": 5,
+      "tree_id": 4,
       "level": 1
     }
   },
@@ -183,11 +405,11 @@
     "model": "ad.category",
     "pk": 16,
     "fields": {
-      "name": "Мотоциклы и мототехника",
+      "name": "Грузовая техника",
       "parent": 1,
-      "lft": 18,
-      "rght": 25,
-      "tree_id": 3,
+      "lft": 6,
+      "rght": 7,
+      "tree_id": 4,
       "level": 1
     }
   },
@@ -195,10 +417,10 @@
     "model": "ad.category",
     "pk": 17,
     "fields": {
-      "name": "Грузовики и спецтехника",
-      "parent": 1,
-      "lft": 6,
-      "rght": 11,
+      "name": "Купить жильё",
+      "parent": 2,
+      "lft": 4,
+      "rght": 13,
       "tree_id": 3,
       "level": 1
     }
@@ -207,10 +429,10 @@
     "model": "ad.category",
     "pk": 18,
     "fields": {
-      "name": "Аренда спецтехники",
-      "parent": 1,
-      "lft": 4,
-      "rght": 5,
+      "name": "Снять долгосрочно",
+      "parent": 2,
+      "lft": 14,
+      "rght": 15,
       "tree_id": 3,
       "level": 1
     }
@@ -219,9 +441,9 @@
     "model": "ad.category",
     "pk": 19,
     "fields": {
-      "name": "Запчасти и аксессуары",
-      "parent": 1,
-      "lft": 12,
+      "name": "Снять посуточно",
+      "parent": 2,
+      "lft": 16,
       "rght": 17,
       "tree_id": 3,
       "level": 1
@@ -231,22 +453,22 @@
     "model": "ad.category",
     "pk": 20,
     "fields": {
-      "name": "Мотоциклы",
-      "parent": 16,
-      "lft": 21,
-      "rght": 22,
+      "name": "Коммерческая недвижимость",
+      "parent": 2,
+      "lft": 2,
+      "rght": 3,
       "tree_id": 3,
-      "level": 2
+      "level": 1
     }
   },
   {
     "model": "ad.category",
     "pk": 21,
     "fields": {
-      "name": "Снегоходы",
-      "parent": 16,
-      "lft": 23,
-      "rght": 24,
+      "name": "Квартиры",
+      "parent": 17,
+      "lft": 9,
+      "rght": 10,
       "tree_id": 3,
       "level": 2
     }
@@ -255,10 +477,10 @@
     "model": "ad.category",
     "pk": 22,
     "fields": {
-      "name": "Квадроциклы",
-      "parent": 16,
-      "lft": 19,
-      "rght": 20,
+      "name": "Дома",
+      "parent": 17,
+      "lft": 5,
+      "rght": 6,
       "tree_id": 3,
       "level": 2
     }
@@ -267,10 +489,10 @@
     "model": "ad.category",
     "pk": 23,
     "fields": {
-      "name": "Грузовики",
+      "name": "Комнаты",
       "parent": 17,
-      "lft": 7,
-      "rght": 8,
+      "lft": 11,
+      "rght": 12,
       "tree_id": 3,
       "level": 2
     }
@@ -279,10 +501,10 @@
     "model": "ad.category",
     "pk": 24,
     "fields": {
-      "name": "Сельхозтехника",
+      "name": "Земельные участки",
       "parent": 17,
-      "lft": 9,
-      "rght": 10,
+      "lft": 7,
+      "rght": 8,
       "tree_id": 3,
       "level": 2
     }
@@ -291,432 +513,72 @@
     "model": "ad.category",
     "pk": 25,
     "fields": {
-      "name": "Запчасти",
-      "parent": 19,
-      "lft": 13,
-      "rght": 14,
-      "tree_id": 3,
-      "level": 2
+      "name": "Мужская одежда",
+      "parent": 3,
+      "lft": 10,
+      "rght": 11,
+      "tree_id": 2,
+      "level": 1
     }
   },
   {
     "model": "ad.category",
     "pk": 26,
     "fields": {
-      "name": "Шины, диски, колеса",
-      "parent": 19,
-      "lft": 15,
-      "rght": 16,
-      "tree_id": 3,
-      "level": 2
+      "name": "Мужская обувь",
+      "parent": 3,
+      "lft": 8,
+      "rght": 9,
+      "tree_id": 2,
+      "level": 1
     }
   },
   {
     "model": "ad.category",
     "pk": 27,
     "fields": {
-      "name": "Вторичка",
-      "parent": 12,
-      "lft": 3,
-      "rght": 4,
+      "name": "Женская одежда",
+      "parent": 3,
+      "lft": 6,
+      "rght": 7,
       "tree_id": 2,
-      "level": 2
+      "level": 1
     }
   },
   {
     "model": "ad.category",
     "pk": 28,
     "fields": {
-      "name": "Новостройка",
-      "parent": 12,
-      "lft": 7,
-      "rght": 8,
+      "name": "Женская обувь",
+      "parent": 3,
+      "lft": 4,
+      "rght": 5,
       "tree_id": 2,
-      "level": 2
+      "level": 1
     }
   },
   {
     "model": "ad.category",
     "pk": 29,
     "fields": {
-      "name": "Дачи, коттеджи",
-      "parent": 12,
-      "lft": 5,
-      "rght": 6,
+      "name": "Детская одежда и обувь",
+      "parent": 3,
+      "lft": 2,
+      "rght": 3,
       "tree_id": 2,
-      "level": 2
+      "level": 1
     }
   },
   {
     "model": "ad.category",
     "pk": 30,
     "fields": {
-      "name": "Квартиры",
-      "parent": 15,
-      "lft": 15,
-      "rght": 16,
-      "tree_id": 2,
-      "level": 2
-    }
-  },
-  {
-    "model": "ad.category",
-    "pk": 31,
-    "fields": {
-      "name": "Комната",
-      "parent": 15,
-      "lft": 17,
-      "rght": 18,
-      "tree_id": 2,
-      "level": 2
-    }
-  },
-  {
-    "model": "ad.category",
-    "pk": 32,
-    "fields": {
-      "name": "Автосервис",
-      "parent": 2,
-      "lft": 2,
-      "rght": 3,
-      "tree_id": 4,
-      "level": 1
-    }
-  },
-  {
-    "model": "ad.category",
-    "pk": 33,
-    "fields": {
-      "name": "Пассажирские перевозки",
-      "parent": 2,
-      "lft": 10,
-      "rght": 13,
-      "tree_id": 4,
-      "level": 1
-    }
-  },
-  {
-    "model": "ad.category",
-    "pk": 34,
-    "fields": {
-      "name": "Строительство",
-      "parent": 2,
-      "lft": 14,
-      "rght": 19,
-      "tree_id": 4,
-      "level": 1
-    }
-  },
-  {
-    "model": "ad.category",
-    "pk": 35,
-    "fields": {
-      "name": "По городу",
-      "parent": 5,
-      "lft": 7,
-      "rght": 8,
-      "tree_id": 4,
-      "level": 2
-    }
-  },
-  {
-    "model": "ad.category",
-    "pk": 36,
-    "fields": {
-      "name": "Межгород",
-      "parent": 5,
-      "lft": 5,
-      "rght": 6,
-      "tree_id": 4,
-      "level": 2
-    }
-  },
-  {
-    "model": "ad.category",
-    "pk": 37,
-    "fields": {
-      "name": "Трансфер",
-      "parent": 33,
-      "lft": 11,
-      "rght": 12,
-      "tree_id": 4,
-      "level": 2
-    }
-  },
-  {
-    "model": "ad.category",
-    "pk": 38,
-    "fields": {
-      "name": "Строительство домов",
-      "parent": 34,
-      "lft": 17,
-      "rght": 18,
-      "tree_id": 4,
-      "level": 2
-    }
-  },
-  {
-    "model": "ad.category",
-    "pk": 39,
-    "fields": {
-      "name": "Строительство гаражей, бань, веранд",
-      "parent": 34,
-      "lft": 15,
-      "rght": 16,
-      "tree_id": 4,
-      "level": 2
-    }
-  },
-  {
-    "model": "ad.category",
-    "pk": 40,
-    "fields": {
-      "name": "Одежда, обувь, аксессуары",
-      "parent": 3,
-      "lft": 2,
-      "rght": 11,
-      "tree_id": 1,
-      "level": 1
-    }
-  },
-  {
-    "model": "ad.category",
-    "pk": 41,
-    "fields": {
-      "name": "Женская одежда",
-      "parent": 40,
-      "lft": 5,
-      "rght": 6,
-      "tree_id": 1,
-      "level": 2
-    }
-  },
-  {
-    "model": "ad.category",
-    "pk": 42,
-    "fields": {
-      "name": "Мужская одежда",
-      "parent": 40,
-      "lft": 9,
-      "rght": 10,
-      "tree_id": 1,
-      "level": 2
-    }
-  },
-  {
-    "model": "ad.category",
-    "pk": 43,
-    "fields": {
-      "name": "Мужская обувь",
-      "parent": 40,
-      "lft": 7,
-      "rght": 8,
-      "tree_id": 1,
-      "level": 2
-    }
-  },
-  {
-    "model": "ad.category",
-    "pk": 44,
-    "fields": {
-      "name": "Женская обувь",
-      "parent": 40,
-      "lft": 3,
-      "rght": 4,
-      "tree_id": 1,
-      "level": 2
-    }
-  },
-  {
-    "model": "ad.category",
-    "pk": 45,
-    "fields": {
-      "name": "Товары для детей и игрушки",
+      "name": "Сумки, рюкзаки, чемоданы",
       "parent": 3,
       "lft": 12,
-      "rght": 17,
-      "tree_id": 1,
-      "level": 1
-    }
-  },
-  {
-    "model": "ad.category",
-    "pk": 46,
-    "fields": {
-      "name": "Детские коляски",
-      "parent": 45,
-      "lft": 15,
-      "rght": 16,
-      "tree_id": 1,
-      "level": 2
-    }
-  },
-  {
-    "model": "ad.category",
-    "pk": 47,
-    "fields": {
-      "name": "Детская мебель",
-      "parent": 45,
-      "lft": 13,
-      "rght": 14,
-      "tree_id": 1,
-      "level": 2
-    }
-  },
-  {
-    "model": "ad.category",
-    "pk": 48,
-    "fields": {
-      "name": "Телефоны",
-      "parent": 4,
-      "lft": 16,
-      "rght": 21,
-      "tree_id": 6,
-      "level": 1
-    }
-  },
-  {
-    "model": "ad.category",
-    "pk": 49,
-    "fields": {
-      "name": "Игры, приставки",
-      "parent": 4,
-      "lft": 2,
-      "rght": 7,
-      "tree_id": 6,
-      "level": 1
-    }
-  },
-  {
-    "model": "ad.category",
-    "pk": 50,
-    "fields": {
-      "name": "Игровые приставки и аксессуары",
-      "parent": 49,
-      "lft": 3,
-      "rght": 4,
-      "tree_id": 6,
-      "level": 2
-    }
-  },
-  {
-    "model": "ad.category",
-    "pk": 51,
-    "fields": {
-      "name": "Программы",
-      "parent": 49,
-      "lft": 5,
-      "rght": 6,
-      "tree_id": 6,
-      "level": 2
-    }
-  },
-  {
-    "model": "ad.category",
-    "pk": 52,
-    "fields": {
-      "name": "Мобильные телефоны",
-      "parent": 48,
-      "lft": 19,
-      "rght": 20,
-      "tree_id": 6,
-      "level": 2
-    }
-  },
-  {
-    "model": "ad.category",
-    "pk": 53,
-    "fields": {
-      "name": "Аксессуары",
-      "parent": 48,
-      "lft": 17,
-      "rght": 18,
-      "tree_id": 6,
-      "level": 2
-    }
-  },
-  {
-    "model": "ad.category",
-    "pk": 54,
-    "fields": {
-      "name": "Хобби и отдых",
-      "parent": null,
-      "lft": 1,
-      "rght": 14,
-      "tree_id": 5,
-      "level": 0
-    }
-  },
-  {
-    "model": "ad.category",
-    "pk": 55,
-    "fields": {
-      "name": "Билеты и путишествия",
-      "parent": 54,
-      "lft": 2,
-      "rght": 7,
-      "tree_id": 5,
-      "level": 1
-    }
-  },
-  {
-    "model": "ad.category",
-    "pk": 56,
-    "fields": {
-      "name": "Велосипеды",
-      "parent": 54,
-      "lft": 8,
       "rght": 13,
-      "tree_id": 5,
+      "tree_id": 2,
       "level": 1
-    }
-  },
-  {
-    "model": "ad.category",
-    "pk": 57,
-    "fields": {
-      "name": "Путишествия",
-      "parent": 55,
-      "lft": 5,
-      "rght": 6,
-      "tree_id": 5,
-      "level": 2
-    }
-  },
-  {
-    "model": "ad.category",
-    "pk": 58,
-    "fields": {
-      "name": "Концерты",
-      "parent": 55,
-      "lft": 3,
-      "rght": 4,
-      "tree_id": 5,
-      "level": 2
-    }
-  },
-  {
-    "model": "ad.category",
-    "pk": 59,
-    "fields": {
-      "name": "Горные",
-      "parent": 56,
-      "lft": 9,
-      "rght": 10,
-      "tree_id": 5,
-      "level": 2
-    }
-  },
-  {
-    "model": "ad.category",
-    "pk": 60,
-    "fields": {
-      "name": "Городские",
-      "parent": 56,
-      "lft": 11,
-      "rght": 12,
-      "tree_id": 5,
-      "level": 2
     }
   },
   {
@@ -724,18 +586,18 @@
     "pk": 1,
     "fields": {
       "title": null,
-      "created": "2024-08-17T07:49:31.841Z",
-      "changed": "2024-08-17T07:49:31.841Z",
+      "created": "2024-07-21T07:08:45.747Z",
+      "changed": "2024-09-21T07:05:37.569Z",
       "moderation": false,
-      "category": 1,
-      "profile": 1,
-      "by_mileage": "",
-      "brand": "",
-      "model": "",
-      "price": "",
+      "archived": false,
+      "category": 13,
+      "by_mileage": "ALL",
+      "brand": "Audi",
+      "model": "test",
+      "price": "1000000",
       "year": 2024,
       "mileage": 200000,
-      "transmission": "AUTO",
+      "transmission": null,
       "by_wheel_drive": null,
       "engine_capacity": null,
       "engine_power": null,
@@ -746,9 +608,8 @@
       "fuel": null,
       "add_parametres": null,
       "description": "Very well car",
-      "description_es": null,
-      "description_ru": "Very well car",
-      "description_en": null
+      "content_type": 25,
+      "object_id": 1
     }
   },
   {
@@ -756,11 +617,11 @@
     "pk": 2,
     "fields": {
       "title": null,
-      "created": "2024-08-17T07:49:31.846Z",
-      "changed": "2024-08-17T07:49:31.846Z",
+      "created": "2024-09-21T07:05:37.578Z",
+      "changed": "2024-09-21T07:05:37.578Z",
       "moderation": false,
-      "category": 1,
-      "profile": 2,
+      "archived": false,
+      "category": 13,
       "by_mileage": "",
       "brand": "",
       "model": "",
@@ -778,533 +639,272 @@
       "fuel": null,
       "add_parametres": null,
       "description": "Much joy vehicle",
-      "description_es": null,
-      "description_ru": "Much joy vehicle",
-      "description_en": null
-    }
-  },
-  {
-    "model": "ad.car",
-    "pk": 3,
-    "fields": {
-      "title": null,
-      "created": "2024-08-17T08:26:16.272Z",
-      "changed": "2024-08-17T08:26:16.272Z",
-      "moderation": false,
-      "category": 6,
-      "profile": null,
-      "by_mileage": "ALL",
-      "brand": "Audi",
-      "model": "80",
-      "price": "1000000",
-      "year": 1984,
-      "mileage": 115000,
-      "transmission": null,
-      "by_wheel_drive": null,
-      "engine_capacity": null,
-      "engine_power": null,
-      "fuel_consumption": null,
-      "location": null,
-      "type": null,
-      "colour": null,
-      "fuel": null,
-      "add_parametres": null,
-      "description": "Старый провереный авто",
-      "description_es": "Old mobile",
-      "description_ru": "Старый провереный авто",
-      "description_en": null
-    }
-  },
-  {
-    "model": "ad.car",
-    "pk": 4,
-    "fields": {
-      "title": null,
-      "created": "2024-08-17T08:27:24.915Z",
-      "changed": "2024-08-17T08:27:24.915Z",
-      "moderation": false,
-      "category": 6,
-      "profile": 1,
-      "by_mileage": "ALL",
-      "brand": "Dodge",
-      "model": "test",
-      "price": "1500000",
-      "year": 2024,
-      "mileage": 0,
-      "transmission": null,
-      "by_wheel_drive": null,
-      "engine_capacity": null,
-      "engine_power": null,
-      "fuel_consumption": null,
-      "location": null,
-      "type": null,
-      "colour": null,
-      "fuel": null,
-      "add_parametres": null,
-      "description": "Додж-внедорожник",
-      "description_es": "good",
-      "description_ru": "Додж-внедорожник",
-      "description_en": null
-    }
-  },
-  {
-    "model": "ad.car",
-    "pk": 5,
-    "fields": {
-      "title": null,
-      "created": "2024-08-17T08:30:58.669Z",
-      "changed": "2024-08-17T08:28:55.725Z",
-      "moderation": false,
-      "category": 6,
-      "profile": 2,
-      "by_mileage": "NEW",
-      "brand": "Hyundai",
-      "model": "Creta",
-      "price": "1800000",
-      "year": 2024,
-      "mileage": 1,
-      "transmission": null,
-      "by_wheel_drive": null,
-      "engine_capacity": null,
-      "engine_power": null,
-      "fuel_consumption": null,
-      "location": null,
-      "type": "SD",
-      "colour": "BLACK",
-      "fuel": null,
-      "add_parametres": null,
-      "description": "Автомобили эконом класса",
-      "description_es": "test",
-      "description_ru": "Автомобили эконом класса",
-      "description_en": null
-    }
-  },
-  {
-    "model": "ad.car",
-    "pk": 6,
-    "fields": {
-      "title": null,
-      "created": "2024-08-17T08:30:47.180Z",
-      "changed": "2024-08-17T08:30:47.180Z",
-      "moderation": false,
-      "category": 6,
-      "profile": null,
-      "by_mileage": "WM",
-      "brand": "Hyundai",
-      "model": "Elantra",
-      "price": "950000",
-      "year": 2020,
-      "mileage": 100000,
-      "transmission": null,
-      "by_wheel_drive": null,
-      "engine_capacity": null,
-      "engine_power": null,
-      "fuel_consumption": null,
-      "location": null,
-      "type": null,
-      "colour": null,
-      "fuel": null,
-      "add_parametres": null,
-      "description": "Поддержаный автомобиль",
-      "description_es": "auto",
-      "description_ru": "Поддержаный автомобиль",
-      "description_en": null
-    }
-  },
-  {
-    "model": "ad.car",
-    "pk": 7,
-    "fields": {
-      "title": null,
-      "created": "2024-08-17T16:21:13.093Z",
-      "changed": "2024-08-17T16:21:13.093Z",
-      "moderation": false,
-      "category": 6,
-      "profile": null,
-      "by_mileage": "NEW",
-      "brand": "Kia",
-      "model": "K5",
-      "price": "3500000",
-      "year": 2024,
-      "mileage": 0,
-      "transmission": null,
-      "by_wheel_drive": null,
-      "engine_capacity": null,
-      "engine_power": null,
-      "fuel_consumption": null,
-      "location": null,
-      "type": null,
-      "colour": null,
-      "fuel": null,
-      "add_parametres": null,
-      "description": "Отличная машина",
-      "description_es": "Good car",
-      "description_ru": "Отличная машина",
-      "description_en": null
-    }
-  },
-  {
-    "model": "ad.car",
-    "pk": 8,
-    "fields": {
-      "title": null,
-      "created": "2024-08-17T16:22:18.776Z",
-      "changed": "2024-08-17T16:22:18.776Z",
-      "moderation": false,
-      "category": 6,
-      "profile": null,
-      "by_mileage": "NEW",
-      "brand": "Toyota",
-      "model": "Prado",
-      "price": "6000000",
-      "year": 2024,
-      "mileage": 0,
-      "transmission": null,
-      "by_wheel_drive": null,
-      "engine_capacity": null,
-      "engine_power": null,
-      "fuel_consumption": null,
-      "location": null,
-      "type": null,
-      "colour": null,
-      "fuel": null,
-      "add_parametres": null,
-      "description": "Очень хорошая машина",
-      "description_es": "Very good car",
-      "description_ru": "Очень хорошая машина",
-      "description_en": null
+      "content_type": 25,
+      "object_id": 4
     }
   },
   {
     "model": "ad.images",
     "pk": 1,
-    "fields": {
-      "title": null,
-      "image": "/home/andrey_mazo/Pictures/Screenshots/22.png",
-      "profile": null,
-      "created": "2024-08-17T07:49:19.338Z",
-      "changed": "2024-08-17T07:49:19.338Z",
-      "content_type": 18,
-      "object_id": 2
-    }
-  },
-  {
-    "model": "ad.images",
-    "pk": 2,
-    "fields": {
-      "title": null,
-      "image": "/home/andrey_mazo/Pictures/Screenshots/44.png",
-      "profile": null,
-      "created": "2024-08-17T07:49:19.345Z",
-      "changed": "2024-08-17T07:49:19.345Z",
-      "content_type": 18,
-      "object_id": 1
-    }
-  },
-  {
-    "model": "ad.images",
-    "pk": 3,
     "fields": {
       "title": null,
       "image": "media/images/Screenshot_from_2024-07-22_12-52-04.png",
       "profile": null,
-      "created": "2024-08-17T07:49:31.844Z",
-      "changed": "2024-08-17T07:49:31.844Z",
-      "content_type": 8,
+      "created": "2024-09-21T07:05:37.576Z",
+      "changed": "2024-09-21T07:05:37.576Z",
+      "content_type": 18,
       "object_id": 1
     }
   },
   {
     "model": "ad.images",
-    "pk": 4,
+    "pk": 2,
     "fields": {
       "title": null,
       "image": "media/images/Screenshot_from_2024-07-24_10-28-11_cCIxuaC.png",
       "profile": null,
-      "created": "2024-08-17T07:49:31.847Z",
-      "changed": "2024-08-17T07:49:31.847Z",
-      "content_type": 8,
+      "created": "2024-09-21T07:05:37.579Z",
+      "changed": "2024-09-21T07:05:37.579Z",
+      "content_type": 18,
       "object_id": 2
     }
   },
   {
-    "model": "ad.views",
+    "model": "ad.menclothes",
     "pk": 1,
     "fields": {
-      "content_type": 8,
-      "object_id": 1,
-      "profile": null,
-      "created": "2024-08-17T07:50:28.062Z"
+      "title": null,
+      "created": "2024-09-21T07:05:52.449Z",
+      "changed": "2024-09-21T07:05:52.449Z",
+      "moderation": false,
+      "archived": false,
+      "price": 2000,
+      "description": "",
+      "category": 25,
+      "size": "",
+      "content_type": 25,
+      "object_id": 1
     }
   },
   {
-    "model": "users.customuser",
-    "pk": 1,
-    "fields": {
-      "password": "pbkdf2_sha256$720000$SLpWVkGDIKXRtEUnvt3JgJ$X1kJVAzziE6HMqX+r1olAaMr7b8qof92A2u5Z81qsr8=",
-      "last_login": "2024-08-27T20:08:47.041Z",
-      "is_superuser": true,
-      "first_name": "",
-      "last_name": "",
-      "is_staff": true,
-      "is_active": true,
-      "date_joined": "2024-08-17T07:13:55.512Z",
-      "username": null,
-      "info": null,
-      "email": "andreymazo@mail.ru",
-      "is_banned": false,
-      "banned_at": null,
-      "changed_at": "2024-08-17T07:13:55.524Z",
-      "groups": [],
-      "user_permissions": []
-    }
-  },
-  {
-    "model": "users.customuser",
+    "model": "ad.menclothes",
     "pk": 2,
     "fields": {
-      "password": "qwert123asd",
-      "last_login": null,
-      "is_superuser": false,
-      "first_name": "",
-      "last_name": "",
-      "is_staff": true,
-      "is_active": true,
-      "date_joined": "2024-08-17T07:47:20.497Z",
-      "username": null,
-      "info": null,
-      "email": "adsf@arfg.com",
-      "is_banned": false,
-      "banned_at": null,
-      "changed_at": "2024-08-17T07:47:20.508Z",
-      "groups": [],
-      "user_permissions": []
+      "title": null,
+      "created": "2024-09-21T07:05:52.463Z",
+      "changed": "2024-09-21T07:05:52.463Z",
+      "moderation": false,
+      "archived": false,
+      "price": 3000,
+      "description": "",
+      "category": 25,
+      "size": "",
+      "content_type": 25,
+      "object_id": 4
     }
   },
   {
-    "model": "users.customuser",
-    "pk": 3,
-    "fields": {
-      "password": "qwert123asd",
-      "last_login": null,
-      "is_superuser": false,
-      "first_name": "",
-      "last_name": "",
-      "is_staff": true,
-      "is_active": true,
-      "date_joined": "2024-08-17T07:47:20.518Z",
-      "username": null,
-      "info": null,
-      "email": "lkgr@agr.agr",
-      "is_banned": false,
-      "banned_at": null,
-      "changed_at": "2024-08-17T07:47:20.519Z",
-      "groups": [],
-      "user_permissions": []
-    }
-  },
-  {
-    "model": "users.customuser",
-    "pk": 4,
-    "fields": {
-      "password": "qwert123asd",
-      "last_login": "2024-08-27T19:33:39.334Z",
-      "is_superuser": false,
-      "first_name": "",
-      "last_name": "",
-      "is_staff": true,
-      "is_active": true,
-      "date_joined": "2024-08-17T07:47:20.522Z",
-      "username": null,
-      "info": null,
-      "email": "asf1@adgf.fd",
-      "is_banned": false,
-      "banned_at": null,
-      "changed_at": "2024-08-17T07:47:20.523Z",
-      "groups": [],
-      "user_permissions": []
-    }
-  },
-  {
-    "model": "users.customuser",
-    "pk": 5,
-    "fields": {
-      "password": "",
-      "last_login": "2024-08-28T09:30:32.126Z",
-      "is_superuser": false,
-      "first_name": "",
-      "last_name": "",
-      "is_staff": false,
-      "is_active": true,
-      "date_joined": "2024-08-27T18:18:40.412Z",
-      "username": null,
-      "info": null,
-      "email": "test15@test15.ru",
-      "is_banned": false,
-      "banned_at": null,
-      "changed_at": "2024-08-27T18:18:40.413Z",
-      "groups": [],
-      "user_permissions": []
-    }
-  },
-  {
-    "model": "users.profile",
+    "model": "ad.wemenclothes",
     "pk": 1,
     "fields": {
-      "user": 1,
-      "phone_number": "+7854328954",
-      "name": "Kirill"
+      "title": null,
+      "created": "2024-09-21T08:59:57.515Z",
+      "changed": "2024-09-21T07:05:52.455Z",
+      "moderation": false,
+      "archived": false,
+      "price": 2000,
+      "description": "Старое тряпье",
+      "category": 27,
+      "content_type": 25,
+      "object_id": 1
     }
   },
   {
-    "model": "users.profile",
+    "model": "ad.wemenclothes",
     "pk": 2,
     "fields": {
-      "user": 4,
-      "phone_number": "+78095326765",
-      "name": "Serega"
+      "title": null,
+      "created": "2024-09-21T07:05:52.464Z",
+      "changed": "2024-09-21T07:05:52.464Z",
+      "moderation": false,
+      "archived": false,
+      "price": 3000,
+      "description": "",
+      "category": 27,
+      "content_type": 25,
+      "object_id": 4
     }
   },
   {
-    "model": "users.profile",
-    "pk": 3,
-    "fields": {
-      "user": 2,
-      "phone_number": "80000080",
-      "name": "Тарас"
-    }
-  },
-  {
-    "model": "users.profile",
-    "pk": 4,
-    "fields": {
-      "user": 3,
-      "phone_number": "746846783476",
-      "name": "Лола"
-    }
-  },
-  {
-    "model": "users.profile",
-    "pk": 5,
-    "fields": {
-      "user": 5,
-      "phone_number": "1800200500",
-      "name": "Иван"
-    }
-  },
-  {
-    "model": "users.onetimecode",
+    "model": "ad.menshoes",
     "pk": 1,
     "fields": {
-      "user": 5,
-      "code": "58584",
-      "count_attempts": 0,
-      "count_send_code": 0,
-      "updated_at": "2024-08-28T09:30:15.759Z",
-      "created_at": "2024-08-27T18:18:40.432Z"
+      "title": null,
+      "created": "2024-09-23T07:05:52.457Z",
+      "changed": "2024-09-21T07:05:52.457Z",
+      "moderation": false,
+      "archived": false,
+      "price": 2000,
+      "description": "",
+      "category": 26,
+      "content_type": 25,
+      "object_id": 1
     }
   },
   {
-    "model": "users.onetimecode",
+    "model": "ad.menshoes",
     "pk": 2,
     "fields": {
-      "user": 1,
-      "code": "67592",
-      "count_attempts": 0,
-      "count_send_code": 0,
-      "updated_at": "2024-08-27T19:25:11.664Z",
-      "created_at": "2024-08-27T18:47:31.478Z"
+      "title": null,
+      "created": "2024-09-21T07:05:52.465Z",
+      "changed": "2024-09-21T07:05:52.465Z",
+      "moderation": false,
+      "archived": false,
+      "price": 3000,
+      "description": "",
+      "category": 26,
+      "content_type": 25,
+      "object_id": 4
     }
   },
   {
-    "model": "users.onetimecode",
-    "pk": 3,
+    "model": "ad.wemenshoes",
+    "pk": 1,
     "fields": {
-      "user": 3,
-      "code": "36497",
-      "count_attempts": 0,
-      "count_send_code": 0,
-      "updated_at": "2024-08-27T19:22:40.763Z",
-      "created_at": "2024-08-27T19:19:53.943Z"
+      "title": null,
+      "created": "2024-09-21T07:05:52.458Z",
+      "changed": "2024-09-21T07:05:52.458Z",
+      "moderation": false,
+      "archived": false,
+      "price": 2000,
+      "description": "",
+      "category": 28,
+      "content_type": 25,
+      "object_id": 1
     }
   },
   {
-    "model": "users.onetimecode",
-    "pk": 4,
+    "model": "ad.wemenshoes",
+    "pk": 2,
     "fields": {
-      "user": 2,
-      "code": "87340",
-      "count_attempts": 0,
-      "count_send_code": 0,
-      "updated_at": "2024-08-27T19:24:26.542Z",
-      "created_at": "2024-08-27T19:24:11.930Z"
+      "title": null,
+      "created": "2024-09-21T07:05:52.466Z",
+      "changed": "2024-09-21T07:05:52.466Z",
+      "moderation": false,
+      "archived": false,
+      "price": 3000,
+      "description": "",
+      "category": 28,
+      "content_type": 25,
+      "object_id": 4
     }
   },
   {
-    "model": "users.onetimecode",
-    "pk": 5,
+    "model": "ad.childclothesshoes",
+    "pk": 1,
     "fields": {
-      "user": 4,
-      "code": "84045",
-      "count_attempts": 0,
-      "count_send_code": 0,
-      "updated_at": "2024-08-27T19:33:18.535Z",
-      "created_at": "2024-08-27T19:33:18.533Z"
+      "title": null,
+      "created": "2024-03-21T07:05:52.460Z",
+      "changed": "2024-09-21T07:05:52.460Z",
+      "moderation": false,
+      "archived": false,
+      "price": 2000,
+      "description": "",
+      "category": 29,
+      "content_type": 25,
+      "object_id": 1
+    }
+  },
+  {
+    "model": "ad.childclothesshoes",
+    "pk": 2,
+    "fields": {
+      "title": null,
+      "created": "2024-08-21T07:05:52.467Z",
+      "changed": "2024-09-21T07:05:52.467Z",
+      "moderation": false,
+      "archived": false,
+      "price": 3000,
+      "description": "",
+      "category": 29,
+      "content_type": 25,
+      "object_id": 4
+    }
+  },
+  {
+    "model": "ad.bagsknapsacks",
+    "pk": 1,
+    "fields": {
+      "title": null,
+      "created": "2024-09-21T07:05:52.461Z",
+      "changed": "2024-09-21T07:05:52.461Z",
+      "moderation": false,
+      "archived": false,
+      "price": 2000,
+      "description": "",
+      "category": 30,
+      "content_type": 25,
+      "object_id": 1
+    }
+  },
+  {
+    "model": "ad.bagsknapsacks",
+    "pk": 2,
+    "fields": {
+      "title": null,
+      "created": "2024-08-20T07:05:52.468Z",
+      "changed": "2024-09-21T07:05:52.468Z",
+      "moderation": false,
+      "archived": false,
+      "price": 3000,
+      "description": "",
+      "category": 30,
+      "content_type": 25,
+      "object_id": 4
+    }
+  },
+  {
+    "model": "personal_account.currencies",
+    "pk": 1,
+    "fields": {
+      "usd_rate": "1.00",
+      "eur_rate": "1.00"
     }
   },
   {
     "model": "personal_account.balance",
-    "pk": 5,
+    "pk": 1,
     "fields": {
-      "balance": "0.00",
-      "currency": "RUB",
-      "user": 2
-    }
-  },
-  {
-    "model": "personal_account.balance",
-    "pk": 6,
-    "fields": {
-      "balance": "10000.00",
+      "balance": "250.00",
       "currency": "RUB",
       "user": 1
     }
   },
   {
     "model": "personal_account.balance",
-    "pk": 7,
+    "pk": 2,
     "fields": {
-      "balance": "0.00",
+      "balance": "1500.00",
+      "currency": "RUB",
+      "user": 2
+    }
+  },
+  {
+    "model": "personal_account.balance",
+    "pk": 3,
+    "fields": {
+      "balance": "10000.00",
       "currency": "RUB",
       "user": 3
     }
   },
   {
     "model": "personal_account.balance",
-    "pk": 8,
+    "pk": 4,
     "fields": {
       "balance": "5000.00",
       "currency": "RUB",
       "user": 4
-    }
-  },
-  {
-    "model": "personal_account.balance",
-    "pk": 9,
-    "fields": {
-      "balance": "15000.00",
-      "currency": "USD",
-      "user": 5
-    }
-  },
-  {
-    "model": "personal_account.payments",
-    "pk": 1,
-    "fields": {
-      "amount": "1000.00",
-      "status": "PENDING",
-      "creating_payment": "2024-08-26T18:03:38.109Z",
-      "user": 2
     }
   }
 ]

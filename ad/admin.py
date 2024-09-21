@@ -3,9 +3,6 @@ from django.utils.safestring import mark_safe
 
 from ad.models import Car, Category, Images, Views, Like, Documents, MenClothes, MenShoes, WemenShoes, \
     ChildClothesShoes, WemenClothes, BagsKnapsacks
-from modeltranslation.admin import TranslationAdmin
-
-from modeltranslation.admin import TranslationAdmin
 
 
 @register(Category)
@@ -18,7 +15,7 @@ class CategoryAdmin(ModelAdmin):
 @register(Car)
 class CarAdmin(ModelAdmin):
     list_display_links = ("id",)
-    list_display = ("id", "brand", "description", "archived",)
+    list_display = ("id", "brand", "description", "created", "archived", )
 
 @register(MenClothes)
 class MenClothesAdmin(ModelAdmin):
@@ -29,7 +26,7 @@ class MenShoesAdmin(ModelAdmin):
     list_display = ('id', 'title', 'created', "archived",)
 
 @register(WemenClothes)
-class WemenClothesShoesAdmin(ModelAdmin):
+class WemenClothesAdmin(ModelAdmin):
     list_display = ('id', 'title', 'created', "archived",)
 
 @register(WemenShoes)

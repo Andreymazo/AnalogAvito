@@ -181,7 +181,7 @@ volumes:
 # docker images -a
 # docker ps -a
 # docker volume ls
-
+# docker-compose -f docker-compose_celery.yaml up
 
 # docker info | sed '/Username:/!d;s/.* //'
 # docker tag 50c5394c1d26 andreymazo/bulletin_board_backend_celery:1.0

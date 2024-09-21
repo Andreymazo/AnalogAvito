@@ -48,7 +48,8 @@ class Advertisement(models.Model):
     changed = models.DateTimeField(auto_now_add=True)
     moderation = models.BooleanField(_("Модерация"), default=False)
     archived = models.BooleanField(_("Архивное"), default=False)
-    price = models.CharField(_("price"), validators=[MinValueValidator(1), MaxValueValidator(1000000000)], max_length=100)
+    # price = models.CharField(_("price"), validators=[MinValueValidator(1), MaxValueValidator(1000000000)], max_length=100)
+    price = models.PositiveIntegerField(_("price"), validators=[MinValueValidator(1), MaxValueValidator(1000000000)])
     description = models.CharField(_("Description"), max_length=2000)
     # marker = models.OneToOneField('map.Marker', on_delete=models.CASCADE, related_name="card")
     
@@ -280,8 +281,8 @@ class WemenClothes(Advertisement):
     views = GenericRelation("ad.Views", related_query_name='women_clothes')
     mssg = GenericRelation("chat.Mssg", related_query_name='women_clothes')
     class Meta:
-        verbose_name = _("Women Shoes")
-        verbose_name_plural = _("Women Shoes")
+        verbose_name = _("Women Clothes")
+        verbose_name_plural = _("Women Clothes")
 
     def __str__(self) -> str:
         return str(self.id)
@@ -314,8 +315,8 @@ class WemenShoes(Advertisement):
     views = GenericRelation("ad.Views", related_query_name='women_shoes')
     mssg = GenericRelation("chat.Mssg", related_query_name='women_shoes')
     class Meta:
-        verbose_name = _("Wemen Shoes")
-        verbose_name_plural = _("Wemen Shoes")
+        verbose_name = _("Women Shoes")
+        verbose_name_plural = _("Women Shoes")
 
     def __str__(self) -> str:
         return str(self.id)

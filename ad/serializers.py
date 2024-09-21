@@ -191,6 +191,7 @@ class MenClothesSerialiser(serializers.ModelSerializer):
         print('end======================',)
        
         instance.save()
+        return instance
     
 class MenClothesPatchSerialiser(serializers.ModelSerializer):
     class Meta:

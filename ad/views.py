@@ -349,8 +349,8 @@ class MenClothesDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
         return super().put(request, *args, **kwargs)  # Дла реализации доки
 
     # def put(self, request, pk, format=None):
-    #     item = get_object_or_404(Car.objects.all(), pk=pk)
-    #     serializer = CarCreateSerializer(item, data=request.data)
+    #     item = get_object_or_404(MenClothes.objects.all(), pk=pk)
+    #     serializer = MenClothesSerialiser(item, data=request.data)
     #     if serializer.is_valid():
     #         serializer.save()
     #         return Response(serializer.data)
@@ -378,10 +378,10 @@ class MenClothesDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
         summary="Удаление объекта"
     )
     def delete(self, request, *args, **kwargs):
-        pk=kwargs['pk'] 
+        pk=kwargs['pk']
         try:
             car_instanse = get_object_or_404(MenClothes.objects.all(), pk=pk)
-            print('car_instanse', car_instanse)
+            print('men_clothes_instanse', car_instanse)
         
             images_instance = car_instanse.images.all()
             if len(images_instance)>1:

@@ -92,3 +92,4 @@ https://yandex.ru/video/preview/63361828915957190
 <!-- docker exec -it 9bfbb562767a /bin/bash изпод контейнера -->
 <!-- gunicorn config.wsgi:application --bind 0.0.0.0:8000 -->
 <!-- https://dzen.ru/video/watch/660cfbb2aca2404a9108e66c -->
+<!-- python manage.py loaddata --exclude contenttypes db1.json -->

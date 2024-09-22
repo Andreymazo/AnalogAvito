@@ -263,6 +263,7 @@ class MenClothes(Advertisement):
     promotions = GenericRelation("ad.Promotion", related_query_name='men_clothes')
     views = GenericRelation("ad.Views", related_query_name='men_clothes')
     mssg = GenericRelation("chat.Mssg", related_query_name='men_clothes')
+    
     class Meta:
         verbose_name = _("Men Clothes")
         verbose_name_plural = _("Men Clothes")

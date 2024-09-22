@@ -1,4 +1,3 @@
-from typing import Iterable
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from mptt.models import MPTTModel, TreeForeignKey
@@ -76,10 +75,58 @@ BY_COLOUR = [("BLACK", "BLACK"), ("WHITE", "WHITE"), ("GREEN", "GREEN"), ("GREY"
 
 BY_FUEL = [("PTR", "PETROL"), ("GAS", "GAS"), ("HYBRID", "HYBRID"), ("ELECTRIC", "ELECTRIC"), ("DIESEL", "DIESEL")]
 
-MEN_SIZES = [("XS—40/42", "особо маленький - extra small"), ("S — 44/46", "маленький - small") , ("(M—48/50", "средний - medium"), \
-    ("L— 52/54", "большой - large" ), ("XL—56/58", "особо большой — extra large"), ("XXL— 60/62", " особо особо большой— extra-extra large" ),\
-          ("3XL—64/66", "особо особо особо большой— extra-extra-extra large" ),
+MEN_SIZES = [
+    ("XS—40/42", "особо маленький - extra small"),
+    ("S — 44/46", "маленький - small") ,
+    ("(M—48/50", "средний - medium"),
+    ("L— 52/54", "большой - large" ),
+    ("XL—56/58", "особо большой — extra large"),
+    ("XXL— 60/62", " особо особо большой— extra-extra large" ),
+    ("3XL—64/66", "особо особо особо большой— extra-extra-extra large" ),
 ]
+
+WOMEN_SIZES = [
+    ("XS—34/36", "особо маленький - extra small"),
+    ("S — 38/40", "маленький - small"),
+    ("M—42/44", "средний - medium"),
+    ("L— 46/48", "большой - large"),
+    ("XL—50/52", "особо большой — extra large"),
+    ("XXL—54/56", "особо особо большой — extra-extra large"),
+    ("3XL—58/60", "особо особо особо большой — extra-extra-extra large"),
+]
+
+MEN_SHOE_SIZES = [
+    ("6", "36"),
+    ("6.5", "37"),
+    ("7", "38"),
+    ("7.5", "39"),
+    ("8", "40"),
+    ("8.5", "41"),
+    ("9", "42"),
+    ("9.5", "43"),
+    ("10", "44"),
+    ("10.5", "45"),
+    ("11", "46"),
+    ("11.5", "47"),
+    ("12", "48"),
+]
+
+WOMEN_SHOE_SIZES = [
+    ("4", "34"),
+    ("4.5", "35"),
+    ("5", "36"),
+    ("5.5", "37"),
+    ("6", "38"),
+    ("6.5", "39"),
+    ("7", "40"),
+    ("7.5", "41"),
+    ("8", "42"),
+    ("8.5", "43"),
+    ("9", "44"),
+    ("9.5", "45"),
+    ("10", "46"),
+]
+
 def current_year():
     return datetime.date.today().year
 
@@ -132,7 +179,7 @@ class Car(Advertisement):
     price = models.CharField(_("price"), max_length=100)
     year = models.IntegerField(_('year'), default=current_year(), validators=[MinValueValidator(MIN_YEAR_AUTO_CREATED), 
                                                                                     max_value_current_year])
-    mileage = models.IntegerField()
+    mileage = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(1000000)])
     transmission = models.CharField(_("Differ by transmission"), choices=BY_TRANSMISSION, **NULLABLE)
     by_wheel_drive = models.CharField(_("Differ by wheel drive"), choices=BY_DRIVE, **NULLABLE)
     engine_capacity = models.IntegerField(_("engine capacity"), validators=[MinValueValidator(0), MaxValueValidator(10000)], **NULLABLE)
@@ -273,6 +320,7 @@ class MenClothes(Advertisement):
     
 class WemenClothes(Advertisement):
     category = TreeForeignKey('ad.Category', on_delete=models.CASCADE, related_name='wemenclothes')
+    size = models.CharField(choices=WOMEN_SIZES, default="M—42/44")
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()    
     content_object = GenericForeignKey('content_type', 'object_id')
@@ -290,6 +338,7 @@ class WemenClothes(Advertisement):
 
 class MenShoes(Advertisement):
     category = TreeForeignKey('ad.Category', on_delete=models.CASCADE, related_name='menshoes')
+    size = models.CharField(choices=MEN_SHOE_SIZES, default="9.5")
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()    
     content_object = GenericForeignKey('content_type', 'object_id')
@@ -307,6 +356,7 @@ class MenShoes(Advertisement):
 
 class WemenShoes(Advertisement):
     category = TreeForeignKey('ad.Category', on_delete=models.CASCADE, related_name='wemenshoes')
+    size = models.CharField(choices=WOMEN_SHOE_SIZES, default="7.5")
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()    
     content_object = GenericForeignKey('content_type', 'object_id')

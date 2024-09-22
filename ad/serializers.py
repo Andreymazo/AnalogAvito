@@ -3,6 +3,7 @@ from rest_framework import status
 from rest_framework import serializers
 from django.contrib.contenttypes.models import ContentType
 from ad.models import IP, BagsKnapsacks, Car, Category, ChildClothesShoes, Images, Like, Favorite, MenClothes, MenShoes, Views, WemenClothes, WemenShoes
+from ad.validators import MilageValidator
 from bulletin.serializers import CarSerializer, ImagesSerializer, ProfileSerializer
 from users.models import CustomUser, Notification, Profile
 
@@ -63,6 +64,7 @@ class CarCreateSerializer(serializers.ModelSerializer):
         fields = ["id", "title", "by_mileage", "brand", "model", "price", "year", "mileage", "transmission",\
                   "by_wheel_drive", "engine_capacity", "engine_power", "fuel_consumption", "type", "colour", "fuel",\
                        "image", "uploaded_images"]
+        validators = [MilageValidator(field_milage='mileage', field_by_milage='by_mileage')]
 
     def create(self, validated_data):
         uploaded_images = validated_data.pop("uploaded_images")

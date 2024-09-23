@@ -75,7 +75,7 @@ def message_list(request):
             # print('serializer', serializer)
             message_value = serializer.validated_data.get('text')
             content_object=MyModel.objects.get(id=obj_id)
-            mssg_instance = Mssg(text = message_value, user=request.user, key_to_recepient=content_object.profile.user.email, content_object=content_object)
+            mssg_instance = Mssg(text = message_value, user=request.user, key_to_recepient=content_object.profilee.first(), content_object=content_object)
             mssg_instance.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

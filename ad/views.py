@@ -322,7 +322,8 @@ class MenClothesDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
     )
     def get(self, request, pk, format=None):
         # Add new model instance Views get_or_creation
-        profile_instance = request.user.profile
+        # profile_instance = request.user.profile
+        # print('profile_instance', profile_instance)
         item = get_object_or_404(MenClothes.objects.all(), pk=pk)
         serializer = MenClothesSerialiser(item)
         # Может если не надо проверять наличие профиля у пользователя ,тогда просто выводим да и все
@@ -366,10 +367,14 @@ class MenClothesDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
         pk = kwargs['pk']
         kwargs['partial'] = True 
         print('--------------kwargs==', kwargs)
-        car_object = self.get_object()
-        serializer = MenClothesSerialiser(car_object, data=request.data, partial=True) # set partial=True to update a data partially...CarUpdateImagesSerializer
+        manclothes_object = self.get_object()
+        serializer = MenClothesSerialiser(manclothes_object, data=request.data, partial=True) # set partial=True to update a data partially...CarUpdateImagesSerializer
+        print('==================   request.data', request.data)
+        
         if serializer.is_valid():
+            
             serializer.save()
+            print('===================      serializer.data', serializer.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     

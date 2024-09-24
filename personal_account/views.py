@@ -1,7 +1,14 @@
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.base import ModelBase
-from drf_spectacular.utils import extend_schema, OpenApiResponse
-from rest_framework import status
+from drf_spectacular.utils import (
+    extend_schema,
+    OpenApiResponse,
+    OpenApiExample,
+    OpenApiParameter,
+    OpenApiResponse,
+    inline_serializer
+)
+from rest_framework import serializers, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.generics import RetrieveAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
@@ -220,10 +227,41 @@ class GetCardRetrieveAPIView(RetrieveAPIView):
         except model.DoesNotExist:
             return Response({"Ошибка": "Объявление не найдено"}, status=status.HTTP_404_NOT_FOUND)
 
-
+@extend_schema(
+    tags=["Аккаунт / Account"],
+    summary="Из архива архивное, в архив, если неархивное",
+    request=inline_serializer(
+        name="ArchiveInOut",
+        fields={}
+    ),
+    responses={
+        status.HTTP_200_OK: OpenApiResponse(
+            description="Объявление перенесено из архива или в архив",
+        ),
+        status.HTTP_400_BAD_REQUEST: OpenApiResponse(
+            description=(
+                    "Объявление не найдено"
+            ),
+            response=inline_serializer(
+                name="InvalidRequestArchiveInOut",
+                fields={"message": serializers.CharField()}
+            ),
+            examples=[
+                OpenApiExample(
+                    "Объявление не найдено",
+                    description=(
+                            "Пример ответа, если Объявление не найдено "
+                    ),
+                    value={"message": "Объявление не найдено"},
+                ),
+            ],
+        ),
+    },
+)
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def add_archive(request, *args, **kwargs):
+     
     try:
         # Получаем модель по имени
         model = apps.get_app_config('ad').get_model(kwargs['model_name'])
@@ -233,13 +271,16 @@ def add_archive(request, *args, **kwargs):
     try:
         # Получаем объект
         ad = model.objects.get(pk=kwargs['pk'])
-
+        if str(request.user.email) == str(ad.profilee.first()):
         # Меняем статус архива
-        ad.archived = not ad.archived
-        ad.save()
+            ad.archived = not ad.archived
+            ad.save()
 
-        message = "Объявление перенесено в архив" if ad.archived else "Объявление восстановлено из архива"
-        return Response({"message": message}, status=status.HTTP_200_OK)
+            message = "Объявление перенесено в архив" if ad.archived else "Объявление восстановлено из архива"
+            return Response({"message": message}, status=status.HTTP_200_OK)
+        else:
+            return Response({"message": "Это не ваше объявление, оно может быть перенесено только своим хозяином"},\
+                             status=status.HTTP_401_UNAUTHORIZED)
 
     except Exception:
         return Response({"error": "Объект не найден"}, status=status.HTTP_404_NOT_FOUND)

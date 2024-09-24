@@ -182,7 +182,10 @@ class MenClothesSerialiser(serializers.ModelSerializer):
         return instance_here
     
     def update(self, instance, validated_data):
-        uploaded_images = validated_data.pop("uploaded_images")
+        try:
+            uploaded_images = validated_data.pop("uploaded_images")
+        except KeyError as e:
+            print(e, 'No images to change')
         print('================instsance ------------>', instance.images.all())
         print('================validated_data------------>', validated_data)
         print('================validated_data------------>', self.__dict__)
@@ -194,9 +197,13 @@ class MenClothesSerialiser(serializers.ModelSerializer):
         print('end======================',)
 
         instance.save()
-        for image in uploaded_images:
-            images = Images( image=image, content_type=ContentType.objects.get_for_model(type(instance)), object_id=instance.id)
-            images.save()
+        try:
+            for image in uploaded_images:
+                images = Images( image=image, content_type=ContentType.objects.get_for_model(type(instance)), object_id=instance.id)
+                images.save()
+        except UnboundLocalError as e:
+            print(e, 'No uploaded_images to iterrate')
+        
         return instance
         
     

@@ -182,18 +182,23 @@ class MenClothesSerialiser(serializers.ModelSerializer):
         return instance_here
     
     def update(self, instance, validated_data):
+        uploaded_images = validated_data.pop("uploaded_images")
         print('================instsance ------------>', instance.images.all())
         print('================validated_data------------>', validated_data)
         print('================validated_data------------>', self.__dict__)
-        instance.size = validated_data.get('by_milsizeeage', instance.size)
+        instance.size = validated_data.get('size', instance.size)
         instance.price = validated_data.get('price', instance.price)
         instance.title = validated_data.get('title', instance.title)
         instance.image = validated_data.get('image', instance.images)
         # instance.uploaded_images = validated_data.get('uploaded_images', instance.uploaded_images)
         print('end======================',)
-       
+
         instance.save()
+        for image in uploaded_images:
+            images = Images( image=image, content_type=ContentType.objects.get_for_model(type(instance)), object_id=instance.id)
+            images.save()
         return instance
+        
     
 class MenClothesPatchSerialiser(serializers.ModelSerializer):
     class Meta:
@@ -201,7 +206,7 @@ class MenClothesPatchSerialiser(serializers.ModelSerializer):
         fields = [ "size", "price", "title",]
     def update(self, instance, validated_data):
         print('================instsance ------------>', instance)
-        instance.size = validated_data.get('by_milsizeeage', instance.size)
+        instance.size = validated_data.get('size', instance.size)
         instance.price = validated_data.get('price', instance.price)
         instance.title = validated_data.get('title', instance.title)
         print('end======================',)

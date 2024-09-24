@@ -1,7 +1,7 @@
 
 import os
 from django.core.management import BaseCommand
-from ad.models import IP, Advertisement, Category
+from ad.models import IP, Advertisement, Car, Category
 from config.settings import BASE_DIR, MEDIA_ROOT, MEDIA_URL, STATIC_URL, STATICFILES_DIRS, TEMPLATES
 from config import settings
 from users.models import CustomUser, Profile
@@ -12,9 +12,12 @@ import re
 
 
 def f():
-    print(BASE_DIR)
-    user=CustomUser.objects.get(email="asf1@adgf.fd")
-    print("user.profile", user.profile.id)
+    car_instance=Car.objects.get(id=11)
+    profile_instance = Profile.objects.get(id=2)
+    print(car_instance.profilee.first())#andreymazoo@mail.ru
+    # print(BASE_DIR)
+    # user=CustomUser.objects.get(email="asf1@adgf.fd")
+    # print("user.profile", user.profile.id)
     # try:
     #     ip_value = IP.objects.get_or_create(profile=user.profile)
     # except Profile.DoesNotExist:

@@ -3,11 +3,14 @@ from decimal import Decimal
 import requests
 from celery import shared_task
 from personal_account.models import Currencies
+from personal_account.utils import check_currencies_exists
 
 
 @shared_task(name='get_currency')
 def get_currency():
     """Ежедневное получение курса валют"""
+
+    check_currencies_exists()
 
     url = "https://api.apilayer.com/exchangerates_data/latest?symbols=USD,EUR&base=RUB"
 

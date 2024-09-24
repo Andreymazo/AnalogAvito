@@ -20,6 +20,7 @@ from django.apps import apps
 from ad.models import Advertisement
 from personal_account.models import Balance
 from personal_account.serializers import BalanceSerializer, choose_serializer
+from personal_account.utils import check_currencies_exists
 
 
 @extend_schema(
@@ -81,6 +82,8 @@ class ChangeCurrencyApiView(APIView):
         # проверяем прошел ли пользователь авторизацию
         if not user.is_authenticated:
             return Response({"message": "Вы не авторизованы"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        check_currencies_exists()
 
         balance = Balance.objects.get(user=user)
 

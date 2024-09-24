@@ -2,6 +2,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from config import settings
+from personal_account.utils import check_currencies_exists
 
 CURRENCY = [
     ("RUB", "RUBLES"),
@@ -55,6 +56,8 @@ class Balance(models.Model):
 
     @property
     def get_balance_in_currency(self):
+
+        check_currencies_exists()
 
         currencies = Currencies.objects.all().first()
 

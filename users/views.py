@@ -64,6 +64,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from personal_account.models import Balance
 from users.serializers import (
     AlternativeAuthSerializer,
     OneTimeCodeSerializer,
@@ -190,6 +191,11 @@ class SignInView(APIView):
                 user, is_created = CustomUser.objects.select_related(
                     "onetimecodes"
                 ).get_or_create(email=email)
+
+                if is_created:
+                    balance = Balance.objects.create(user=user)
+                    balance.save()
+
         if user_input_value[1] == "phone":
             try:
                 user = Profile.objects.get(phone_number=user_input_value[0]).user

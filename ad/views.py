@@ -315,6 +315,7 @@ class CarDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
 class MenClothesDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
     queryset = MenClothes.objects.all()
     serializer_class = MenClothesSerialiser
+    # authentication_classes=[IsAuthenticatedOrReadOnly]
 
     @extend_schema(
         methods=['GET'],
@@ -347,7 +348,14 @@ class MenClothesDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
                     "включая все обязательные поля."
     )
     def put(self, request, *args, **kwargs):
-        return super().put(request, *args, **kwargs)  # Дла реализации доки
+        pk=kwargs['pk']
+        if not request.user.is_authenticated:
+            return Response({"message": "Пользователь не авторизован, редактирование, удаление запрещено"}, status=status.HTTP_401_UNAUTHORIZED)
+        if str(self.request.user.email)==str(MenClothes.objects.get(id=pk).profilee.first()):
+            return super().put(request, *args, **kwargs)  # Дла реализации доки
+        else:
+            return Response({"message":"Хотя пользователь авторизирован, но объявление не его, редактировать, удалять нельзя"}, status=status.HTTP_401_UNAUTHORIZED)
+       
 
     # def put(self, request, pk, format=None):
     #     item = get_object_or_404(MenClothes.objects.all(), pk=pk)
@@ -361,44 +369,51 @@ class MenClothesDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
         methods=['PATCH'],
         summary="Частичное обновление информации о мужской одежде",
         description="Метод позволяет частично обновить информацию о мужской одежде."
-    )
-  
+    )  
     def patch(self, request, *args, **kwargs):
         pk = kwargs['pk']
         kwargs['partial'] = True 
         print('--------------kwargs==', kwargs)
         manclothes_object = self.get_object()
-        serializer = MenClothesSerialiser(manclothes_object, data=request.data, partial=True) # set partial=True to update a data partially...CarUpdateImagesSerializer
-        print('==================   request.data', request.data)
-        
-        if serializer.is_valid():
-            
-            serializer.save()
-            print('===================      serializer.data', serializer.data)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if not request.user.is_authenticated:
+            return Response({"message": "Пользователь не авторизован, редактирование, удаление запрещено"}, status=status.HTTP_401_UNAUTHORIZED)
+        if str(self.request.user.email)==str(manclothes_object.profilee.first()):
+            serializer = MenClothesSerialiser(manclothes_object, data=request.data, partial=True) # set partial=True to update a data partially...CarUpdateImagesSerializer
+            print('==================   request.data', request.data)
+            if serializer.is_valid():
+                serializer.save()
+                print('===================      serializer.data', serializer.data)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({"message":"Хотя пользователь авторизирован, но объявление не его, редактировать, удалять нельзя"}, status=status.HTTP_401_UNAUTHORIZED)
+    
     
     @extend_schema(
         methods=['DELETE'],
         summary="Удаление объекта"
     )
     def delete(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return Response({"message": "Пользователь не авторизован, редактирование, удаление запрещено"}, status=status.HTTP_401_UNAUTHORIZED)
         pk=kwargs['pk']
         try:
-            car_instanse = get_object_or_404(MenClothes.objects.all(), pk=pk)
-            print('men_clothes_instanse', car_instanse)
-        
-            images_instance = car_instanse.images.all()
-            if len(images_instance)>1:
-                for i in images_instance:
-                    i.delete
-                    i.save()
-            if len(images_instance)==1:
-                images_instance.delete()
+            man_clothes_instance = get_object_or_404(MenClothes.objects.all(), pk=pk)
+            if str(self.request.user.email)==str(man_clothes_instance.profilee.first()):
+                print('men_clothes_instanse', man_clothes_instance)
+                images_instance = man_clothes_instance.images.all()
+                if len(images_instance)>1:
+                    for i in images_instance:
+                        i.delete
+                        i.save()
+                if len(images_instance)==1:
+                    images_instance.delete()
+                else:
+                    pass
+                man_clothes_instance.delete()
             else:
-                pass
-            car_instanse.delete()
-        except Car.DoesNotExist as e:
+                return Response({"message":"Хотя пользователь авторизирован, но объявление не его, редактировать, удалять нельзя"}, status=status.HTTP_401_UNAUTHORIZED)
+        except MenClothes.DoesNotExist as e:
                 print(e)
                 return Response({"message":"Theres no object with this id "})
         return Response({"message":"Deleted"}, status=status.HTTP_200_OK)

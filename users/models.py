@@ -11,7 +11,8 @@ from config.constants import (
     MAX_LEN_EMAIL,
     MAX_LEN_PHONE_NUMBER,
     MAX_LEN_NAME_PROFILE,
-    MAX_LEN_USERNAME, MIN_LEN_USERNAME, MIN_LEN_NAME_PROFILE,
+    MAX_LEN_USERNAME,
+    MIN_LEN_EMAIL, MIN_LEN_USERNAME, MIN_LEN_NAME_PROFILE,
 )
 from users.managers import CustomUserManager
 from django.contrib.contenttypes.fields import GenericRelation
@@ -133,7 +134,7 @@ class CustomUser(AbstractUser):
    
     def save(self,*args, **kwargs):
         if len(self.email) < 6:
-            raise ValidationError(_("Email min length must be 7"))
+            raise ValidationError(_(f"Email min length must be {MIN_LEN_EMAIL}"))
             
         super(CustomUser, self).save(*args, **kwargs)
     

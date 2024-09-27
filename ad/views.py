@@ -393,9 +393,10 @@ class MenClothesDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
     )
     def put(self, request, *args, **kwargs):
         pk=kwargs['pk']
+        item = get_object_or_404(MenClothes.objects.all(), pk=pk)
         if not request.user.is_authenticated:
             return Response({"message": "Пользователь не авторизован, редактирование, удаление запрещено"}, status=status.HTTP_401_UNAUTHORIZED)
-        if str(self.request.user.email)==str(MenClothes.objects.get(id=pk).profilee.first()):
+        if str(self.request.user.email)==str(item.profilee.first()):
             return super().put(request, *args, **kwargs)  # Дла реализации доки
         else:
             return Response({"message":"Хотя пользователь авторизирован, но объявление не его, редактировать, удалять нельзя"}, status=status.HTTP_401_UNAUTHORIZED)
@@ -417,16 +418,14 @@ class MenClothesDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
     def patch(self, request, *args, **kwargs):
         pk = kwargs['pk']
         kwargs['partial'] = True 
-        print('--------------kwargs==', kwargs)
-        manclothes_object = self.get_object()
+        manclothes_object = get_object_or_404(MenClothes.objects.all(), pk=pk)
+        # manclothes_object = self.get_object()
         if not request.user.is_authenticated:
             return Response({"message": "Пользователь не авторизован, редактирование, удаление запрещено"}, status=status.HTTP_401_UNAUTHORIZED)
         if str(self.request.user.email)==str(manclothes_object.profilee.first()):
             serializer = MenClothesSerialiser(manclothes_object, data=request.data, partial=True) # set partial=True to update a data partially...CarUpdateImagesSerializer
-            print('==================   request.data', request.data)
             if serializer.is_valid():
                 serializer.save()
-                print('===================      serializer.data', serializer.data)
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
@@ -444,7 +443,6 @@ class MenClothesDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
         try:
             man_clothes_instance = get_object_or_404(MenClothes.objects.all(), pk=pk)
             if str(self.request.user.email)==str(man_clothes_instance.profilee.first()):
-                print('men_clothes_instanse', man_clothes_instance)
                 images_instance = man_clothes_instance.images.all()
                 if len(images_instance)>1:
                     for i in images_instance:
@@ -1207,7 +1205,7 @@ def get_ads_fm_user(request):
             try:
                 instance = i.objects.all().filter(profilee=user.profile)
                 serializer=choose_serializer(i)
-                lst_data.append(serializer(instance, many=True).data)
+                lst_data.append((serializer.Meta.model.__name__, serializer(instance, many=True).data))
                 
             except AttributeError as e:
                 print(e)

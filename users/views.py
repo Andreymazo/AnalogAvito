@@ -616,10 +616,8 @@ class SignUpView(APIView):
             )
 
         # email = request.session.get("email")
-
         signer = Signer()
         try:
-            
             signed_value = request.COOKIES.get("email")
             signed_value_email_code=request.COOKIES.get("email_code")
             if signed_value and signed_value_email_code:

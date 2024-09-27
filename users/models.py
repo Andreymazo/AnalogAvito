@@ -55,7 +55,6 @@ class CustomUser(AbstractUser):
     email = models.EmailField(_("Почта"),
                               max_length=MAX_LEN_EMAIL,
                               unique=True,
-                              validators=[validate_email_length],
                               help_text=_("Введите email, не более 50 символов"),
                               )
     is_banned = models.BooleanField(_("Бан"), default=False)

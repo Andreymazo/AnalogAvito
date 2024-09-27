@@ -12,7 +12,7 @@ from config.constants import (
     MAX_LEN_EMAIL,
     MAX_LEN_PHONE_NUMBER,
     MAX_LEN_NAME_PROFILE,
-    MAX_LEN_USERNAME, MIN_LEN_USERNAME,
+    MAX_LEN_USERNAME, MIN_LEN_USERNAME, MIN_LEN_NAME_PROFILE,
 )
 from users.managers import CustomUserManager
 from django.contrib.contenttypes.fields import GenericRelation
@@ -33,7 +33,7 @@ phone_validator = RegexValidator(
     "The phone number provided is invalid"
 )
 
-def validate_username(value):
+def validate_name(value):
     # Проверка на наличие только букв или букв и цифр
     if not re.match(r'^[a-zA-Zа-яА-Я0-9]+$', value):
         raise ValidationError(_("Имя пользователя должно содержать только буквы или буквы и цифры"))
@@ -47,12 +47,17 @@ class CustomUser(AbstractUser):
     """Кастомная модель пользователя."""
     # username = None
     username = models.CharField(_("username"),
-                                validators=[MinLengthValidator(MIN_LEN_USERNAME), validate_username],
+                                validators=[MinLengthValidator(MIN_LEN_USERNAME), validate_name],
                                 max_length=MAX_LEN_USERNAME,
                                 **NULLABLE
                                 )
     info = models.TextField(_("Информация"), **NULLABLE, help_text=_("Введите дополнительную информацию"))
-    email = models.EmailField(_("Почта"), max_length=MAX_LEN_EMAIL, unique=True, help_text=_("Введите email, не более 254 символов"),)
+    email = models.EmailField(_("Почта"),
+                              max_length=MAX_LEN_EMAIL,
+                              unique=True,
+                              validators=[validate_email_length],
+                              help_text=_("Введите email, не более 50 символов"),
+                              )
     is_banned = models.BooleanField(_("Бан"), default=False)
     banned_at = models.DateTimeField(_("Время начала бана"), **NULLABLE)
     changed_at = models.DateTimeField(_("Время изменения"), auto_now_add=True)
@@ -164,7 +169,10 @@ class Profile(models.Model):
     """Модель профайла"""
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE,related_name="profile",)
     phone_number = models.CharField(_("Номер телефона"), max_length=MAX_LEN_PHONE_NUMBER, unique=True, validators=[phone_validator])
-    name = models.CharField(_("Имя пользователя"), max_length=MAX_LEN_NAME_PROFILE)
+    name = models.CharField(_("Имя пользователя"),
+                            max_length=MAX_LEN_NAME_PROFILE,
+                            validators=[MinLengthValidator(MIN_LEN_NAME_PROFILE), validate_name]
+                            )
     view = GenericRelation("ad.Views", related_query_name='profilee')
     images = GenericRelation("ad.Images",  related_query_name='profile')#object_id_field='profile_id',
     car = GenericRelation("ad.Car", related_query_name='profilee')

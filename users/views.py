@@ -75,7 +75,7 @@ from config.constants import (
     TIME_OTC,
     TIME_RESEND_CODE,
     COUNT_ATTEMPTS,
-    COUNT_SEND_CODE
+    COUNT_SEND_CODE, MAX_LEN_EMAIL
 )
 from users.utils import (
     check_ban,

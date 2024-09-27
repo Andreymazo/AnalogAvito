@@ -24,7 +24,8 @@ def ff():
     # print(content_type.id)
     # car=Car.objects.get(id=6)
     # content_type =  ContentType.objects.get(model='car')
-    print(BASE_DIR, BASE_URL, )
+    # print(BASE_DIR, BASE_URL, )
+    instance = MenClothes.objects.get(id=8)
     #car.images.all())
     # print(Images.objects.filter(content_type).filter(object_id=car.id))
     # Images

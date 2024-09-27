@@ -1,5 +1,4 @@
 import re
-
 from django.contrib.auth.models import AbstractBaseUser, AbstractUser
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator, MinLengthValidator
@@ -131,7 +130,13 @@ class CustomUser(AbstractUser):
     def __str__(self):
         """Строковое представление объекта пользователя."""
         return str(self.email)
-
+   
+    def save(self,*args, **kwargs):
+        if len(self.email) < 6:
+            raise ValidationError(_("Email min length must be 7"))
+            
+        super(CustomUser, self).save(*args, **kwargs)
+    
 
 receiver(user_logged_in)
 def create_notification_for_logged_in(sender, user, request, **kwargs):

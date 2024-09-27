@@ -1,5 +1,8 @@
+import re
+
 from django.contrib.auth.models import AbstractBaseUser, AbstractUser
-from django.core.validators import RegexValidator
+from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator, MinLengthValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
@@ -9,7 +12,7 @@ from config.constants import (
     MAX_LEN_EMAIL,
     MAX_LEN_PHONE_NUMBER,
     MAX_LEN_NAME_PROFILE,
-    MAX_LEN_USERNAME,
+    MAX_LEN_USERNAME, MIN_LEN_USERNAME,
 )
 from users.managers import CustomUserManager
 from django.contrib.contenttypes.fields import GenericRelation
@@ -30,11 +33,24 @@ phone_validator = RegexValidator(
     "The phone number provided is invalid"
 )
 
+def validate_username(value):
+    # Проверка на наличие только букв или букв и цифр
+    if not re.match(r'^[a-zA-Zа-яА-Я0-9]+$', value):
+        raise ValidationError(_("Имя пользователя должно содержать только буквы или буквы и цифры"))
+
+    # Проверка на отсутствие имени пользователя, состоящего только из цифр
+    if re.match(r'^\d+$', value):
+        raise ValidationError(_("Имя пользователя не может состоять только из цифр"))
+
 """If moer flexable auth model needed comment CustomUser (makemigrations) and uncomment the code below (makemigrations)"""
 class CustomUser(AbstractUser):
     """Кастомная модель пользователя."""
     # username = None
-    username = models.CharField(_("username"), max_length=MAX_LEN_USERNAME, **NULLABLE)
+    username = models.CharField(_("username"),
+                                validators=[MinLengthValidator(MIN_LEN_USERNAME), validate_username],
+                                max_length=MAX_LEN_USERNAME,
+                                **NULLABLE
+                                )
     info = models.TextField(_("Информация"), **NULLABLE, help_text=_("Введите дополнительную информацию"))
     email = models.EmailField(_("Почта"), max_length=MAX_LEN_EMAIL, unique=True, help_text=_("Введите email, не более 254 символов"),)
     is_banned = models.BooleanField(_("Бан"), default=False)
@@ -44,7 +60,7 @@ class CustomUser(AbstractUser):
     # content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     # object_id = models.PositiveIntegerField()
     # content_object = GenericForeignKey('content_type', 'object_id')
-    
+
     objects = CustomUserManager()
 
     USERNAME_FIELD = "email"
@@ -124,14 +140,14 @@ def create_notification_for_logged_in(sender, user, request, **kwargs):
         promotions_user = Promotion.objects.prefetch_related('users')# Promotions by User
     except Promotion.DoesNotExist:
         return Response({"message":"Teres no promotion for the user"})
-    
+
     print('car_quryset', car_quryset)
     print('promotions_user', promotions_user)
 
     promotion_qeryset = Promotion.objects.prefetch_related('cars').all()#.filter(content_type=ContentType.objects.get_for_model(user), object_id=object.id)#Выберем промоушены зарегистрировавшегося юзера
     # У Промоушена ключ на Профиль, у Профиля ключ на Юзера, Юзер входит, тут проверяется вся его подписка на подход к концу. CustomUser id = 32
     # ContentType
-  
+
     content_object = ContentType.objects.get_for_model(user)#get_for_id(content_type).get_object_for_this_type(pk=object_id)
     print('-----------------content_object', content_object)
     # print('promotion_qeryset', len(promotion_qeryset), type(promotion_qeryset))
@@ -141,7 +157,7 @@ def create_notification_for_logged_in(sender, user, request, **kwargs):
             Notification.objects.create(text = f"less 1 day left for {i.content_object} promotion", key_to_recepient=user.email,\
                                          user=CustomUser.objects.get(email="andreymazo@mail.ru"))  #user от кого пришло, ставим суперюзера
             print('Notification created')
-        
+
 user_logged_in.connect(create_notification_for_logged_in)
 
 class Profile(models.Model):
@@ -153,7 +169,7 @@ class Profile(models.Model):
     images = GenericRelation("ad.Images",  related_query_name='profile')#object_id_field='profile_id',
     car = GenericRelation("ad.Car", related_query_name='profilee')
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField()    
+    object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
     bagsknapsacks = GenericRelation("ad.BagsKnapsacks", related_query_name='profilee')
     menclothes = GenericRelation("ad.MenClothes", related_query_name='profilee')
@@ -161,11 +177,11 @@ class Profile(models.Model):
     wemenclothes = GenericRelation("ad.WemenClothes", related_query_name='profilee')
     wemenshoes = GenericRelation("ad.WemenShoes", related_query_name='profilee')
     childclothesshoes = GenericRelation("ad.ChildClothesShoes", related_query_name='profilee')
-    
-    
+
+
     # location =  PointField()
     # views = GenericRelation("ad.Views", related_query_name='profile')
-    
+
     def __str__(self):
         """Строковое представление объекта пользователя."""
         return str(self.user.email)
@@ -178,7 +194,7 @@ class OneTimeCode(models.Model):
     count_send_code = models.PositiveSmallIntegerField(_("Количество повторных отправок кода"), default=0)
     updated_at = models.DateTimeField(_("Время обновления кода"), auto_now=True)
     created_at = models.DateTimeField(_("Время создания кода"), auto_now_add=True)
-    
+
     class Meta:
         """Конфигурация модели одноразового кода."""
         ordering = ("id",)

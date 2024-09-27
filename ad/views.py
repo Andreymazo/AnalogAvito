@@ -381,7 +381,7 @@ class MenClothesDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
         # except Profile.DoesNotExist:
         #     return Response({"message": "У вас нет Профиля, перенаправляем на регистрацию"},
         #                     status=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION)
-
+        add_view(serializer, request, pk)
         return Response(serializer.data)
 
     @extend_schema(
@@ -397,7 +397,7 @@ class MenClothesDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
         if not request.user.is_authenticated:
             return Response({"message": "Пользователь не авторизован, редактирование, удаление запрещено"}, status=status.HTTP_401_UNAUTHORIZED)
         if str(self.request.user.email)==str(item.profilee.first()):
-            return super().put(request, *args, **kwargs)  # Дла реализации доки
+            return super().put(request, *args, **kwargs)
         else:
             return Response({"message":"Хотя пользователь авторизирован, но объявление не его, редактировать, удалять нельзя"}, status=status.HTTP_401_UNAUTHORIZED)
        
@@ -1193,8 +1193,14 @@ class WemenShoesList(generics.ListCreateAPIView):# Пока без криейт�
     filter_backends = [DjangoFilterBackend]
     filterset_class = WemenShoesFilter
     filter_backends = [DjangoFilterBackend]
-
 """Получение объявлений по польльзователю"""
+@extend_schema(
+    tags=["Общая логика (Контент Тайп) / ContentType concerned"],
+    summary="По реквесту получаем объявления авторизтрованного пользователя",
+    request=choose_serializer,
+    # parameters=[OpenApiParameter('limit', exclude=True), OpenApiParameter('offset', exclude=True), \
+    #             OpenApiParameter('ordering', exclude=True), OpenApiParameter('page', exclude=True),]
+)
 @api_view(["GET"])
 def get_ads_fm_user(request):
     user = request.user

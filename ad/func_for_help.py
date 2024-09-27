@@ -47,6 +47,8 @@ def add_view(serializer, request, pk):
     view_instance = Views(profile=profile, content_type=ContentType.objects.get_for_id(content_type), object_id=pk)
     view_instance.save()
 
+
+"""Проверяет авторизирован ли и есть ли профиль"""
 def check_if_authorised_has_profile(request):
     try:
         profile = request.user.profile

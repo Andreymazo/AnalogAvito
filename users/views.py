@@ -48,7 +48,6 @@
 
 
 from datetime import datetime, timedelta, timezone
-from gc import get_count
 
 from django.contrib.auth import login, logout
 from django.core.signing import BadSignature, Signer
@@ -59,7 +58,6 @@ from drf_spectacular.utils import (
     OpenApiResponse,
     inline_serializer
 )
-from jsonschema.exceptions import ValidationError
 from rest_framework import serializers, status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -76,7 +74,7 @@ from config.constants import (
     TIME_OTC,
     TIME_RESEND_CODE,
     COUNT_ATTEMPTS,
-    COUNT_SEND_CODE, MAX_LEN_EMAIL
+    COUNT_SEND_CODE,
 )
 from users.utils import (
     check_ban,

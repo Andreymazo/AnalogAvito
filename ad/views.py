@@ -1,3 +1,4 @@
+from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 from django.core.exceptions import FieldError
 import django_filters
 from django.apps import apps
@@ -15,6 +16,7 @@ from ad.func_for_help import add_view, check_if_authorised_has_profile
 from ad.models import BagsKnapsacks, Category, Car, ChildClothesShoes, Like, Images, MenClothes, MenShoes, Views, WemenClothes, WemenShoes
 from ad.pagination import OrdinaryListPagination
 from config.backends import CustomFilterQueryset, MyFilterBackend
+from config.constants import CACHE_PARAMETERS_LIVE
 from users.models import Notification
 from ad.serializers import CarCreateSerializer, CarNameSerializer, CarPatchSerializer, DefaultSerializer, LikeSerializer, \
     LikeSerializerCreate, NotificationSerializer, CategoryFilterSerializer, ViewsSerializer
@@ -38,7 +40,7 @@ from rest_framework.decorators import api_view
 from collections import OrderedDict
 from rest_framework import serializers
 from users.models import CustomUser, Profile
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, parser_classes
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.contrib.contenttypes.models import ContentType
@@ -650,7 +652,7 @@ class GetModelFmCategoryView(generics.ListAPIView, generics.RetrieveAPIView):
         except:
             self_model.DoesNotExist
         try:
-            cache.set("content_type", ctype.id, 60)
+            cache.set("content_type", ctype.id, CACHE_PARAMETERS_LIVE)
         except UnboundLocalError as e:
             print(e)
         return Response([serializer.data, {"Number by contenttype (blank if None)":f"{ctype_id}"}, \
@@ -760,7 +762,7 @@ class GetObjFmModelView(generics.ListAPIView, generics.RetrieveAPIView):
         content_type = cache.get('content_type')
         # print('serialiser', serializer)
         obj_id = serializer.data[0]['id']
-        cache.set_many({"obj_id": obj_id, "content_type":content_type}, 60)
+        cache.set_many({"obj_id": obj_id, "content_type":content_type}, CACHE_PARAMETERS_LIVE)
         # print(' ============ serializer.data', serializer.data)
         return Response([serializer.data, {"content_type":content_type, "obj_id":obj_id, "message":"Got content_type and obj_id and pass it in cache at endpoin: like_add "}], status=status.HTTP_200_OK)
 
@@ -1258,7 +1260,8 @@ def views_list_obj(request):
 
 
 
-
+"""На входе номер модели из приложения ad (где все объявления) и номер объявления, на выходе гет, пут, пэтч, делейт \
+    Contenttype number and object id --> enter; get id, pu, patch, delete --> exit"""
 @extend_schema(
     tags=["Детальные методы без привязки к конкретной модели / Detailed methods wthout model seriliser concerned, could be applied to any model"],
     summary="модель Mssg, в методе GET само объявление в методе PUT изменяем в методе DELETE удаляем / object, CET - see, PUT - change, DELETE - remove",
@@ -1269,23 +1272,55 @@ def views_list_obj(request):
     ), }
 )
 @api_view(["GET", "PUT", "DELETE"])
-def message_detail(request, pk):
+@parser_classes([MultiPartParser,JSONParser,FormParser])
+def general_detailed(request, *args,**kwargs):
+    if not request.user.is_authenticated:
+            return Response({"message": "Пользователь не авторизован, редактирование, удаление запрещено"}, status=status.HTTP_401_UNAUTHORIZED)
+    try:
+        dict_of_cache = cache.get_many(["content_type", "obj_id"])
+        content_type = dict_of_cache['content_type']
+        obj_id = dict_of_cache['obj_id']
+    except KeyError as e:
+        print(e)
+        return Response({"message":"В кэше нет номера модели, номера объявления"}, status=status.HTTP_400_BAD_REQUEST)
+       
+    model= ContentType.objects.get(id=content_type).model_class()
     try: 
-        mssg_instance = Mssg.objects.get(pk=pk) 
-    except Mssg.DoesNotExist: 
-        return Response({"message": "no messages for user"}, status=status.HTTP_404_NOT_FOUND)
+        detailed_instance = model.objects.get(pk=obj_id) 
+    except model.DoesNotExist:
+        return Response({"message": "no intances for this model"}, status=status.HTTP_404_NOT_FOUND)
     if request.method == 'GET': 
-        serializer = MssgDetailSerializer(mssg_instance)
-        return Response([serializer.data, {"message":"mssg detailed"}], status=status.HTTP_200_OK) 
+        serializer = choose_serializer(model)
+        serializer=serializer(detailed_instance)
+        return Response([serializer.data, {"message":"instance detailed"}], status=status.HTTP_200_OK) 
     elif request.method == 'PUT': 
-        data = JSONParser().parse(request) 
-        serializer = MssgDetailSerializer(mssg_instance, data=data) 
-  
-        if serializer.is_valid(): 
-            serializer.save() 
-            return Response([serializer.data, {"message":"mssg updated"}], status=status.HTTP_200_OK) 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
-  
+        if str(request.user.email)==str(detailed_instance.profilee.first()):#Редактировать можно только свои объявления
+            # data = MultiPartParser().parse(request)
+            serializer = choose_serializer(model)
+            serializer=serializer(detailed_instance, data=request.data)
+            if serializer.is_valid(): 
+                serializer.save() 
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({"message":"Хотя пользователь авторизирован, но объявление не его, редактировать, удалять нельзя"}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    elif request.method=="PATCH":
+        if str(request.user.email)==str(detailed_instance.profilee.first()):#Редактировать можно только свои объявления
+            # data = JSONParser().parse(request)
+            serializer = choose_serializer(model)
+            serializer=serializer(detailed_instance, data=request.data, partial=True)
+            if serializer.is_valid(): 
+                serializer.save() 
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({"message":"Хотя пользователь авторизирован, но объявление не его, редактировать, удалять нельзя"}, status=status.HTTP_401_UNAUTHORIZED)
+    
     elif request.method == 'DELETE': 
-        mssg_instance.delete() 
+        detailed_instance.delete() 
         return Response({"message":"mssg deleted"}, status=status.HTTP_204_NO_CONTENT) 
+       
+                
+            
+       

@@ -176,6 +176,7 @@ volumes:
 # docker rmi $(docker images -a -q)
 # docker rmi -f $(docker images -aq)
 # docker volume rm $(docker volume ls -q --filter dangling=true)
+# docker system prune -a
 
 # Проверка (должны быть пустые строки)
 # docker images -a

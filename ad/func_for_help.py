@@ -20,14 +20,41 @@
 #     #      data = f.read()
 #         file = f
 #         return zip_obj, content_list, file
-    
+from rest_framework.response import Response
+from rest_framework import status
 from ad.filters import CarFilter
-
+from django.contrib.contenttypes.models import ContentType
+from ad.models import Views
+from users.models import Profile
 
 def save_file(file, full_path):
     with open(full_path, 'wb+') as f:
         for chunk in file.chunks():
             f.write(chunk)    
+"""Неавторизированный смотрит, но просмотры не прибавляются, авторизированный с профилем, прибавляеи просмотры, без профиля - на регистрацию"""
+def add_view(serializer, request, pk):
+    try:
 
-# def choose_serializer():
-#     []
+        profile = request.user.profile
+    except AttributeError:
+        return Response([serializer.data,{"message": "Anonymoususer, Views dont counted"}],
+                        status=status.HTTP_200_OK)
+    except Profile.DoesNotExist:
+        return Response({"message": "У вас нет Профиля, перенаправляем на регистрацию"},
+                        status=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION)
+    print('view created') #Here we create view every time we enter the object
+    content_type = ContentType.objects.get(model='car').id
+    view_instance = Views(profile=profile, content_type=ContentType.objects.get_for_id(content_type), object_id=pk)
+    view_instance.save()
+
+
+"""Проверяет авторизирован ли и есть ли профиль"""
+def check_if_authorised_has_profile(request):
+    try:
+        profile = request.user.profile
+    except AttributeError:
+        return Response([{"message": "Anonymoususer, put method is not allowed"}],
+            status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    except Profile.DoesNotExist:
+        return Response({"message": "У вас нет Профиля, перенаправляем на регистрацию"},
+                status=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION)

@@ -11,6 +11,7 @@ from django.db import IntegrityError, ProgrammingError
 from rest_framework import generics
 from ad.filters import BagsKnapsacksFilter, CarFilter, CategoryFilter, ChildClothesShoesFilter, CustomFilterSet, CategoryFilterByName, MenClothesFilter, MenShoesFilter, WemenClothesFilter, WemenShoesFilter
 # from ad.func_for_help import choose_serializer
+from ad.func_for_help import add_view, check_if_authorised_has_profile
 from ad.models import BagsKnapsacks, Category, Car, ChildClothesShoes, Like, Images, MenClothes, MenShoes, Views, WemenClothes, WemenShoes
 from ad.pagination import OrdinaryListPagination
 from config.backends import CustomFilterQueryset, MyFilterBackend
@@ -225,23 +226,15 @@ class CarDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
     )
     def get(self, request, pk, format=None):
         # Add new model instance Views get_or_creation
-        profile_instance = request.user.profile
+        # if request.user.is_anonymous:
+        #     return redirect(reverse("users:sign_in_email"))
+        # try:
+        #     profile_instance = request.user.profile
+        # except AttributeError as e:
+        #     print(e, 'Пользователь не авторизован, только просмотр объявления автомобиль')
         item = get_object_or_404(Car.objects.all(), pk=pk)
         serializer = CarPatchSerializer(item)
-        try:
-            profile = request.user.profile
-        except AttributeError:
-            print('---------------------', request.user, '4444444444', self.request.user)
-            return Response([serializer.data, {"message": "Anonymoususer, Views dont counted"}],
-                            status=status.HTTP_200_OK)
-        except Profile.DoesNotExist:
-            return Response({"message": "У вас нет Профиля, перенаправляем на регистрацию"},
-                            status=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION)
-        # print('view created') #Here we create view every time we enter the object
-        # content_type = ContentType.objects.get(model='car').id
-        # view_instance = Views(profile=profile_instance, content_type=ContentType.objects.get_for_id(content_type), object_id=pk)
-        # view_instance.save()
-
+        add_view(serializer, request, pk)#Чтобы не повторять с 233 по 245 строчки вынесем функцию add_view
         return Response(serializer.data)
 
     @extend_schema(
@@ -252,7 +245,26 @@ class CarDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
                     "включая все обязательные поля."
     )
     def put(self, request, *args, **kwargs):
-        return super().put(request, *args, **kwargs)  # Дла реализации доки
+        # if request.user.is_anonymous:
+        #     return  Response([{"message": "Anonymoususer, put method is not allowed"}],
+        #                 status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        
+        # return super().put(request, *args, **kwargs)
+        pk=kwargs['pk']
+        check_if_authorised_has_profile(request)
+        # try:
+        #     profile = request.user.profile
+        # except AttributeError:
+        #     return Response([{"message": "Anonymoususer, put method is not allowed"}],
+        #                 status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        # except Profile.DoesNotExist:
+        #     return Response({"message": "У вас нет Профиля, перенаправляем на регистрацию"},
+        #                 status=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION)
+        if str(self.request.user.email)==str(Car.objects.get(id=pk).profilee.first()):
+            return super().put(request, *args, **kwargs)
+        else:
+            return Response({"message":"Хотя пользователь авторизирован, но объявление не его, редактировать, удалять нельзя"}, status=status.HTTP_401_UNAUTHORIZED)
+
 
     # def put(self, request, pk, format=None):
     #     item = get_object_or_404(Car.objects.all(), pk=pk)
@@ -269,36 +281,68 @@ class CarDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
     )
   
     def patch(self, request, *args, **kwargs):
-        pk = kwargs['pk']
-        kwargs['partial'] = True 
-        print('--------------kwargs==', kwargs)
-        car_object = self.get_object()
-        serializer = CarPatchSerializer(car_object, data=request.data, partial=True) # set partial=True to update a data partially...CarUpdateImagesSerializer
+        pk=kwargs['pk']
+        check_if_authorised_has_profile(request)
+        # try:
+        #     profile = request.user.profile
+        # except AttributeError:
+        #     return Response([{"message": "Anonymoususer, put method is not allowed"}],
+        #                 status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        # except Profile.DoesNotExist:
+        #     return Response({"message": "У вас нет Профиля, перенаправляем на регистрацию"},
+        #                 status=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION)
+        car_object=self.get_object()
+        serializer=CarPatchSerializer(car_object, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            if str(self.request.user.email)==str(Car.objects.get(id=pk).profilee.first()):
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response({"message":"Хотя пользователь авторизирован, но объявление не его, редактировать, удалять нельзя"}, status=status.HTTP_401_UNAUTHORIZED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            # return super().put(request, *args, **kwargs)
+        # else:
+        #     return Response([serializer.data, {"message":"Хотя пользователь авторизирован, но объявление не его, редактировать, удалять нельзя"}], status=status.HTTP_401_UNAUTHORIZED)
+
+
+
+        # if request.user.is_anonymous:
+        #     return  Response([{"message": "Anonymoususer, patch method is not allowed"}],
+        #                 status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        # pk = kwargs['pk']
+        # kwargs['partial'] = True 
+        # print('--------------kwargs==', kwargs)
+        # car_object = self.get_object()
+        # serializer = CarPatchSerializer(car_object, data=request.data, partial=True) # set partial=True to update a data partially...CarUpdateImagesSerializer
+        # if serializer.is_valid():
+        #     serializer.save()
+        #     return Response(serializer.data, status=status.HTTP_201_CREATED)
+        # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     @extend_schema(
         methods=['DELETE'],
         summary="Удаление объекта"
     )
     def delete(self, request, *args, **kwargs):
-        pk=kwargs['pk'] 
+        pk=kwargs['pk']
+        check_if_authorised_has_profile(request)
         try:
             car_instanse = get_object_or_404(Car.objects.all(), pk=pk)
             print('car_instanse', car_instanse)
-        
-            images_instance = car_instanse.images.all()
-            if len(images_instance)>1:
-                for i in images_instance:
-                    i.delete
-                    i.save()
-            if len(images_instance)==1:
-                images_instance.delete()
+            if str(self.request.user.email)==str(Car.objects.get(id=pk).profilee.first()):
+                images_instance = car_instanse.images.all()
+                if len(images_instance)>1:
+                    for i in images_instance:
+                        i.delete
+                        i.save()
+                if len(images_instance)==1:
+                    images_instance.delete()
+                else:
+                    pass
+                car_instanse.delete()
             else:
-                pass
-            car_instanse.delete()
+                return Response({"message":"Хотя пользователь авторизирован, но объявление не его, редактировать, удалять нельзя"}, status=status.HTTP_401_UNAUTHORIZED)
+
         except Car.DoesNotExist as e:
                 print(e)
                 return Response({"message":"Theres no object with this id "})
@@ -337,7 +381,7 @@ class MenClothesDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
         # except Profile.DoesNotExist:
         #     return Response({"message": "У вас нет Профиля, перенаправляем на регистрацию"},
         #                     status=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION)
-
+        add_view(serializer, request, pk)
         return Response(serializer.data)
 
     @extend_schema(
@@ -349,10 +393,11 @@ class MenClothesDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
     )
     def put(self, request, *args, **kwargs):
         pk=kwargs['pk']
+        item = get_object_or_404(MenClothes.objects.all(), pk=pk)
         if not request.user.is_authenticated:
             return Response({"message": "Пользователь не авторизован, редактирование, удаление запрещено"}, status=status.HTTP_401_UNAUTHORIZED)
-        if str(self.request.user.email)==str(MenClothes.objects.get(id=pk).profilee.first()):
-            return super().put(request, *args, **kwargs)  # Дла реализации доки
+        if str(self.request.user.email)==str(item.profilee.first()):
+            return super().put(request, *args, **kwargs)
         else:
             return Response({"message":"Хотя пользователь авторизирован, но объявление не его, редактировать, удалять нельзя"}, status=status.HTTP_401_UNAUTHORIZED)
        
@@ -373,16 +418,14 @@ class MenClothesDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
     def patch(self, request, *args, **kwargs):
         pk = kwargs['pk']
         kwargs['partial'] = True 
-        print('--------------kwargs==', kwargs)
-        manclothes_object = self.get_object()
+        manclothes_object = get_object_or_404(MenClothes.objects.all(), pk=pk)
+        # manclothes_object = self.get_object()
         if not request.user.is_authenticated:
             return Response({"message": "Пользователь не авторизован, редактирование, удаление запрещено"}, status=status.HTTP_401_UNAUTHORIZED)
         if str(self.request.user.email)==str(manclothes_object.profilee.first()):
             serializer = MenClothesSerialiser(manclothes_object, data=request.data, partial=True) # set partial=True to update a data partially...CarUpdateImagesSerializer
-            print('==================   request.data', request.data)
             if serializer.is_valid():
                 serializer.save()
-                print('===================      serializer.data', serializer.data)
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
@@ -400,7 +443,6 @@ class MenClothesDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
         try:
             man_clothes_instance = get_object_or_404(MenClothes.objects.all(), pk=pk)
             if str(self.request.user.email)==str(man_clothes_instance.profilee.first()):
-                print('men_clothes_instanse', man_clothes_instance)
                 images_instance = man_clothes_instance.images.all()
                 if len(images_instance)>1:
                     for i in images_instance:
@@ -1151,8 +1193,14 @@ class WemenShoesList(generics.ListCreateAPIView):# Пока без криейт�
     filter_backends = [DjangoFilterBackend]
     filterset_class = WemenShoesFilter
     filter_backends = [DjangoFilterBackend]
-
 """Получение объявлений по польльзователю"""
+@extend_schema(
+    tags=["Общая логика (Контент Тайп) / ContentType concerned"],
+    summary="По реквесту получаем объявления авторизтрованного пользователя",
+    request=choose_serializer,
+    # parameters=[OpenApiParameter('limit', exclude=True), OpenApiParameter('offset', exclude=True), \
+    #             OpenApiParameter('ordering', exclude=True), OpenApiParameter('page', exclude=True),]
+)
 @api_view(["GET"])
 def get_ads_fm_user(request):
     user = request.user
@@ -1163,7 +1211,7 @@ def get_ads_fm_user(request):
             try:
                 instance = i.objects.all().filter(profilee=user.profile)
                 serializer=choose_serializer(i)
-                lst_data.append(serializer(instance, many=True).data)
+                lst_data.append((serializer.Meta.model.__name__, serializer(instance, many=True).data))
                 
             except AttributeError as e:
                 print(e)

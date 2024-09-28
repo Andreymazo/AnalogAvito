@@ -78,10 +78,10 @@ BY_FUEL = [("PTR", "PETROL"), ("GAS", "GAS"), ("HYBRID", "HYBRID"), ("ELECTRIC",
 MEN_SIZES = [
     ("XS—40/42", "особо маленький - extra small"),
     ("S — 44/46", "маленький - small") ,
-    ("(M—48/50", "средний - medium"),
+    ("M—48/50", "средний - medium"),
     ("L— 52/54", "большой - large" ),
     ("XL—56/58", "особо большой — extra large"),
-    ("XXL— 60/62", " особо особо большой— extra-extra large" ),
+    ("XXL— 60/62", "особо особо большой— extra-extra large" ),
     ("3XL—64/66", "особо особо особо большой— extra-extra-extra large" ),
 ]
 
@@ -176,7 +176,7 @@ class Car(Advertisement):
     by_mileage = models.CharField(_("Differ by mileage"), choices=BY_MILEAGE)
     brand = models.CharField(_("brand"), max_length=100)
     model = models.CharField(_("model"), max_length=100)
-    price = models.CharField(_("price"), max_length=100)
+    # price = models.CharField(_("price"), max_length=100)
     year = models.IntegerField(_('year'), default=current_year(), validators=[MinValueValidator(MIN_YEAR_AUTO_CREATED), 
                                                                                     max_value_current_year])
     mileage = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(1000000)])

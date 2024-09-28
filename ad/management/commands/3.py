@@ -20,12 +20,12 @@ def ff():
     #         print('here')
     #         return str(i.__name__)
     # content_type = ContentType.objects.get(model='car')
-
+    print(ContentType.objects.get(id=8).model_class().__name__)
     # print(content_type.id)
     # car=Car.objects.get(id=6)
     # content_type =  ContentType.objects.get(model='car')
     # print(BASE_DIR, BASE_URL, )
-    instance = MenClothes.objects.get(id=8)
+    # instance = MenClothes.objects.get(id=8)
     #car.images.all())
     # print(Images.objects.filter(content_type).filter(object_id=car.id))
     # Images

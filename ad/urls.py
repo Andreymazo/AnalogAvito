@@ -14,6 +14,7 @@ from ad.views import (
     UploadViewSet,
     WemenClothesList,
     WemenShoesList,
+    general_detailed,
     get_ads_fm_user,
     like_add,
     # like_list_create,
@@ -71,6 +72,7 @@ urlpatterns = [
     path('childclothesshoes_list/', ChildClothesShoesList.as_view(), name='childclothesshoes_list'),
 
     path('get_ads_fm_user/', get_ads_fm_user, name='get_ads_fm_user'),
+    path('general_detailed/', general_detailed, name='general_detailed'),
     
    
 ]

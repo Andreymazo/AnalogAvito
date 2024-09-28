@@ -594,7 +594,7 @@
       "by_mileage": "ALL",
       "brand": "Audi",
       "model": "test",
-      "price": "1000000",
+      "price": 1000000,
       "year": 2024,
       "mileage": 200000,
       "transmission": null,

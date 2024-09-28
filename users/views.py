@@ -48,7 +48,6 @@
 
 
 from datetime import datetime, timedelta, timezone
-from gc import get_count
 
 from django.contrib.auth import login, logout
 from django.core.signing import BadSignature, Signer
@@ -75,7 +74,7 @@ from config.constants import (
     TIME_OTC,
     TIME_RESEND_CODE,
     COUNT_ATTEMPTS,
-    COUNT_SEND_CODE, MAX_LEN_EMAIL
+    COUNT_SEND_CODE,
 )
 from users.utils import (
     check_ban,
@@ -178,23 +177,27 @@ class SignInView(APIView):
         is_created = False  # This flag to pass to front data if user is a new-created or already was in base
 
         if user_input_value[1] == "email":
-            try:
-                email = user_input_value[0]
-                user = CustomUser.objects.select_related("onetimecodes").get(email=email)
-                """Сразу логинить нельзя, чел просто не будут вводить код, а пойдет на другие ендпоинты"""
-                print('0000000000----------email', email)
-                # print('ddd00000_________request.user.is_authenticated____', request.user.is_authenticated)
-                # login(request, user=user)
-                # print('dddd11111_________request.user.is_authenticated____', request.user.is_authenticated)
-                # return Response([serializer.data, {"message": "Авторизированы по емэйл"}])
-            except CustomUser.DoesNotExist:
-                user, is_created = CustomUser.objects.select_related(
-                    "onetimecodes"
-                ).get_or_create(email=email)
+            email = user_input_value[0]
+            if len(email) > 50:
+                return Response({'message': 'Количество символов не должно превышать 50'})
+            else:
+                try:
+                    email = user_input_value[0]
+                    user = CustomUser.objects.select_related("onetimecodes").get(email=email)
+                    """Сразу логинить нельзя, чел просто не будут вводить код, а пойдет на другие ендпоинты"""
+                    print('0000000000----------email', email)
+                    # print('ddd00000_________request.user.is_authenticated____', request.user.is_authenticated)
+                    # login(request, user=user)
+                    # print('dddd11111_________request.user.is_authenticated____', request.user.is_authenticated)
+                    # return Response([serializer.data, {"message": "Авторизированы по емэйл"}])
+                except CustomUser.DoesNotExist:
+                    user, is_created = CustomUser.objects.select_related(
+                        "onetimecodes"
+                    ).get_or_create(email=email)
 
-                if is_created:
-                    balance = Balance.objects.create(user=user)
-                    balance.save()
+                    if is_created:
+                        balance = Balance.objects.create(user=user)
+                        balance.save()
 
         if user_input_value[1] == "phone":
             try:

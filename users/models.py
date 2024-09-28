@@ -16,7 +16,6 @@ from config.constants import (
 )
 from users.managers import CustomUserManager
 from django.contrib.contenttypes.fields import GenericRelation
-from django.contrib.gis.db.models import PointField
 from django.contrib.auth.signals import user_logged_in, user_logged_out, user_login_failed
 from django.dispatch import receiver
 from django.contrib.contenttypes.models import ContentType
@@ -41,6 +40,7 @@ def validate_name(value):
     # Проверка на отсутствие имени пользователя, состоящего только из цифр
     if re.match(r'^\d+$', value):
         raise ValidationError(_("Имя пользователя не может состоять только из цифр"))
+
 
 """If moer flexable auth model needed comment CustomUser (makemigrations) and uncomment the code below (makemigrations)"""
 class CustomUser(AbstractUser):

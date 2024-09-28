@@ -59,6 +59,7 @@ from drf_spectacular.utils import (
     OpenApiResponse,
     inline_serializer
 )
+from jsonschema.exceptions import ValidationError
 from rest_framework import serializers, status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -178,23 +179,27 @@ class SignInView(APIView):
         is_created = False  # This flag to pass to front data if user is a new-created or already was in base
 
         if user_input_value[1] == "email":
-            try:
-                email = user_input_value[0]
-                user = CustomUser.objects.select_related("onetimecodes").get(email=email)
-                """Сразу логинить нельзя, чел просто не будут вводить код, а пойдет на другие ендпоинты"""
-                print('0000000000----------email', email)
-                # print('ddd00000_________request.user.is_authenticated____', request.user.is_authenticated)
-                # login(request, user=user)
-                # print('dddd11111_________request.user.is_authenticated____', request.user.is_authenticated)
-                # return Response([serializer.data, {"message": "Авторизированы по емэйл"}])
-            except CustomUser.DoesNotExist:
-                user, is_created = CustomUser.objects.select_related(
-                    "onetimecodes"
-                ).get_or_create(email=email)
+            email = user_input_value[0]
+            if len(email) > 50:
+                return Response({'message': 'Количество символов не должно превышать 50'})
+            else:
+                try:
+                    email = user_input_value[0]
+                    user = CustomUser.objects.select_related("onetimecodes").get(email=email)
+                    """Сразу логинить нельзя, чел просто не будут вводить код, а пойдет на другие ендпоинты"""
+                    print('0000000000----------email', email)
+                    # print('ddd00000_________request.user.is_authenticated____', request.user.is_authenticated)
+                    # login(request, user=user)
+                    # print('dddd11111_________request.user.is_authenticated____', request.user.is_authenticated)
+                    # return Response([serializer.data, {"message": "Авторизированы по емэйл"}])
+                except CustomUser.DoesNotExist:
+                    user, is_created = CustomUser.objects.select_related(
+                        "onetimecodes"
+                    ).get_or_create(email=email)
 
-                if is_created:
-                    balance = Balance.objects.create(user=user)
-                    balance.save()
+                    if is_created:
+                        balance = Balance.objects.create(user=user)
+                        balance.save()
 
         if user_input_value[1] == "phone":
             try:

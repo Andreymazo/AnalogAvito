@@ -61,7 +61,7 @@ class CarCreateSerializer(serializers.ModelSerializer):
     # images_car_instance=ImagesSerializer()
     class Meta:
         model = Car
-        fields = ["id", "title", "by_mileage", "brand", "model", "price", "year", "mileage", "transmission",\
+        fields = ["id", "title", 'description', "by_mileage", "brand", "model", "price", "year", "mileage", "transmission",\
                   "by_wheel_drive", "engine_capacity", "engine_power", "fuel_consumption", "type", "colour", "fuel",\
                        "image", "uploaded_images"]
         validators = [MilageValidator(field_milage='mileage', field_by_milage='by_mileage')]
@@ -111,7 +111,7 @@ class CarPatchSerializer(serializers.ModelSerializer):
   
     class Meta:
         model = Car
-        fields = ["id", "title", "by_mileage", "brand", "model", "price", "year", "mileage", "transmission",\
+        fields = ["id", "title", 'description', "by_mileage", "brand", "model", "price", "year", "mileage", "transmission",\
                   "by_wheel_drive", "engine_capacity", "engine_power", "fuel_consumption", "type", "colour", "fuel",]
 
     def update(self, instance, validated_data):
@@ -167,7 +167,7 @@ class MenClothesSerialiser(serializers.ModelSerializer):
     )
     class Meta:
         model = MenClothes
-        fields = ["id", "size", "price", "title", "uploaded_images","image"]
+        fields = ["id", "size", "price", "title", 'description', "uploaded_images","image"]
         
     def create(self, validated_data):
         uploaded_images = validated_data.pop("uploaded_images")
@@ -229,7 +229,7 @@ class WemenClothesSerialiser(serializers.ModelSerializer):
     )
     class Meta:
         model = WemenClothes
-        fields = ["id", "price", "title", "uploaded_images","image"]
+        fields = ["id", "size", "price", "title", 'description', "uploaded_images","image"]
         
     def create(self, validated_data):
         uploaded_images = validated_data.pop("uploaded_images")
@@ -278,7 +278,7 @@ class MenShoesSerialiser(serializers.ModelSerializer):
     )
     class Meta:
         model = MenShoes
-        fields = ["id", "price", "title", "uploaded_images","image"]
+        fields = ["id", "size", "price", "title", 'description', "uploaded_images","image"]
         
     def create(self, validated_data):
         uploaded_images = validated_data.pop("uploaded_images")
@@ -301,7 +301,7 @@ class WemenShoesSerialiser(serializers.ModelSerializer):
     )
     class Meta:
         model = WemenShoes
-        fields = ["id", "price", "title", "uploaded_images","image"]
+        fields = ["id", "size", "price", "title", 'description', "uploaded_images","image"]
         
     def create(self, validated_data):
         uploaded_images = validated_data.pop("uploaded_images")
@@ -324,7 +324,7 @@ class ChildClothesShoesSerialiser(serializers.ModelSerializer):
     )
     class Meta:
         model = ChildClothesShoes
-        fields = ["id", "price", "title",  "uploaded_images","image"]
+        fields = ["id", "price", "title", 'description', "uploaded_images","image"]
         
     def create(self, validated_data):
         uploaded_images = validated_data.pop("uploaded_images")
@@ -347,7 +347,7 @@ class BagsKnapsacksSerialiser(serializers.ModelSerializer):
     )
     class Meta:
         model = BagsKnapsacks
-        fields = ["id", "price", "title", "uploaded_images","image"]
+        fields = ["id", "price", "title", 'description', "uploaded_images","image"]
       
       
         

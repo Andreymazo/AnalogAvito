@@ -50,6 +50,10 @@ MANIFEST
 pip-log.txt
 pip-delete-this-directory.txt
 
+# All txt, csv
+*.txt
+*.csv
+
 # Unit test / coverage reports
 htmlcov/
 .tox/

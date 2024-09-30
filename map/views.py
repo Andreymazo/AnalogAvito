@@ -2,10 +2,13 @@ import json
 from django.shortcuts import render
 from django.core.serializers import serialize
 
+from users.models import Profile
+
 
 def MarkersMap(request):
     
-    queryset = Marker.objects.all()
+    # queryset = Marker.objects.all()
+    queryset = Profile.objects.all()
     # queryset={}
     context = {'queryset':queryset}
     context['queryset'] = json.loads(serialize('geojson', queryset))

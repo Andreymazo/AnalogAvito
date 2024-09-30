@@ -22,6 +22,8 @@ from django.contrib.contenttypes.models import ContentType
 from rest_framework.response import Response
 from ad.models import Images
 from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.gis.db.models import PointField
+from django.contrib.gis.geos import Point
 
 
 NULLABLE = {'blank': True, 'null': True}
@@ -190,6 +192,7 @@ class Profile(models.Model):
     wemenclothes = GenericRelation("ad.WemenClothes", related_query_name='profilee')
     wemenshoes = GenericRelation("ad.WemenShoes", related_query_name='profilee')
     childclothesshoes = GenericRelation("ad.ChildClothesShoes", related_query_name='profilee')
+    location = PointField(default=Point(50, 30))
 
 
     # location =  PointField()

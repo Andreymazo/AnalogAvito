@@ -23,13 +23,14 @@ class SignUpSerializer(serializers.ModelSerializer):
     class Meta:
         """Конфигурация сериализатора для регистрации пользователя."""
         model = Profile
-        fields = ("user", "name", "phone_number", )
+        fields = ("user", "name", "phone_number", "location")
         read_only_fields = ("user",)
 
     def create(self, validated_data):
         user = self.context["user"]
         profile = Profile(
             user=user,
+            location=validated_data["location"],
             name=validated_data["name"],
             phone_number=validated_data["phone_number"],
             content_object=user

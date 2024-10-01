@@ -11,10 +11,15 @@ from rest_framework.response import Response
 import re
 
 
-def f():
-    car_instance=Car.objects.get(id=11)
-    profile_instance = Profile.objects.get(id=2)
-    print(car_instance.profilee.first())#andreymazoo@mail.ru
+def f(s):
+    print('111',  s[1:])
+    pattern = '^[abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-]*$'
+    print(bool(re.search(r'^[0-9]*\Z', s[1:])))
+    print(bool(re.match(pattern, s)))
+       
+    # car_instance=Car.objects.get(id=11)
+    # profile_instance = Profile.objects.get(id=2)
+    # print(car_instance.profilee.first())#andreymazoo@mail.ru
     # print(BASE_DIR)
     # user=CustomUser.objects.get(email="asf1@adgf.fd")
     # print("user.profile", user.profile.id)
@@ -27,5 +32,5 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         
-        f()
+        f("+7981468659")
 

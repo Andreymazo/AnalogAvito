@@ -11,7 +11,7 @@ def ff():
     name_list = ["Kirill", "Serega", "Max", "Sasha"]
     phone_number_list = ["+7854328954", "+78095326765", "+7897234980", "+798345975"]
     pnt2 =Point(23, 55)
-    pnt3 = Point(25, 56)
+    pnt3 = Point(33.5933, 55.9721)
     point_list = [pnt2, pnt3]
     for i, ii, iii, iiii in zip(user_list, name_list, phone_number_list, point_list):
         profile = Profile(user=i, name=ii, phone_number=iii, content_object=i, location=iiii)

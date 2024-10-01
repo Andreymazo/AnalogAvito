@@ -25,6 +25,8 @@ from rest_framework import status
 from ad.filters import CarFilter
 from django.contrib.contenttypes.models import ContentType
 from ad.models import Views
+from ad.serializers import BagsKnapsacksSerialiser, ChildClothesShoesSerialiser, MenClothesSerialiser, MenShoesSerialiser, WemenClothesSerialiser, WemenShoesSerialiser
+from bulletin.serializers import CarSerializer
 from users.models import Profile
 
 def save_file(file, full_path):
@@ -58,3 +60,19 @@ def check_if_authorised_has_profile(request):
     except Profile.DoesNotExist:
         return Response({"message": "У вас нет Профиля, перенаправляем на регистрацию"},
                 status=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION)
+
+
+
+"""На входе модель на выходе ее сериалайзер"""
+def choose_serializer(model):
+    print('model======================', model.__name__)
+    model =  model.__name__
+    mod_lst = ["MenClothes", "WemenClothes", "MenShoes", "WemenShoes", "ChildClothesShoes", "BagsKnapsacks", "Car"]
+    # ser_dict = {"MenClothes":MenClothesSerialiser, "WemenClothes": WemenClothesSerialiser, "MenShoes":MenShoesSerialiser,\
+    #             "WemenShoes" :WemenShoesSerialiser, "ChildClothesShoes":ChildClothesShoesSerialiser, "BagsKnapsacks":BagsKnapsacksSerialiser}
+    ser_lst =  [MenClothesSerialiser, WemenClothesSerialiser, MenShoesSerialiser, WemenShoesSerialiser, ChildClothesShoesSerialiser, 
+   BagsKnapsacksSerialiser, CarSerializer]
+    
+    if str(model) in mod_lst:
+        index = mod_lst.index(model)
+        return ser_lst[index]

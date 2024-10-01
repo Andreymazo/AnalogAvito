@@ -12,7 +12,7 @@ from django.db import IntegrityError, ProgrammingError
 from rest_framework import generics
 from ad.filters import BagsKnapsacksFilter, CarFilter, CategoryFilter, ChildClothesShoesFilter, CustomFilterSet, CategoryFilterByName, MenClothesFilter, MenShoesFilter, WemenClothesFilter, WemenShoesFilter
 # from ad.func_for_help import choose_serializer
-from ad.func_for_help import add_view, check_if_authorised_has_profile
+from ad.func_for_help import add_view, check_if_authorised_has_profile, choose_serializer
 from ad.models import BagsKnapsacks, Category, Car, ChildClothesShoes, Like, Images, MenClothes, MenShoes, Views, WemenClothes, WemenShoes
 from ad.pagination import OrdinaryListPagination
 from config.backends import CustomFilterQueryset, MyFilterBackend
@@ -771,6 +771,92 @@ class GetObjFmModelView(generics.ListAPIView, generics.RetrieveAPIView):
     queryset = get_queryset
 
 
+@extend_schema(
+    tags=["Общая логика (Контент Тайп) / ContentType concerned"],
+    summary=["Вывод списка объявлений по выбранной категории(модели) / List of model instancies fm category"],
+    description=["Вывод списка объявлений по выбранной категории(модели) / List of model instancies fm category"],
+    request=choose_serializer,
+    responses={
+        status.HTTP_200_OK: OpenApiResponse(
+            description=(
+                    "Like from the user already exists"
+            ),
+            response=choose_serializer,
+        ),
+    },
+)
+@api_view(["GET"])
+def get_qs_fm_model(request):
+    try:
+        content_type=cache.get('content_type')
+    except KeyError as e:
+        print(e, 'Theres no model in cache, redirect to category list')
+    try:
+        model=ContentType.objects.get(id=content_type).model_class()
+        print('model', model)
+        serializer = choose_serializer(model)
+        serializer=serializer(model.objects.all(), many=True)
+        return Response([serializer.data, {"message": "Дорогой "}],
+                        status=status.HTTP_200_OK)
+    except ContentType.DoesNotExist as e:
+        print(e, 'Theres no model in cache')
+        return Response({"message":"Theres no model in cache, redirect to category list"})
+  
+# """Func has content_type on enter in cache from GetModelFmCategoryView, request.user choose objct with LikeSerializerCreate, Like adds"""
+# @extend_schema(
+#     tags=["Лайки / Likes"],
+#     description="Добавление лайков пользователем / Likes for the instance",
+#     summary="Добавление лайков пользователем / Add like by request user",
+#     # parameters=[
+#         # OpenApiParameter("content_type", OpenApiTypes.INT, location=OpenApiParameter.QUERY, required=True,),
+#     #     OpenApiParameter("object_id", OpenApiTypes.INT, location=OpenApiParameter.QUERY, required=True,),
+#     #     OpenApiParameter("is_liked", OpenApiTypes.BOOL, location=OpenApiParameter.QUERY, required=True,)
+#         # ],
+#     request=LikeSerializerCreate,
+#     responses={
+#             201: OpenApiResponse(response=LikeSerializerCreate,
+#                                  description='Created. New like in response'),
+#             200: OpenApiResponse(description=("Like from the user already exists")),
+#             400: OpenApiResponse(description='Bad request (something invalid)'),
+#         },
+# )
+# @api_view(['POST'])
+# def like_add(request, is_liked=False):#, ContentType_id=8, obj_id=2, **kwargs):
+#     print('request.user', request.user)
+    # if not request.user.is_authenticated:
+
+    #     return Response({"message": "Вы неавторизированы. Перенаправляем на авторизацию"},
+    #                     status=status.HTTP_400_BAD_REQUEST)
+#     dict_of_cache = cache.get_many(["content_type", "obj_id"])
+#     content_type = dict_of_cache['content_type']
+#     obj_id = dict_of_cache['obj_id']
+#     print('content_type, obj_id', content_type, obj_id)
+
+#     user_instance = request.user
+#     if request.method == "POST":
+#         serializer = LikeSerializerCreate(data=request.data)
+#         if serializer.is_valid():
+
+#             print('serializer.data', serializer.data)
+#             is_liked = serializer.validated_data.get('is_liked')
+
+#             try:
+#                 print('11111111111111')
+#                 like_instance = Like.objects.get(user=user_instance, content_type=ContentType.objects.get_for_id(content_type), object_id=obj_id, is_liked=is_liked)
+#                 like_instance.save()
+#                 # return Response(serializer.data)
+#                 # like_instance = Like.objects.get(user=user_instance, content_type=content_type, object_id=object_id,
+#                 #                                  is_liked=is_liked)
+#                 # return Response([{"message": "Лайки уже существуют"}, serializer.data], status=status.HTTP_200_OK)
+#             except Like.DoesNotExist:
+#                 print('22222222222222222222222222')
+#                 like_instance = Like.objects.create(user=user_instance, content_type=ContentType.objects.get_for_id(content_type), object_id=obj_id,
+#                                                     is_liked=is_liked)
+#                 # like_instance = Like(user=user_instance, content_object=like_instance, is_liked=is_liked)
+#                 like_instance.save()
+#                 # serializer.save()
+#                 return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 """Func has content_type on enter in cache from GetModelFmCategoryView, request.user choose objct with LikeSerializerCreate, Like adds"""
@@ -795,11 +881,15 @@ class GetObjFmModelView(generics.ListAPIView, generics.RetrieveAPIView):
 def like_add(request, is_liked=False):#, ContentType_id=8, obj_id=2, **kwargs):
     print('request.user', request.user)
     if request.user.is_anonymous:
-        return redirect(reverse("users:sign_in_email"))
-    dict_of_cache = cache.get_many(["content_type", "obj_id"])
-    content_type = dict_of_cache['content_type']
-    obj_id = dict_of_cache['obj_id']
-    print('content_type, obj_id', content_type, obj_id)
+        return Response({"message": "Вы неавторизированы. Перенаправляем на авторизацию"},
+                        status=status.HTTP_401_UNAUTHORIZED)
+    try:
+        dict_of_cache = cache.get_many(["content_type", "obj_id"])
+        content_type = dict_of_cache['content_type']
+        obj_id = dict_of_cache['obj_id']
+    except KeyError as e:
+        print(e)
+        return Response({"message":"В кэше нет номера модели, номера объявления"}, status=status.HTTP_400_BAD_REQUEST)
 
     user_instance = request.user
     if request.method == "POST":
@@ -1053,19 +1143,19 @@ def notifications_by_enter(
 #             return Response(serializer.data, status=status.HTTP_201_CREATED)
 #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-"""На входе модель на выходе ее сериалайзер"""
-def choose_serializer(model):
-    print('model======================', model.__name__)
-    model =  model.__name__
-    mod_lst = ["MenClothes", "WemenClothes", "MenShoes", "WemenShoes", "ChildClothesShoes", "BagsKnapsacks", "Car"]
-    # ser_dict = {"MenClothes":MenClothesSerialiser, "WemenClothes": WemenClothesSerialiser, "MenShoes":MenShoesSerialiser,\
-    #             "WemenShoes" :WemenShoesSerialiser, "ChildClothesShoes":ChildClothesShoesSerialiser, "BagsKnapsacks":BagsKnapsacksSerialiser}
-    ser_lst =  [MenClothesSerialiser, WemenClothesSerialiser, MenShoesSerialiser, WemenShoesSerialiser, ChildClothesShoesSerialiser, 
-   BagsKnapsacksSerialiser, CarSerializer]
+# """На входе модель на выходе ее сериалайзер"""
+# def choose_serializer(model):
+#     print('model======================', model.__name__)
+#     model =  model.__name__
+#     mod_lst = ["MenClothes", "WemenClothes", "MenShoes", "WemenShoes", "ChildClothesShoes", "BagsKnapsacks", "Car"]
+#     # ser_dict = {"MenClothes":MenClothesSerialiser, "WemenClothes": WemenClothesSerialiser, "MenShoes":MenShoesSerialiser,\
+#     #             "WemenShoes" :WemenShoesSerialiser, "ChildClothesShoes":ChildClothesShoesSerialiser, "BagsKnapsacks":BagsKnapsacksSerialiser}
+#     ser_lst =  [MenClothesSerialiser, WemenClothesSerialiser, MenShoesSerialiser, WemenShoesSerialiser, ChildClothesShoesSerialiser, 
+#    BagsKnapsacksSerialiser, CarSerializer]
     
-    if str(model) in mod_lst:
-        index = mod_lst.index(model)
-        return ser_lst[index]
+#     if str(model) in mod_lst:
+#         index = mod_lst.index(model)
+#         return ser_lst[index]
 
 @extend_schema(
     tags=["Личные вещи/ Personal items"],
@@ -1226,10 +1316,11 @@ def get_ads_fm_user(request):
     
 """Func add view and returns views by obj (ad)"""
 @extend_schema(
-    tags=["Просмотры. На входе категория-модель, номер объявления, на выходе список просмотрров объявления с добавлением одного просмотра (сейчас добавляет п-любому), \
-          этого опльзователя / Views. Number of model and number of object by enter, list of views with adding (adds anyway) the current by exit"],
+    tags=["Просмотры. / Views. "],
     summary="Просмотры объявления, добавляется по Профилю / List of views the advertisement concerned, returns likes by obj (ad)",
     request=ViewsSerializer,
+    description="На входе категория-модель, номер объявления, на выходе список просмотрров объявления с добавлением одного просмотра (сейчас добавляет п-любому), \
+          этого опльзователя / Number of model and number of object by enter, list of views with adding (adds anyway) the current by exit",
     responses={
         status.HTTP_200_OK: OpenApiResponse(
             description="Views by advertisement",

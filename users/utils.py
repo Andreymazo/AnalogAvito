@@ -58,18 +58,44 @@ def create_or_update_code(user):
     print("code: ", code)
     return otc
 
+"""Str on enter tru false in end Format +7932222334 or +7(921)321122223 len fm 6 to 15"""
+def validate_phone(s):
+    # digits=['0','1','2','3','4','5','6','7','8','9']
+    try:
+        # print('cheking phone', s, 's2=', s[2],'s6=', s[6],)
+        # print('len(s)', len(s))
+        if len(s) > 15 or len(s) < 6:
+            # print('len ------------')
+            return False 
+        if s[0]!='+' and s[1]!='7':
+            # print('1')
+            return False
+        if bool(re.search(r'^[0-9]*\Z', s[1:]))==True:#Если находит хоть одну букву False
+            return True
+        if s[2]!="(" or s[6]!=")":
+            # print('s2=', s[2],'s6=', s[6], '2')
+            return False
+    
+        else:
+            print('end')
+            return True
+    except IndexError as e:
+        print(e, 'Index out of range')
+
 
 """Проверяет то, что ввел пользователь, возвращает емэйл и телефон с соответсвующими флагами"""
-
-
 def check_email_phone(s: str):
     """Функция проверки, что ввел пользователь"""
     pat_email = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'
-    pat_phone = r"^(\+\d{1,3})?\s?\(?\d{1,4}\)?[\s.-]?\d{3}[\s.-]?\d{4}$"
+    # pat_phone = r"^(\+\d{1,3})?\s?\(?\d{1,4}\)?[\s.-]?\d{3}[\s.-]?\d{4}$"#^[+]{1}(?:[0-9\-\(\)\/\.]\s?){6, 15}[0-9]{1}$
+    pat_phone = r"^[+]{1}(?:[0-9\-\(\)\/\.]\s?){6, 15}[0-9]{1}$"#\+7|8)\D*\d{3}\D*\d{3}\D*\d{2}\D*\d{2}
+    pat_phone = r"^\+7|8\D*\d{3}\D*\d{3}\D*\d{2}\D*\d{2}"
     if re.match(pat_email, s):
         print("Valid Email")
         return (s, "email")
-    if re.match(pat_phone, s):
+    if validate_phone(s) == True:
+
+    # if re.match(pat_phone, s):
         print('Valid phone')
         return (s, "phone")
     else:

@@ -160,6 +160,7 @@ class CategoryFilterSerializer(serializers.ModelSerializer):
 
 
 class MenClothesSerialiser(serializers.ModelSerializer):
+    
     image = ImagesSerializer(many=True, read_only=True)
     uploaded_images = serializers.ListField(
         child=serializers.ImageField(allow_empty_file=False, use_url=False),
@@ -170,9 +171,11 @@ class MenClothesSerialiser(serializers.ModelSerializer):
         fields = ["id", "size", "price", "title", 'description', "uploaded_images","image"]
         
     def create(self, validated_data):
+        print('are we here --------------------')
         uploaded_images = validated_data.pop("uploaded_images")
         print('validated_data=======', validated_data)
         profile_instance = self.context['request'].user.profile
+        # print('validated_data 00000000000000', validated_data)
         instance_here = MenClothes(content_object = profile_instance, category_id=Category.objects.get(name='Мужская одежда',).id,**validated_data)
         instance_here.save()
         

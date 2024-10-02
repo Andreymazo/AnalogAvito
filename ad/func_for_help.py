@@ -25,7 +25,7 @@ from rest_framework import status
 from ad.filters import CarFilter
 from django.contrib.contenttypes.models import ContentType
 from ad.models import Views
-from ad.serializers import BagsKnapsacksSerialiser, ChildClothesShoesSerialiser, MenClothesSerialiser, MenShoesSerialiser, WemenClothesSerialiser, WemenShoesSerialiser
+from ad.serializers import BagsKnapsacksSerialiser, CarCreateSerializer, ChildClothesShoesSerialiser, MenClothesSerialiser, MenShoesSerialiser, WemenClothesSerialiser, WemenShoesSerialiser
 from bulletin.serializers import CarSerializer
 from users.models import Profile
 
@@ -71,7 +71,7 @@ def choose_serializer(model):
     # ser_dict = {"MenClothes":MenClothesSerialiser, "WemenClothes": WemenClothesSerialiser, "MenShoes":MenShoesSerialiser,\
     #             "WemenShoes" :WemenShoesSerialiser, "ChildClothesShoes":ChildClothesShoesSerialiser, "BagsKnapsacks":BagsKnapsacksSerialiser}
     ser_lst =  [MenClothesSerialiser, WemenClothesSerialiser, MenShoesSerialiser, WemenShoesSerialiser, ChildClothesShoesSerialiser, 
-   BagsKnapsacksSerialiser, CarSerializer]
+   BagsKnapsacksSerialiser, CarCreateSerializer]
     
     if str(model) in mod_lst:
         index = mod_lst.index(model)

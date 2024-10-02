@@ -820,8 +820,62 @@ def get_qs_fm_model(request):
 #             400: OpenApiResponse(description='Bad request (something invalid)'),
 #         },
 # )
-# @api_view(['POST'])
-# def like_add(request, is_liked=False):#, ContentType_id=8, obj_id=2, **kwargs):
+
+@extend_schema(
+    tags=["Общая логика (Контент Тайп) / ContentType concerned"],
+    summary=["Создание объявления по выбранной категории(модели) / List of model instancies fm category"],
+    description=["Создание объявления по выбранной категории(модели) / List of model instancies fm category"],
+    request=choose_serializer(ContentType.objects.get(id=cache.get('content_type')).model_class()),
+    # try:
+    #     request=choose_serializer(ContentType.objects.get(id=cache.get('content_type')).model_class())
+    # except ContentType.DoesNotExist as e:
+    #     print(e),
+         
+        #   or redirect(reverse("ad:get_model_fm_category")),
+    responses={
+        status.HTTP_201_CREATED: OpenApiResponse(
+            description=(
+                    ""
+            ),
+            # response=choose_serializer(ContentType.objects.get(id=cache.get('content_type')).model_class()),
+        ),
+    },
+    #  parameters=[
+    #         OpenApiParameter(
+    #             name="model",
+    #             location=OpenApiParameter.COOKIE,
+    #             description="Model comes",
+    #             required=True,
+    #             type=str
+    #         ),
+    #     ],
+)
+@api_view(['POST'])
+@parser_classes([MultiPartParser,JSONParser,FormParser])
+def create_object_fm_model(request):#, ContentType_id=8, obj_id=2, **kwargs):
+    try:
+        content_type=cache.get('content_type')
+    except KeyError as e:
+        print(e, 'Theres no model in cache, redirect to category list')
+    try:
+        print('444444444444444444444444444444444444444')
+        model=ContentType.objects.get(id=content_type).model_class()
+        print('model', model, type(model))
+        serializer = choose_serializer(model)
+        item = serializer(data=request.data, context={'request': request})
+        # print('**request.data',request.data)
+        # if model.objects.filter(**request.data).exists():
+        #     raise serializers.ValidationError('This data already exists')
+        # print('serializer', serializer)
+        if item.is_valid():
+            item.save()
+            # print('serializer.data', serializer.data)
+            return Response(item.data, status=status.HTTP_201_CREATED)
+        return Response(item.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    except ContentType.DoesNotExist as e:
+        print(e, 'Theres no model in cache')
+        return Response({"message":"Theres no model in cache, redirect to category list"})
 #     print('request.user', request.user)
     # if not request.user.is_authenticated:
 

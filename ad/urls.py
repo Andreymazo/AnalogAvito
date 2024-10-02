@@ -14,6 +14,7 @@ from ad.views import (
     UploadViewSet,
     WemenClothesList,
     WemenShoesList,
+    create_object_fm_model,
     general_detailed,
     get_ads_fm_user,
     get_qs_fm_model,
@@ -43,7 +44,7 @@ urlpatterns = [
     path("car_list/", CarList.as_view(), name="car_list"),
     path("get_model_fm_category/", GetModelFmCategoryView.as_view(), name="get_model_fm_category"),
     path("get_qs_fm_model/", get_qs_fm_model, name="get_qs_fm_model"),
-    # path("create_object_fm_model/", create_object_fm_model, name="create_object_fm_model"),
+    path("create_object_fm_model/", create_object_fm_model, name="create_object_fm_model"),
     path("get_object_fm_model/", GetObjFmModelView.as_view(), name="get_object_fm_model"),
 
    

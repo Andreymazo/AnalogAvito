@@ -825,21 +825,19 @@ def func_for_schema():
     try:
         return choose_serializer(ContentType.objects.get(id=cache.get('content_type')).model_class())
     except ContentType.DoesNotExist as e:
-        print(e, 'str 828'),
+        print(e, 'str 828')
+        return False
+    except ProgrammingError as e:
+        print(e, 'str 831')
+        return False
     
 @extend_schema(
     tags=["Общая логика (Контент Тайп) / ContentType concerned"],
     summary=["Создание объявления по выбранной категории(модели) / List of model instancies fm category"],
     description=["Создание объявления по выбранной категории(модели) / List of model instancies fm category"],
     request=func_for_schema(),
-    responses={
-        status.HTTP_201_CREATED: OpenApiResponse(
-            description=(
-                    ""
-            ),
-            # response=choose_serializer(ContentType.objects.get(id=cache.get('content_type')).model_class()),
-        ),
-    },
+    responses=func_for_schema(),
+
     #  parameters=[
     #         OpenApiParameter(
     #             name="model",

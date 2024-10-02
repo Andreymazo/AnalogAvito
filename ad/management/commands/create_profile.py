@@ -1,4 +1,5 @@
 from django.core.management import BaseCommand
+from personal_account.models import Balance
 from users.models import CustomUser, Profile
 from map.models import Marker
 from django.contrib.gis.geos import Point
@@ -16,6 +17,8 @@ def ff():
     for i, ii, iii, iiii in zip(user_list, name_list, phone_number_list, point_list):
         profile = Profile(user=i, name=ii, phone_number=iii, content_object=i, location=iiii)
         profile.save()
+        balance = Balance.objects.create(profile=profile, balance=1000)
+        balance.save()
   
 class Command(BaseCommand):
 

@@ -12,5 +12,5 @@ class Command(BaseCommand):
             user = CustomUser.objects.create( email = i,  password = ii, is_staff=True, is_active=False)
             # user.set_password('qwert123asd')
             user.save()
-            balance = Balance.objects.create(user=user)
-            balance.save()
+            # balance = Balance.objects.create(user=user)
+            # balance.save()

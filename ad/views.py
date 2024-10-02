@@ -821,17 +821,17 @@ def get_qs_fm_model(request):
 #         },
 # )
 
+def func_for_schema():
+    try:
+        return choose_serializer(ContentType.objects.get(id=cache.get('content_type')).model_class())
+    except ContentType.DoesNotExist as e:
+        print(e, 'str 828'),
+    
 @extend_schema(
     tags=["Общая логика (Контент Тайп) / ContentType concerned"],
     summary=["Создание объявления по выбранной категории(модели) / List of model instancies fm category"],
     description=["Создание объявления по выбранной категории(модели) / List of model instancies fm category"],
-    request=choose_serializer(ContentType.objects.get(id=cache.get('content_type')).model_class()),
-    # try:
-    #     request=choose_serializer(ContentType.objects.get(id=cache.get('content_type')).model_class())
-    # except ContentType.DoesNotExist as e:
-    #     print(e),
-         
-        #   or redirect(reverse("ad:get_model_fm_category")),
+    request=func_for_schema(),
     responses={
         status.HTTP_201_CREATED: OpenApiResponse(
             description=(

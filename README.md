@@ -93,3 +93,14 @@ https://yandex.ru/video/preview/63361828915957190
 <!-- gunicorn config.wsgi:application --bind 0.0.0.0:8000 -->
 <!-- https://dzen.ru/video/watch/660cfbb2aca2404a9108e66c -->
 <!-- python manage.py loaddata --exclude contenttypes db1.json -->
+
+<!-- python manage.py create_super_user2
+python manage.py create_users
+python manage.py create_profile
+python manage.py create_category
+python manage.py create_persanal_items
+python manage.py create_auto
+python manage.py create_favorite
+python manage.py create_images
+python manage.py create_promotions
+python manage.py create_like -->

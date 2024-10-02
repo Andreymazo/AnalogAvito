@@ -5,7 +5,7 @@ from personal_account.models import Balance, Payments, Currencies
 
 @admin.register(Balance)
 class BalanceAdmin(ModelAdmin):
-    list_display = ('balance', 'currency', 'user',)
+    list_display = ('balance', 'currency', 'profile',)
 
 @admin.register(Payments)
 class PaymentsAdmin(ModelAdmin):

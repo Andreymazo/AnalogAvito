@@ -65,7 +65,7 @@ def check_if_authorised_has_profile(request):
 
 """На входе модель на выходе ее сериалайзер"""
 def choose_serializer(model):
-    print('model======================', model.__name__)
+    print('model==========ad/func_for_help.py  68 str ============', model.__name__)
     model =  model.__name__
     mod_lst = ["MenClothes", "WemenClothes", "MenShoes", "WemenShoes", "ChildClothesShoes", "BagsKnapsacks", "Car"]
     # ser_dict = {"MenClothes":MenClothesSerialiser, "WemenClothes": WemenClothesSerialiser, "MenShoes":MenShoesSerialiser,\

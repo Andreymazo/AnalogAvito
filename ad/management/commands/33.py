@@ -20,7 +20,10 @@ def ff():
     #         print('here')
     #         return str(i.__name__)
     # content_type = ContentType.objects.get(model='car')
-    print(ContentType.objects.get(id=8).model_class().__name__)
+
+    print(ContentType.objects.get(id=20).model_class().objects.get(id=2).profilee.all().first()) # чьи объявления
+
+   
     # print(content_type.id)
     # car=Car.objects.get(id=6)
     # content_type =  ContentType.objects.get(model='car')

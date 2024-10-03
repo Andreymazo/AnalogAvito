@@ -944,15 +944,18 @@ def like_add(request, is_liked=False):#, ContentType_id=8, obj_id=2, **kwargs):
         return Response({"message":"В кэше нет номера модели, номера объявления"}, status=status.HTTP_400_BAD_REQUEST)
 
     user_instance = request.user
+    model=ContentType.objects.get(id=content_type).model_class()
+
     if request.method == "POST":
         serializer = LikeSerializerCreate(data=request.data)
         if serializer.is_valid():
-
             print('serializer.data', serializer.data)
             is_liked = serializer.validated_data.get('is_liked')
-
+            print('user_instance.profile', user_instance.profile) 
+            print('model.objects.get(id=obj_id) ---- ', model.objects.get(id=obj_id).profilee.all().first())
+            if str(user_instance.profile)==str(model.objects.get(id=obj_id).profilee.all().first()):
+                return Response([serializer.errors,{"message": "The owner cant add like"}], status=status.HTTP_401_UNAUTHORIZED)
             try:
-                print('11111111111111')
                 like_instance = Like.objects.get(user=user_instance, content_type=ContentType.objects.get_for_id(content_type), object_id=obj_id, is_liked=is_liked)
                 like_instance.save()
                 # return Response(serializer.data)
@@ -960,7 +963,6 @@ def like_add(request, is_liked=False):#, ContentType_id=8, obj_id=2, **kwargs):
                 #                                  is_liked=is_liked)
                 # return Response([{"message": "Лайки уже существуют"}, serializer.data], status=status.HTTP_200_OK)
             except Like.DoesNotExist:
-                print('22222222222222222222222222')
                 like_instance = Like.objects.create(user=user_instance, content_type=ContentType.objects.get_for_id(content_type), object_id=obj_id,
                                                     is_liked=is_liked)
                 # like_instance = Like(user=user_instance, content_object=like_instance, is_liked=is_liked)

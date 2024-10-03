@@ -69,6 +69,7 @@ def message_list(request):
         #| Mssg.objects.all().filter(content_type=content_type, object_id=obj_id)#content_object по нему не фильтрует почемуто
         serializer = MssgSerializer(mssg_queryset, many=True) 
         return Response(serializer.data, status=status.HTTP_200_OK)
+        
     elif request.method == 'POST':#Создаем сообщение, привязанное к объявлению
         serializer = MssgSerializer(data=request.data)
         if serializer.is_valid():

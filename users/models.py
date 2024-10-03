@@ -29,9 +29,7 @@ from django.contrib.gis.geos import Point
 NULLABLE = {'blank': True, 'null': True}
 
 phone_validator = RegexValidator(
-    r"^(\+?\d{0,4})?\s?-?\s?(\(?\d{3}\)?)\s?-?\s?(\(?\d{3}\)?)\s?-?\s?"
-    r"(\(?\d{4}\)?)?$",
-    "The phone number provided is invalid"
+    r"^\+?1?\d{6,15}$"
 )
 
 def validate_name(value):

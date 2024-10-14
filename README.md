@@ -104,3 +104,15 @@ python manage.py create_favorite
 python manage.py create_images
 python manage.py create_promotions
 python manage.py create_like -->
+<!-- map/templates/map/home_map.html: -->
+  <!-- <script src="http://90.156.226.147:8000/static/map.js" ></script>
+ <link  src="http://90.156.226.147:8000/static/map.css" >
+  <link  src="http://90.156.226.147:8000/static/map.js" >
+  <link  src="{%'http://90.156.226.147:8000/static/map.js' %}" > -->
+<!-- apt install -y netcat
+nc -vz 0.0.0.0 8000
+  apt install net-tools
+  netstat -ntlp -->
+  <!-- fuser -k -n tcp 3000 -->
+  <!-- apt-get install psmisc -->
+  <!-- && python manage.py -y collectstatic & -->

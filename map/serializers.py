@@ -4,7 +4,7 @@ from rest_framework_gis.serializers import (
 from rest_framework import serializers
 from map.models import Marker
 from users.models import Profile
-
+# from drf_extra_fields.geo_fields import PointField # if needed ---- pip install drf-extra-fields
 
 class MarkerSerializer(
     GeoFeatureModelSerializer

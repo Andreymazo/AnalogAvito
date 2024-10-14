@@ -37,16 +37,7 @@ def remove_qutes():
         f.writelines(ff)
 
 
-def remove_blank_str(path):
-    ff=[]
-    with open(path, 'r') as f:
-        for i in f:
-            if not len(i) == 1:
-                ff.append(i)
 
-            # print(i, 'len(i)', len(i))#len(i) 1
-    with open(path, 'w+') as fff:
-        fff.writelines(ff)
 
 
 def what_line():
@@ -151,16 +142,49 @@ def fix_second_col(path1, path2):
                 i=gather_first_col(i)
                 # i=i.split(',')
                 wtr.writerow(i)
-            
+
+
+def remove_blank_str(path1, path2):
+    ff=[]
+    with open(path1, 'r') as f:
+        for i in f:
+            if not len(i) == 1:
+                ff.append(i)
+
+            # print(i, 'len(i)', len(i))#len(i) 1
+    with open(path2, 'w') as fff:
+        fff.writelines(ff)
+
+def remove_smth(path1, path2):
+    ff=[]
+    with open(path1, 'r', newline='\n') as f:
+        for i in f:
+            i=i.replace(',','')
+            i=i.split()
+            # i=' '.join(i)
+            # print('i, type(i', i.replace(',',''))
+
+            # i=i.replace('\t\t',' ')
+            print('i',i)
+
+            # if not len(i) == 1:
+            ff.append(i)
+    # new_ff=[]
+    with open(path2, 'w+', newline='\n') as fff:
+        # for i in ff:
+    #         i=' '.join(i)
+    #         print('i', i)
+            # new_ff.append(i)
+        # fff.writelines(ff )
+        wtr = csv.writer(fff)
+        for i in ff:
+        #         i=i.split(',', 1)
+                print('i, type(i)', i, type(i))
+                wtr.writerow(i)
+
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
-        # ff()
-        # get_three_colomns(32.3232)
-        # get_three_colomns(+7852718184)
-        # remove_qutes()
-        remove_blank_str('result7.csv')
-        # what_line()
-        # fm_str_lst('result4.csv', 'result5.csv')# wtr = csv.writer(ff, delimiter=',', escapechar=' ', quoting=csv.QUOTE_NONE, lineterminator='\n')
-        # remove_first_col('result5.csv', 'result6.csv')
-        # fix_second_col('result6.csv', 'result7.csv')
+        
+        remove_smth('cities1.csv', 'cities2.csv')
+    

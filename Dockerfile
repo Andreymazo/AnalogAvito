@@ -3,13 +3,13 @@ FROM python:3.10.5
 ENV PIP_ROOT_USER_ACTION=ignore
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
-WORKDIR /bulletin
+WORKDIR /
 # COPY requirements.txt .
 # RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 RUN python -m pip install --upgrade pip && apt-get update \
 && apt-get update && apt-get install -y libgdal-dev && apt-get install -y gdal-bin python3-gdal \
-&& apt-get install libpq-dev -y && apt-get install gdal-bin\
+&& apt-get install libpq-dev -y && apt-get install gdal-bin && apt-get install nginx \
 && pip install -r requirements.txt
 # RUN add-apt-repository ppa:ubuntugis/ppa && apt-get update && apt-get install -y gdal-bin python-gdal python3-gdal
 

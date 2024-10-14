@@ -15,6 +15,7 @@ from ad.filters import BagsKnapsacksFilter, CarFilter, CategoryFilter, ChildClot
 from ad.func_for_help import add_view, check_if_authorised_has_profile, choose_serializer
 from ad.models import BagsKnapsacks, Category, Car, ChildClothesShoes, Like, Images, MenClothes, MenShoes, Views, WemenClothes, WemenShoes
 from ad.pagination import OrdinaryListPagination
+from config import constants
 from config.backends import CustomFilterQueryset, MyFilterBackend
 from config.constants import CACHE_PARAMETERS_LIVE
 from users.models import Notification
@@ -1690,7 +1691,6 @@ class WemenClothesDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
 
 @extend_schema(
     tags=["Личные вещи/ Personal items"],
-    # summary=" Car list and car creation",
     request=WemenShoesSerialiser,
     responses={status.HTTP_200_OK: OpenApiResponse(
         description="О-------------",
@@ -1707,13 +1707,24 @@ class WemenShoesList(generics.ListCreateAPIView):# Пока без криейт�
     filterset_class = WemenShoesFilter
     filter_backends = [DjangoFilterBackend]
 
+
+@extend_schema(
+    tags=["Личные вещи/ Personal items"],
+    request=WemenShoesSerialiser,
+    responses={status.HTTP_200_OK: OpenApiResponse(
+        description="О-------------",
+        response=WemenShoesSerialiser,
+    ), }
+
+)
 class WemenShoesDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
     queryset = WemenShoes.objects.all()
     serializer_class = WemenShoesSerialiser
 
     @extend_schema(
+        
         methods=['GET'],
-        summary='Получение информации о мужской одежде',
+        summary='Получение информации о женской обуви',
     )
     def get(self, request, pk, format=None):
         item = get_object_or_404(WemenShoes.objects.all(), pk=pk)
@@ -1723,9 +1734,9 @@ class WemenShoesDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
 
     @extend_schema(
         methods=['PUT'],
-        summary="Обновление данных о мужской одежде",
-        description="Метод позволяет полностью обновить информацию о мужской одежде. "
-                    "Тело запроса должно содержать полную информацию о мужской одежде, "
+        summary="Обновление данных о женской обуви",
+        description="Метод позволяет полностью обновить информацию о женской обуви. "
+                    "Тело запроса должно содержать полную информацию о женской обуви, "
                     "включая все обязательные поля."
     )
     def put(self, request, *args, **kwargs):
@@ -1748,8 +1759,8 @@ class WemenShoesDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
     
     @extend_schema(
         methods=['PATCH'],
-        summary="Частичное обновление информации о мужской одежде",
-        description="Метод позволяет частично обновить информацию о мужской одежде."
+        summary="Частичное обновление информации о женской обуви",
+        description="Метод позволяет частично обновить информацию о женской обуви."
     )  
     def patch(self, request, *args, **kwargs):
         pk = kwargs['pk']
@@ -1922,6 +1933,4 @@ def general_detailed(request, *args,**kwargs):
         detailed_instance.delete() 
         return Response({"message":"mssg deleted"}, status=status.HTTP_204_NO_CONTENT) 
        
-                
-            
-       
+    

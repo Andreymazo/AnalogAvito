@@ -116,3 +116,13 @@ nc -vz 0.0.0.0 8000
   <!-- fuser -k -n tcp 3000 -->
   <!-- apt-get install psmisc -->
   <!-- && python manage.py -y collectstatic & -->
+ <!-- Get:17 http://deb.debian.org/debian bookworm/main amd64 liblapack-dev amd64 3.11.0-2 [4631 kB]    -->
+ 
+ <!-- sudo apt install libpq-dev 
+ sudo apt install gdal-bin 
+ apt install aptitude 
+ sudo aptitude install libgdal-dev  -->
+ <!-- ulimit -n 65536 -->
+ <!-- docker-compose -f docker-compose_celery.yaml up -->
+ <!-- https://pypi.org/project/django-celery-beat/ -->
+ <!-- redis.exceptions.ConnectionError: Error 99 connecting to localhost:6379. Cannot assign requested address. -->

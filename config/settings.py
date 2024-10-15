@@ -239,7 +239,7 @@ AUTHENTICATION_BACKENDS = [
     'config.backends.SettingsBackend'
 
 ]
-REDIS_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
+REDIS_URL = os.environ.get('REDIS_URL', 'redis://redis:6379/0')
 BACKEND_SESSION_KEY = "888"
 REDIS_HOST = os.environ.get('REDIS_HOST', '127.0.0.1')
 REDIS_PORT = os.environ.get('REDIS_PORT', '6379')
@@ -248,6 +248,7 @@ CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": "redis://redis:6379",#"redis://{}:{}".format(REDIS_HOST, REDIS_PORT),  # "redis://@127.0.0.1:6379/1",
+        # 'LOCATION': f'redis://{os.getenv("REDIS_HOST", "localhost")}:{os.getenv("REDIS_PORT", 6379)}/1',
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
@@ -311,13 +312,13 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=3),
 }
 
-CELERY_BROKER_URL = 'redis://0.0.0.0:6379/0'
+CELERY_BROKER_URL = 'redis://redis:6379/0'
 # CELERY_BROKER_URL = "redis://127.0.0.1:6379/1"
 # CELERY_BROKER_URL="redis://redis:6379/0"
 # CELERY_TIMEZONE = "Europe/Moscow"
 # CELERY_TASK_TRACK_STARTED = True
 # CELERY_TASK_TIME_LIMIT = 30 * 60
-CELERY_RESULT_BACKEND = 'redis://0.0.0.0:6379/0'
+CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
@@ -387,7 +388,7 @@ CELERY_BEAT_SCHEDULE = {
     'scheduled_30days': {
         'task': 'checking_before_archiving',
         # 'schedule': timedelta(days=1), # проверка каждый день
-        'schedule': crontab(minute='*/2'),  # для тестов выставлено выполнение раз в 2 минуты
+        'schedule': crontab(minute='*/10'),  # для тестов выставлено выполнение раз в 2 минуты
     },
 
     'update_currencies': {
@@ -396,5 +397,12 @@ CELERY_BEAT_SCHEDULE = {
         # 'schedule': crontab(minute='*/2'),  # для тестов выставлено выполнение раз в 2 минуты (бесплатных запросов 250 шт.)
     },
 }
+# CELERY_TASK_ROUTES = {
+#  'app1.tasks.*': {'queue': 'queue1'},
+#  'app2.tasks.*': {'queue': 'queue2'},
+# }
+# celery -A my_app worker -B -l INFO -Q queue1,queue2
+
 
 # sudo fuser -k 8004/tcp
+# https://docs.celeryq.dev/en/v4.2.2/userguide/configuration.html

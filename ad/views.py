@@ -19,7 +19,7 @@ from config import constants
 from config.backends import CustomFilterQueryset, MyFilterBackend
 from config.constants import CACHE_PARAMETERS_LIVE
 from users.models import Notification
-from ad.serializers import CarCreateSerializer, CarNameSerializer, CarPatchSerializer, DefaultSerializer, LikeSerializer, \
+from ad.serializers import BagsKnapsacksDetailSerialiser, CarCreateSerializer, CarNameSerializer, CarPatchSerializer, DefaultSerializer, LikeSerializer, \
     LikeSerializerCreate, NotificationSerializer, CategoryFilterSerializer, ViewsSerializer
 from bulletin.serializers import CarListSerializer, CarSerializer, CategorySerializer, ImagesSerializer
 from rest_framework import status
@@ -87,7 +87,7 @@ from bulletin.serializers import (
 @extend_schema(
     tags=["Категории/Categories"],
     request=CategorySerializer,
-    parameters=[OpenApiParameter('limit', exclude=True), OpenApiParameter('offset', exclude=True), OpenApiParameter('ordering', exclude=True),]
+    # parameters=[OpenApiParameter('limit', exclude=True), OpenApiParameter('offset', exclude=True), OpenApiParameter('ordering', exclude=True),]
 )
 @extend_schema_view(
     list=extend_schema(summary="Список всех категорий"),
@@ -286,14 +286,6 @@ class CarDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
     def patch(self, request, *args, **kwargs):
         pk=kwargs['pk']
         check_if_authorised_has_profile(request)
-        # try:
-        #     profile = request.user.profile
-        # except AttributeError:
-        #     return Response([{"message": "Anonymoususer, put method is not allowed"}],
-        #                 status=status.HTTP_405_METHOD_NOT_ALLOWED)
-        # except Profile.DoesNotExist:
-        #     return Response({"message": "У вас нет Профиля, перенаправляем на регистрацию"},
-        #                 status=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION)
         car_object=self.get_object()
         serializer=CarPatchSerializer(car_object, data=request.data, partial=True)
         if serializer.is_valid():
@@ -553,7 +545,7 @@ class GetModelFmCategoryView(generics.ListAPIView, generics.RetrieveAPIView):
         # print('self ======= ====== ======', self.request.data['parent'])
         # print('obj', obj)
         return obj
-
+from django.db.utils import OperationalError
 
 def ChooseFilterSet():
     filters_list = [CarFilter,]
@@ -571,6 +563,8 @@ def ChooseFilterSet():
             print(e, 'строка 524')
         except ConnectionError as e:
             print(e, 'строка 455')
+        except OperationalError as e:
+            print(e, 'str 575 ad/views.py' )
 
 
 @extend_schema(
@@ -709,7 +703,7 @@ def get_qs_fm_model(request):
 #             400: OpenApiResponse(description='Bad request (something invalid)'),
 #         },
 # )
-
+from redis.exceptions import ConnectionError
 def func_for_schema():
     try:
         return choose_serializer(ContentType.objects.get(id=cache.get('content_type')).model_class())
@@ -718,6 +712,9 @@ def func_for_schema():
         return False
     except ProgrammingError as e:
         print(e, 'str 831')
+        return False
+    except ConnectionError as e:
+        print('str 725 ad/views.py')
         return False
     
 @extend_schema(
@@ -1367,13 +1364,14 @@ class BagsKnapsacksDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
 
     @extend_schema(
         methods=['GET'],
-        summary='Получение информации о мужской одежде',
+        summary='Получение информации о рюкзаках и сумках',
     )
     def get(self, request, pk, format=None):
         item = get_object_or_404(BagsKnapsacks.objects.all(), pk=pk)
         serializer = BagsKnapsacksSerialiser(item)
         add_view(serializer, request, pk)
         return Response(serializer.data)
+
 
     @extend_schema(
         methods=['PUT'],
@@ -1405,6 +1403,7 @@ class BagsKnapsacksDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
         summary="Частичное обновление информации о мужской одежде",
         description="Метод позволяет частично обновить информацию о мужской одежде."
     )  
+    @parser_classes([MultiPartParser, FormParser])
     def patch(self, request, *args, **kwargs):
         pk = kwargs['pk']
         kwargs['partial'] = True 

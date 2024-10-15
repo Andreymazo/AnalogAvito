@@ -42,7 +42,7 @@ class Category(MPTTModel):
 class Advertisement(models.Model):
     # category = TreeForeignKey('ad.Category', on_delete=models.CASCADE, related_name='advertisement')
     # profile = models.ForeignKey("users.Profile", on_delete=models.CASCADE, **NULLABLE)
-    title = models.CharField(_("Document'stitle"), max_length=150, **NULLABLE)
+    title = models.CharField(_("Document'stitle"), max_length=150)
     created = models.DateTimeField(auto_now=True)
     changed = models.DateTimeField(auto_now_add=True)
     moderation = models.BooleanField(_("Модерация"), default=False)

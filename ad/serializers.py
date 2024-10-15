@@ -352,7 +352,6 @@ class BagsKnapsacksSerialiser(serializers.ModelSerializer):
         model = BagsKnapsacks
         fields = ["id", "price", "title", 'description', "uploaded_images","image"]
       
-      
         
     def create(self, validated_data):
         uploaded_images = validated_data.pop("uploaded_images")
@@ -365,4 +364,19 @@ class BagsKnapsacksSerialiser(serializers.ModelSerializer):
             images = Images( image=image, content_type=ContentType.objects.get_for_model(type(instance_here)), object_id=instance_here.id)
             images.save()
         return instance_here
-   
+    
+class BagsKnapsacksDetailSerialiser(serializers.ModelSerializer):
+    class Meta:
+        model=BagsKnapsacks
+        fields = ["id", "price", "title", 'description']
+
+    def update(self, instance, validated_data):
+        # instance.price = validated_data.get('price', instance.price)
+        # instance.title = validated_data.get('title', instance.title)
+        # instance.description = validated_data.get('description', instance.description)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        return instance
+            
+        # return super().update(instance, validated_data)

@@ -2065,7 +2065,7 @@
         "model": "ad.car",
         "pk": 1,
         "fields": {
-            "title": null,
+            "title": "Smthing here",
             "created": "2024-10-02T11:45:15.716Z",
             "changed": "2024-10-02T11:45:15.716Z",
             "moderation": false,
@@ -2096,7 +2096,7 @@
         "model": "ad.car",
         "pk": 2,
         "fields": {
-            "title": null,
+            "title": "Smthing here",
             "created": "2024-10-02T11:45:15.724Z",
             "changed": "2024-10-02T11:45:15.724Z",
             "moderation": false,
@@ -2127,7 +2127,7 @@
         "model": "ad.images",
         "pk": 1,
         "fields": {
-            "title": null,
+            "title": "Smthing here",
             "image": "media/images/Screenshot_from_2024-07-22_12-52-04.png",
             "profile": null,
             "created": "2024-10-02T11:45:15.721Z",
@@ -2140,7 +2140,7 @@
         "model": "ad.images",
         "pk": 2,
         "fields": {
-            "title": null,
+            "title": "Smthing here",
             "image": "media/images/Screenshot_from_2024-07-24_10-28-11_cCIxuaC.png",
             "profile": null,
             "created": "2024-10-02T11:45:15.726Z",
@@ -2153,7 +2153,7 @@
         "model": "ad.images",
         "pk": 3,
         "fields": {
-            "title": null,
+            "title": "Smthing here",
             "image": "/home/andrey_mazo/Pictures/Screenshots/22.png",
             "profile": null,
             "created": "2024-10-02T11:45:45.111Z",
@@ -2166,7 +2166,7 @@
         "model": "ad.images",
         "pk": 4,
         "fields": {
-            "title": null,
+            "title": "Smthing here",
             "image": "/home/andrey_mazo/Pictures/Screenshots/44.png",
             "profile": null,
             "created": "2024-10-02T11:45:45.116Z",
@@ -2201,7 +2201,7 @@
         "model": "ad.menclothes",
         "pk": 1,
         "fields": {
-            "title": null,
+            "title": "Smthing here",
             "created": "2024-10-02T11:45:03.792Z",
             "changed": "2024-10-02T11:45:03.792Z",
             "moderation": false,
@@ -2218,7 +2218,7 @@
         "model": "ad.menclothes",
         "pk": 2,
         "fields": {
-            "title": null,
+            "title": "Smthing here",
             "created": "2024-10-02T11:45:03.812Z",
             "changed": "2024-10-02T11:45:03.812Z",
             "moderation": false,
@@ -2235,7 +2235,7 @@
         "model": "ad.wemenclothes",
         "pk": 1,
         "fields": {
-            "title": null,
+            "title": "Smthing here",
             "created": "2024-10-02T11:45:03.796Z",
             "changed": "2024-10-02T11:45:03.796Z",
             "moderation": false,
@@ -2252,7 +2252,7 @@
         "model": "ad.wemenclothes",
         "pk": 2,
         "fields": {
-            "title": null,
+            "title": "Smthing here",
             "created": "2024-10-02T11:45:03.815Z",
             "changed": "2024-10-02T11:45:03.815Z",
             "moderation": false,
@@ -2269,7 +2269,7 @@
         "model": "ad.menshoes",
         "pk": 1,
         "fields": {
-            "title": null,
+            "title": "Smthing here",
             "created": "2024-10-02T11:45:03.799Z",
             "changed": "2024-10-02T11:45:03.799Z",
             "moderation": false,
@@ -2286,7 +2286,7 @@
         "model": "ad.menshoes",
         "pk": 2,
         "fields": {
-            "title": null,
+            "title": "Smthing here",
             "created": "2024-10-02T11:45:03.818Z",
             "changed": "2024-10-02T11:45:03.818Z",
             "moderation": false,
@@ -2303,7 +2303,7 @@
         "model": "ad.wemenshoes",
         "pk": 1,
         "fields": {
-            "title": null,
+            "title": "Smthing here",
             "created": "2024-10-02T11:45:03.802Z",
             "changed": "2024-10-02T11:45:03.802Z",
             "moderation": false,
@@ -2320,7 +2320,7 @@
         "model": "ad.wemenshoes",
         "pk": 2,
         "fields": {
-            "title": null,
+            "title": "Smthing here",
             "created": "2024-10-02T11:45:03.822Z",
             "changed": "2024-10-02T11:45:03.822Z",
             "moderation": false,
@@ -2337,7 +2337,7 @@
         "model": "ad.childclothesshoes",
         "pk": 1,
         "fields": {
-            "title": null,
+            "title": "Smthing here",
             "created": "2024-10-02T11:45:03.805Z",
             "changed": "2024-10-02T11:45:03.805Z",
             "moderation": false,
@@ -2353,7 +2353,7 @@
         "model": "ad.childclothesshoes",
         "pk": 2,
         "fields": {
-            "title": null,
+            "title": "Smthing here",
             "created": "2024-10-02T11:45:03.826Z",
             "changed": "2024-10-02T11:45:03.826Z",
             "moderation": false,
@@ -2369,7 +2369,7 @@
         "model": "ad.bagsknapsacks",
         "pk": 1,
         "fields": {
-            "title": null,
+            "title": "Smthing here",
             "created": "2024-10-02T11:45:03.808Z",
             "changed": "2024-10-02T11:45:03.808Z",
             "moderation": false,
@@ -2385,7 +2385,7 @@
         "model": "ad.bagsknapsacks",
         "pk": 2,
         "fields": {
-            "title": null,
+            "title": "Smthing here",
             "created": "2024-10-02T11:45:03.830Z",
             "changed": "2024-10-02T11:45:03.830Z",
             "moderation": false,

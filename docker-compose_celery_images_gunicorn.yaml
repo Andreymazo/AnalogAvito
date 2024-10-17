@@ -1,17 +1,19 @@
 services:
   redis:
     image: "redis:alpine"
+    ports:
+      - "6379:6379"
   server:
-    image: nginx:alpine
+    image: nginx
     restart: always
     depends_on:
       - web
     ports:
-      - '80:80'
+      - '8080:80'
       - '443:443'
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-      - ./public:/code/public
+      - ./templates:/etc/nginx/templates
+      - ./static:/static/
   web:
     container_name: web
     image: andreymazo/bulletin_board_backend_web:1.0
@@ -30,11 +32,17 @@ services:
       redis:
         condition: service_started
     command: >
-      sh -c "python manage.py makemigrations && python manage.py migrate && python manage.py loaddata --exclude contenttypes db1.json && ls -a && gunicorn config.wsgi:application --bind 0.0.0.0:8000 "  
+      sh -c "python manage.py makemigrations && python manage.py migrate && python manage.py loaddata --exclude contenttypes db.json  && gunicorn config.wsgi:application --bind 0.0.0.0:8000 "  
   celery:
-    image: celery
-    
-    command: celery -A config worker -l info
+    image: andreymazo/bulletin_board_backend_celery:1.0
+    env_file:
+      .env.dev
+    environment:
+      - DEBUG=1
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_BACKEND=redis://redis:6379/0
+    command: >
+       sh -c "python manage.py migrate django_celery_beat && celery -A config worker --beat --scheduler django --loglevel=info"
     volumes:
       - .:/code
     depends_on:
@@ -47,10 +55,14 @@ services:
     volumes:
       - .:/code
     depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_started
+      # db:
+      #   condition: service_healthy
+      # redis:
+      #   condition: service_started
+       
+      - db
+      - redis
+      - celery
    
   db:
     container_name: db

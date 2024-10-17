@@ -139,7 +139,10 @@ def query_rus_city(request):
             # "shirota": ip.get('shirota_form_value'),
             # "dolgota": ip.get('dolgota_form_value'),
             }
-    response = requests.get(url, params=data)#, headers={ 'X-CSRFToken': clear_token})
+ 
+    email = request.user.email
+    cookies = {"session_email": email}
+    response = requests.post(url, params=data, cookies=cookies)#, headers={ 'X-CSRFToken': clear_token})
     print('response.json()',response)
     data=response.json()
     return Response(data)

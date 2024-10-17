@@ -126,3 +126,4 @@ nc -vz 0.0.0.0 8000
  <!-- docker-compose -f docker-compose_celery.yaml up -->
  <!-- https://pypi.org/project/django-celery-beat/ -->
  <!-- redis.exceptions.ConnectionError: Error 99 connecting to localhost:6379. Cannot assign requested address. -->
+ <!-- https://hub.docker.com/_/nginx -->

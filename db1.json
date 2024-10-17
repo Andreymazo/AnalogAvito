@@ -2443,7 +2443,7 @@
     "model": "ad.wemenshoes",
     "pk": 3,
     "fields": {
-      "title": null,
+      "title": "smth here",
       "created": "2024-07-07T11:38:41.069Z",
       "changed": "2024-09-07T11:38:41.069Z",
       "moderation": false,
